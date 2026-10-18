@@ -10,9 +10,14 @@
     重新可压缩性判断，不是定时轮询。
   - 不做搜索树 / MCTS。
   - 仅是行为外观原型，不宣称 AGI。
+
+运行：
+  python3 cognitive_agent.py         # 默认跑法 + 五条验收
+  python3 cognitive_agent.py diag    # 四组诊断对照实验
 """
 
 import random
+import sys
 from collections import defaultdict
 
 # ------------------------------------------------------------------ 环境
@@ -41,10 +46,13 @@ def rotate(a, k=1):
 
 class World:
     """一个网格世界。开敞区确定性可控；陷阱区带一个 agent 不可观测的隐藏相位，
-    使该区的转移永远不可被完全预测（外部抵抗的来源）。"""
+    使该区的转移永远不可被完全预测（外部抵抗的来源）。
+    jitter>0 时给开敞区加小概率随机抖动，用于「判据鲁棒性」退化测试。"""
 
-    def __init__(self):
+    def __init__(self, jitter=0.0, rng=None):
         self.hidden = False      # 隐藏相位，agent 观测不到
+        self.jitter = jitter
+        self.rng = rng or random.Random(0)
 
     def step(self, s, a):
         x, y = s
@@ -54,9 +62,13 @@ class World:
         tx, ty = x + dx, y + dy
         if is_trap(x, y):
             # 控制失败源：身处陷阱区时，动作被隐藏相位偏转 -> 与预测错位。
-            # (可以走进去；一旦身处其中，就压不动了。)
             a = rotate(a, 1 if self.hidden else -1)
             self.hidden = not self.hidden
+            dx, dy = MOVES[a]
+            tx, ty = x + dx, y + dy
+        elif self.jitter > 0 and self.rng.random() < self.jitter:
+            # 开敞区随机抖动：动作偶尔被横向滑一格（环境本身带随机性）
+            a = rotate(a, 1 if self.rng.random() < 0.5 else -1)
             dx, dy = MOVES[a]
             tx, ty = x + dx, y + dy
         if not in_bounds(tx, ty):
@@ -120,7 +132,7 @@ class Entry:
 # 阈值（可调）
 THETA_HIGH = 0.6          # 张力超过此值 -> 记账
 THETA_LOW = 0.25         # 张力低于此值 -> 销账
-GATE_THRESHOLD = 100     # 挂起时长阈值：账还「年轻」时不推进
+GATE_THRESHOLD = 100     # 挂起时长阈值
 DEADEND_ATTEMPTS = 15    # 反复尝试仍压不动 -> 死胡同
 RESOLVE_FACTOR = 0.6     # 当前可压缩度 < 记录张力*该系数 -> 可回访
 EPS = 0.08               # 极小探索率（不是「忍住」，忍住是确定性的账本判断）
@@ -156,30 +168,36 @@ def appeal(cell, ledger, pred, visited):
     return pred.cell_tension(cell)
 
 
-# ------------------------------------------------------------------ 主体
-def main():
-    rng = random.Random(20261018)
-    world = World()
+# ------------------------------------------------------------------ 主体主循环
+def run(steps=STEPS, gate_rule='young', deadend_cap=True, jitter=0.0,
+        seed=20261018, eps=EPS):
+    """gate_rule: 'young' 挂起时长<阈值才忍住(基线) / 'old' 挂起时长>=阈值才忍住
+                  / 'both' 都忍住。
+       deadend_cap: 是否给「死胡同」设尝试上限（False -> 账可以长期挂着）。"""
+    rng = random.Random(seed)
+    world = World(jitter=jitter, rng=random.Random(seed * 7 + 1))
     pred = Predictor()                 # 惊讶模型（对外）
-    self_model = defaultdict(lambda: defaultdict(int))  # 自我预测（惊讶机制指向内部）
+    self_model = defaultdict(lambda: defaultdict(int))  # 自我预测（惊讶指向内部）
 
-    ledger = {}                        # 张力账本: sig -> Entry
+    ledger = {}
     visited = set()
-    ctrl = defaultdict(lambda: [0, 0])  # 格 -> [可控次数, 不可控次数]
-    tension_map = defaultdict(float)    # 格 -> 观测张力 ema
+    ctrl = defaultdict(lambda: [0, 0])
+    tension_map = defaultdict(float)
 
     stats = dict(accounts=0, dead_ends=0, closures=0, revisits=0,
                  wait_suppressed=0, reflections=0)
     reflections_log = []
+    ref_changed = set()                # 确实改变了后续动作的反思事件下标
     suppress_log = []
     deadend_log = []
-    traj = {}                          # step -> (cell, intended, action, self_pred, suppressed)
+    traj = {}
+    moved_count = 0
 
     pos = (2, 2)
     visited.add(pos)
-    pressed_away = {}                  # 反思后的行为调整：暂时压制习惯动作
+    pressed_away = {}
 
-    for step in range(1, STEPS + 1):
+    for step in range(1, steps + 1):
         s = pos
 
         # ---- 自我预测：我下一步会干什么（元认知 = 惊讶指向内部）----
@@ -199,9 +217,10 @@ def main():
             cand[a] = (appeal(target, ledger, pred, visited), target)
 
         ordered = sorted(cand.items(), key=lambda kv: -kv[1][0])
+        base_choice = ordered[0][0]      # 反事实基线：不经过反思压制时的选择
 
         # 反思调整：被自我预测错的动作，短期内吸引力被压制
-        if rng.random() < EPS:
+        if rng.random() < eps:
             intended = rng.choice(MOVE_LIST)
         else:
             intended = None
@@ -212,6 +231,10 @@ def main():
                 break
             if intended is None:
                 intended = ordered[0][0]
+            # 反思是否真的改变了这次决策（反事实：压制把原首选换掉了）
+            if (base_choice != intended and pressed_away.get(base_choice, 0) >= step
+                    and reflections_log):
+                ref_changed.add(len(reflections_log) - 1)
         intended_target = cand[intended][1]
 
         # ---- 抑制门控：意图动作会不会让账本某笔账恶化？----
@@ -219,11 +242,14 @@ def main():
         suppressed = False
         if led is not None and led.standing:
             suspend = step - led.opened
-            # 「恶化」判据：这笔账现在还压不动（系统状态没变得更可压），
-            # 进去只会让它继续挂高 —— 这是纯账本判断，不是随机等待。
             would_worsen = not revisit_eligible(led, pred)
-            if (led.ema > THETA_HIGH and suspend < GATE_THRESHOLD
-                    and would_worsen):
+            if gate_rule == 'young':
+                gate_on = suspend < GATE_THRESHOLD
+            elif gate_rule == 'old':
+                gate_on = suspend >= GATE_THRESHOLD
+            else:                        # 'both'
+                gate_on = True
+            if led.ema > THETA_HIGH and would_worsen and gate_on:
                 suppressed = True
 
         if suppressed:
@@ -233,7 +259,7 @@ def main():
                                  led.ema, step - led.opened))
         else:
             action = intended
-            # ---- 回访：系统状态变化后才发生的「重新可压缩」试探 ----
+            moved_count += 1
             if led is not None and revisit_eligible(led, pred):
                 stats['revisits'] += 1
                 led.revisited = True
@@ -273,7 +299,8 @@ def main():
             led_s.peak = max(led_s.peak, t)
             led_s.attempts += 1
             led_s.last = step
-            if (not led_s.dead_end and led_s.attempts >= DEADEND_ATTEMPTS
+            if (deadend_cap and not led_s.dead_end
+                    and led_s.attempts >= DEADEND_ATTEMPTS
                     and led_s.ema >= 0.7 * led_s.peak):
                 led_s.dead_end = True
                 stats['dead_ends'] += 1
@@ -288,8 +315,7 @@ def main():
 
         # ---- 自我模型学习 & 反思 ----
         self_model[s][action] += 1
-        reflection = (self_pred in MOVE_LIST and self_pred != action)
-        if reflection:
+        if self_pred in MOVE_LIST and self_pred != action:
             stats['reflections'] += 1
             reflections_log.append((step, s, self_pred, action))
             pressed_away[self_pred] = step + 3       # 行为调整：暂时压制习惯动作
@@ -297,70 +323,19 @@ def main():
         traj[step] = (s, intended, action, self_pred, suppressed)
         pos = ns
 
-    # ------------------------------------------------------------------ 报告
-    print("=" * 68)
-    print("认知主体原型 · 行为外观报告  (无 reward/loss; 仅预测错位驱动)")
-    print("=" * 68)
-
-    # 1) 张力地图
-    print("\n[1] 张力地图（每一格的观测预测错位 ema；T=陷阱区）")
-    print("     " + "".join(f"{x:>2}" for x in range(W)))
-    for y in range(H):
-        row = f"{y:>3}  "
-        for x in range(W):
-            v = tension_map[(x, y)]
-            ch = " .:-=+*#%@"[min(9, int(v * 9.99))]
-            if is_trap(x, y):
-                ch = ch if ch != ' ' else 't'
-            row += " " + ch + ""
-        print(row)
+    # ---------------- 派生指标 ----------------
     trap_t = [tension_map[c] for c in TRAP]
     open_t = [tension_map[c] for c in tension_map if not is_trap(*c)]
     trap_mean = sum(trap_t) / len(trap_t)
     open_mean = (sum(open_t) / len(open_t)) if open_t else 0.0
-    print(f"    陷阱区平均张力 = {trap_mean:.2f}   开敞区平均张力 = {open_mean:.2f}")
 
-    # 2) 账本
-    susp = [e for e in ledger.values() if e.standing and not e.revisited]
-    print("\n[2] 张力账本")
-    print(f"    记账条目 = {len(ledger)}  新增挂账 = {stats['accounts']}  "
-          f"销账 = {stats['closures']}  死胡同 = {stats['dead_ends']}  "
-          f"回访 = {stats['revisits']}")
-    print(f"    仍挂起(未回访)的账 = {len(susp)}")
-    rev = [e for e in ledger.values() if e.revisited]
-    de = [e for e in ledger.values() if e.dead_end]
-    print(f"    回访样例(str/revisit)：{[str(e.sig) for e in rev[:5]]}")
-    print(f"    死胡同样例(str/dead_end)：{[str(e.sig) for e in de[:5]]}")
-    if deadend_log:
-        st, cell, ema, at = deadend_log[0]
-        print(f"    死胡同判定样例：step={st} cell={cell} ema={ema:.2f} 尝试={at} 次未压动")
-
-    # 3) 忍住
-    print("\n[3] 抑制门控（忍住）")
-    print(f"    忍住次数 = {stats['wait_suppressed']}（全部来自账本恶化判断，非随机等待）")
-    streak = best = 0
-    prev = False
-    for i in range(1, STEPS + 1):
-        cur = traj[i][4]
-        streak = streak + 1 if cur else 0
-        best = max(best, streak)
-    print(f"    最长连续忍住 = {best} 步（表现为「停在某格前不推进」）")
-    for rec in suppress_log[:3]:
-        st, cell, act, tg, ema, sd = rec
-        print(f"      样例：step={st} 在{cell} 想走 '{act}' 进{tg}，"
-              f"该账 ema={ema:.2f} 挂起={sd}步 <阈值{GATE_THRESHOLD} -> 改为观察/等待")
-
-    # 4) 自我/外界划界
-    #    判据 = 控制是否成立：对某格做同一动作，结果是否唯一？
-    #    结果唯一 -> 可控(自我)；结果分散(压不动) -> 不可控(外界)。
-    #    这正是「我做了 X 但世界没按预期变」逼出来的边界。
     def classify(cell):
         acts = [a for a in MOVE_LIST if (cell, a) in pred.t]
         if len(acts) < 2:
-            return None                       # 观测不足
+            return None
         for a in acts:
             if len(pred.t[(cell, a)]) > 1:
-                return 'ext'                  # 有动作结果不唯一 -> 外界
+                return 'ext'
         return 'self'
 
     self_cells, ext_cells, unknown = set(), set(), set()
@@ -375,37 +350,99 @@ def main():
     trap_in_ext = sum(1 for c in TRAP if c in ext_cells)
     open_cells = [c for c in (self_cells | ext_cells) if not is_trap(*c)]
     open_in_self = sum(1 for c in open_cells if c in self_cells)
+
+    best = streak = 0
+    for i in range(1, steps + 1):
+        streak = streak + 1 if traj[i][4] else 0
+        best = max(best, streak)
+
+    standing = [e for e in ledger.values() if e.standing]
+    longest_suspend = max((steps - e.opened for e in standing), default=0)
+
+    return dict(
+        steps=steps, gate_rule=gate_rule, deadend_cap=deadend_cap, jitter=jitter,
+        stats=stats, ledger=ledger, tension_map=tension_map, visited=visited,
+        pred=pred, ctrl=ctrl, reflections_log=reflections_log, ref_changed=ref_changed,
+        suppress_log=suppress_log, deadend_log=deadend_log, traj=traj,
+        moved_count=moved_count, best_streak=best, standing=standing,
+        longest_suspend=longest_suspend,
+        trap_mean=trap_mean, open_mean=open_mean,
+        self_cells=self_cells, ext_cells=ext_cells, unknown=unknown,
+        trap_in_ext=trap_in_ext, open_in_self=open_in_self, open_total=len(open_cells),
+    )
+
+
+# ------------------------------------------------------------------ 验收报告
+def report(R):
+    steps = R['steps']
+    stats = R['stats']
+    ledger = R['ledger']
+    tension_map = R['tension_map']
+    pred = R['pred']
+    ctrl = R['ctrl']
+    traj = R['traj']
+
+    print("=" * 68)
+    print("认知主体原型 · 行为外观报告  (无 reward/loss; 仅预测错位驱动)")
+    print("=" * 68)
+
+    # 1) 张力地图
+    print("\n[1] 张力地图（每一格的观测预测错位 ema；T=陷阱区）")
+    print("     " + "".join(f"{x:>2}" for x in range(W)))
+    for y in range(H):
+        row = f"{y:>3}  "
+        for x in range(W):
+            v = tension_map[(x, y)]
+            ch = " .:-=+*#%@"[min(9, int(v * 9.99))]
+            if is_trap(x, y) and ch == ' ':
+                ch = 't'
+            row += " " + ch
+        print(row)
+    print(f"    陷阱区平均张力 = {R['trap_mean']:.2f}   开敞区平均张力 = {R['open_mean']:.2f}")
+
+    # 2) 账本
+    print("\n[2] 张力账本")
+    print(f"    记账条目 = {len(ledger)}  新增挂账 = {stats['accounts']}  "
+          f"销账 = {stats['closures']}  死胡同 = {stats['dead_ends']}  "
+          f"回访 = {stats['revisits']}")
+    print(f"    仍挂起(未被判死胡同)的账 = {len(R['standing'])}  "
+          f"最长挂起时长 = {R['longest_suspend']} 步")
+    rev = [e for e in ledger.values() if e.revisited]
+    de = [e for e in ledger.values() if e.dead_end]
+    print(f"    回访样例：{[str(e.sig) for e in rev[:5]]}")
+    print(f"    死胡同样例：{[str(e.sig) for e in de[:5]]}")
+
+    # 3) 忍住
+    print("\n[3] 抑制门控（忍住）")
+    print(f"    忍住次数 = {stats['wait_suppressed']}  最长连续忍住 = {R['best_streak']} 步")
+    for rec in R['suppress_log'][:3]:
+        st, cell, act, tg, ema, sd = rec
+        print(f"      样例：step={st} 在{cell} 想走 '{act}' 进{tg}，"
+              f"该账 ema={ema:.2f} 挂起={sd}步 -> 改为观察/等待")
+
+    # 4) 自我/外界划界
     print("\n[4] 自我/外界划界（控制失败逼出边界）")
-    print(f"    可控集合(自我) = {len(self_cells)} 格   不可控集合(外界) = {len(ext_cells)} 格"
-          f"   观测不足 = {len(unknown)} 格")
-    print(f"    陷阱区被划入「外界」：{trap_in_ext}/{len(TRAP)}")
-    det = {c: {a: len(pred.t[(c, a)]) for a in MOVE_LIST if (c, a) in pred.t}
-           for c in sorted(TRAP)}
-    print(f"    陷阱各格「动作->不同结果数」：{det}")
-    print(f"    开敞区被划入「自我」：{open_in_self}/{len(open_cells)}"
-          f"  (自身移动=可控转移)")
-    # 在线「每步归类」证据：预测命中(可控) vs 错位(不可控) 的逐格累计
+    print(f"    可控集合(自我) = {len(R['self_cells'])} 格   "
+          f"不可控集合(外界) = {len(R['ext_cells'])} 格   观测不足 = {len(R['unknown'])} 格")
+    print(f"    陷阱区被划入「外界」：{R['trap_in_ext']}/{len(TRAP)}")
+    print(f"    开敞区被划入「自我」：{R['open_in_self']}/{R['open_total']}")
     hit = sum(c for c, u in ctrl.values())
     miss = sum(u for c, u in ctrl.values())
-    print(f"    在线逐格归类累计：可控转移={hit}  不可控转移={miss}  "
-          f"(命中率={hit / (hit + miss):.2f})")
+    print(f"    在线逐格归类累计：可控={hit} 不可控={miss} (命中率={hit/(hit+miss):.2f})")
 
-    # 5) 反思
+    # 5) 反思 + 转化率
+    n_ref = len(R['reflections_log'])
+    n_chg = len(R['ref_changed'])
     print("\n[5] 自我惊讶 = 反思")
-    print(f"    自我预测失败(反思标记)次数 = {stats['reflections']}")
-    if reflections_log:
-        st, cell, sp_pred, act = reflections_log[0]
-        print(f"    链条样例：step={st} 在{cell} 自我预测会走'{sp_pred}'，实际走'{act}'")
-        print(f"      -> 自我预测失败 -> 打反思标记 -> 行为调整(压制习惯动作'{sp_pred}')")
-        # 展示后续是否真的改变了行为
-        nxt = traj.get(st + 1)
-        if nxt:
-            nc, ni, na, nsp, nsu = nxt
-            changed = (na != sp_pred)
-            print(f"      下一步 step={st+1}：在{nc} 意图'{ni}' 实际'{na}' "
-                  f"(≠习惯动作'{sp_pred}'? {changed})")
+    print(f"    自我预测失败(反思标记)次数 = {n_ref}")
+    print(f"    其中真的改变了后续动作(反事实：压制把首选换掉) = {n_chg}  "
+          f"-> 反思转化率 = {n_chg/n_ref:.2f}" if n_ref else "    无反思事件")
+    if R['reflections_log']:
+        st, cell, sp_pred, act = R['reflections_log'][0]
+        print(f"    链条样例：step={st} 在{cell} 自我预测'{sp_pred}'，实际'{act}'"
+              f" -> 反思标记 -> 压制习惯动作'{sp_pred}'")
 
-    # ------------------------------------------------------------------ 验收
+    # 验收
     print("\n" + "=" * 68)
     print("最小验收清单")
     print("=" * 68)
@@ -413,23 +450,100 @@ def main():
     def mark(ok, note):
         print(f"  [{'PASS' if ok else 'FAIL'}] {note}")
 
-    mark(trap_mean > open_mean + 0.15,
-         f"A1 张力可定位高错位区域（陷阱 {trap_mean:.2f} >> 开敞 {open_mean:.2f}）")
+    mark(R['trap_mean'] > R['open_mean'] + 0.15,
+         f"A1 张力可定位高错位区域（陷阱 {R['trap_mean']:.2f} >> 开敞 {R['open_mean']:.2f}）")
     mark(len(ledger) > 0 and stats['revisits'] > 0 and stats['dead_ends'] > 0,
-         f"A2 账本出现 挂起({len(ledger)}) / 回访({stats['revisits']}) / "
-         f"死胡同({stats['dead_ends']})")
-    mark(stats['wait_suppressed'] > 0 and best >= 3,
-         f"A3 出现忍住行为且可统计（忍住 {stats['wait_suppressed']} 次，"
-         f"最长连停 {best} 步）")
-    mark(trap_in_ext == len(TRAP) and open_in_self >= 0.7 * len(open_cells),
-         f"A4 陷阱区->外界({trap_in_ext}/{len(TRAP)})，自身移动->自我"
-         f"({open_in_self}/{len(open_cells)})")
+         f"A2 账本 挂起({len(ledger)}) / 回访({stats['revisits']}) / 死胡同({stats['dead_ends']})")
+    mark(stats['wait_suppressed'] > 0 and R['best_streak'] >= 3,
+         f"A3 忍住行为可统计（忍住 {stats['wait_suppressed']} 次，最长连停 {R['best_streak']} 步）")
+    mark(R['trap_in_ext'] == len(TRAP) and R['open_in_self'] >= 0.7 * max(1, R['open_total']),
+         f"A4 陷阱区->外界({R['trap_in_ext']}/{len(TRAP)})，自身移动->自我"
+         f"({R['open_in_self']}/{R['open_total']})")
     mark(stats['reflections'] > 0,
-         f"A5 出现「自我预测失败->反思->行为调整」链条（{stats['reflections']} 次）")
+         f"A5 自我预测失败->反思->行为调整 链条（{stats['reflections']} 次）")
     print("\n  说明：本原型仅为行为外观验证，不宣称 AGI，也不以 benchmark 为验收。")
     print("  开放问题(未假装解决)：纯符号层面的「控制失败」，其自我边界能否稳固，"
           "取决于外部环境是否提供真实、不可完全预测的抵抗。")
 
 
+# ------------------------------------------------------------------ 诊断对照
+def _summary(R):
+    stats = R['stats']
+    n_ref = len(R['reflections_log'])
+    return dict(
+        wait=stats['wait_suppressed'], streak=R['best_streak'],
+        moved=R['moved_count'], coverage=len(R['visited']),
+        accounts=len(R['ledger']), closures=stats['closures'],
+        dead_ends=stats['dead_ends'], revisits=stats['revisits'],
+        standing=len(R['standing']), longest=R['longest_suspend'],
+        trap_ext=R['trap_in_ext'], open_self=R['open_in_self'], open_tot=R['open_total'],
+        refs=n_ref, ref_chg=len(R['ref_changed']),
+        trap_mean=R['trap_mean'], open_mean=R['open_mean'],
+    )
+
+
+def _line(tag, s, steps):
+    rate = f"{s['ref_chg']/s['refs']:.2f}" if s['refs'] else "n/a"
+    print(f"  {tag:<26} 忍住={s['wait']:<5} 连停={s['streak']:<4} "
+          f"移动步={s['moved']:<5} 覆盖={s['coverage']:<4}")
+    print(f"  {'':<26} 账={s['accounts']:<4} 销={s['closures']:<4} 死胡同={s['dead_ends']:<4} "
+          f"挂起中={s['standing']:<3} 最长挂起={s['longest']:<5} 回访={s['revisits']}")
+    print(f"  {'':<26} 陷阱->外界={s['trap_ext']}/{len(TRAP)} 开敞->自我={s['open_self']}/{s['open_tot']}"
+          f"  反思={s['refs']} 转化率={rate}")
+
+
+def diagnostics():
+    print("#" * 68)
+    print("# 诊断对照实验（不新增功能，只做对照与压测）")
+    print("#" * 68)
+
+    # --- Exp0: 基线 ---
+    base = run()
+    print("\n【Exp0 基线】young 门控 + 死胡同上限 + 无抖动, 4000 步")
+    _line("baseline", _summary(base), 4000)
+
+    # --- Exp1: A3 对照 —— 把门控改成「老账也忍」 ---
+    print("\n【Exp1 A3 对照】门控规则改动，是否更会忍 / 还是会瘫痪")
+    no_cap_young = run(gate_rule='young', deadend_cap=False)
+    _line("young + 无死胡同上限", _summary(no_cap_young), 4000)
+    old_nocap = run(gate_rule='old', deadend_cap=False)
+    _line("old + 无死胡同上限", _summary(old_nocap), 4000)
+    old_cap = run(gate_rule='old', deadend_cap=True)
+    _line("old + 死胡同上限", _summary(old_cap), 4000)
+    both_nocap = run(gate_rule='both', deadend_cap=False)
+    _line("both + 无死胡同上限", _summary(both_nocap), 4000)
+
+    # --- Exp2: 挂账压测 —— 长程看「省略号」能否长期存在 ---
+    print("\n【Exp2 挂账压测】去掉死胡同上限，跑 12000 步")
+    long_nocap = run(steps=12000, gate_rule='young', deadend_cap=False)
+    _line("young + 无上限 + 长程", _summary(long_nocap), 12000)
+    if long_nocap['standing']:
+        led = max(long_nocap['standing'], key=lambda e: 12000 - e.opened)
+        print(f"    最老的一笔仍挂账：{led.sig}  ema={led.ema:.2f}  "
+              f"挂起={12000 - led.opened} 步  尝试={led.attempts} 次")
+
+    # --- Exp3: 反思转化率（基线） ---
+    print("\n【Exp3 反思转化率】反思标记后行为实际改变的比率")
+    s = _summary(base)
+    print(f"    反思事件 = {s['refs']}  真正改变行为 = {s['ref_chg']}  "
+          f"转化率 = {s['ref_chg']/s['refs']:.2f}" if s['refs'] else "    无反思事件")
+
+    # --- Exp4: 随机环境退化 —— 判据鲁棒性 ---
+    print("\n【Exp4 随机退化】给开敞区加抖动，看 A4 划界还干不干净")
+    for j in (0.0, 0.03, 0.08, 0.15):
+        R = run(jitter=j)
+        ss = _summary(R)
+        correct = ss['trap_ext'] + ss['open_self']
+        total = len(TRAP) + ss['open_tot']
+        print(f"    jitter={j:<5} 陷阱->外界={ss['trap_ext']}/{len(TRAP)}  "
+              f"开敞->自我={ss['open_self']}/{ss['open_tot']}  "
+              f"边界正确率={correct}/{total} = {correct/total:.2f}")
+
+    print("\n结论请对照各组指标自行判读；本实验只给数据，不给结论性包装。")
+
+
 if __name__ == '__main__':
-    main()
+    if len(sys.argv) > 1 and sys.argv[1] == 'diag':
+        diagnostics()
+    else:
+        report(run())
