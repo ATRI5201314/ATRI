@@ -78,6 +78,14 @@ EPS = 0.40
 DEADEND_ATTEMPTS = 10
 DEADLOCK_BREAK = 15
 
+# --- L13 主动干预（预期信息增益）；全部与 reward 无关，只问"我还能学会什么" ---
+PROBE_W = 3.0                 # 主动实验（信息增益）项权重
+PROBE_BLOCK_W = 3.0           # 世界模型预测"这步走不动(疑似墙)"时，额外增加的试探冲动
+PROBE_Q_EDGE_W = 0.06         # eta^2 与决策边界距离的高斯尺度（越近越"想问"）
+DEEP_ETA = 0.06               # eta^2 低于此且观测足够 -> 确信是混沌核心
+PROBE_SAFE_N = 6              # 判定"确信"所需最少观测
+DEEP_PENALTY = 10.0           # 防自毁：禁止主动潜入已确信的混沌/外界核心
+
 # 训练
 WARMUP = 1800                 # 自监督预训练步数（随机游走采集）
 TRAIN_PER_STEP = 3            # 每个预热步做几次梯度更新
@@ -314,6 +322,38 @@ class ProtoMem:
         z = z.detach().cpu().numpy().ravel()
         return float(min(np.sum((z - c) ** 2) for c in self.C))
 
+    def probe_gain(self, sit, ai):
+        """预期信息增益：从「当前情境 sit」执行动作 ai，还能改变多少我对此地的判断。
+        与 reward 无关——它只因「答案还没定」而想动手。这里的关键修正：
+        动作的后果是记在「当前情境」上的（observe 用 sit），所以信息增益要问
+        「从这我往这个方向走，这个方向的能不能走，我还不知道吗」——
+        而不是问「预测到的目标情境的新鲜度」。
+          1) 该方向尚未检验（试得少） -> 高（"这里朝那边到底能不能走"还没被问过）
+          2) 该情境的可控度 eta^2 骑在决策边界上 -> 高（"这到底是墙还是路？"）
+          3) 观测越多、结论越硬 -> 越低（问也白问，信息增益趋零 -> 试探自然衰减）
+        """
+        if sit < 0:
+            return 1.0                                   # 完全陌生
+        n = self.n[sit]
+        rec = self.st.get((sit, ai))
+        seen_dir = rec[0] if rec is not None else 0
+        untried = 1.0 / (1.0 + seen_dir)                 # 没试过=1；反复试过 -> 趋 0
+        s = self.stats(sit)
+        if s is None:
+            edge = 0.8                                   # 动作种类<2：结论尚未成形
+        else:
+            eta2 = s[0]
+            d = min(abs(eta2 - CHAOS_ETA), abs(eta2 - CTRL_FLOOR))
+            edge = math.exp(-d / PROBE_Q_EDGE_W)         # 骑在决策边界上
+        return (0.30 + 0.70 * edge) * (0.20 + 0.80 * untried) / (1.0 + 0.12 * n)
+
+    def deep_uncontrollable(self, t):
+        """是否已「确信」该情境是无法自控的核心（用于防自毁，禁止主动潜入）。"""
+        if t < 0 or self.n[t] < PROBE_SAFE_N:
+            return False
+        s = self.stats(t)
+        return (s is not None and s[0] < DEEP_ETA)
+
     def observe(self, proto, aidx, delta):
         self.n[proto] += 1
         key = (proto, aidx)
@@ -387,7 +427,7 @@ def upscale(arr, k):
 
 
 # ============================================================ 主实验
-def run(steps=STEPS, warmup=WARMUP, seed=SEED, outdir='/workspace'):
+def run(steps=STEPS, warmup=WARMUP, seed=SEED, outdir='/workspace', active_probe=True):
     set_seed(seed)
     rng = random.Random(seed)
     world = PixelWorld(rng)
@@ -440,7 +480,11 @@ def run(steps=STEPS, warmup=WARMUP, seed=SEED, outdir='/workspace'):
                                'dead_end': False, 'revisit': 0, 'seen': 0})
     reflected = {}                    # 情境 -> 触发时的动作（用于转化率）
     stats = dict(waits=0, deadlock_break=0, reflect_mark=0, reflect_trig=0,
-                 reflect_convert=0, blocked_events=0, tension_sum=0.0, n=0)
+                 reflect_convert=0, blocked_events=0, tension_sum=0.0, n=0,
+                 probe=0, probe_blocked=0, hyp_confirm=0, hyp_refute=0,
+                 deep_visit=0, probe_deep=0)
+    probe_steps = []                  # 主动试探发生的步号（用于 L13-3 衰减曲线）
+    blocked_pos = []                  # (step, (x,y)) 撞墙位置（用于 L13-2 贴墙带地理覆盖）
     log_tension = []                  # (prototype, gt_region, tension, blocked)
     z_prev = model.encode(world.render())
     sit_prev = proto.assign(z_prev)
@@ -458,6 +502,8 @@ def run(steps=STEPS, warmup=WARMUP, seed=SEED, outdir='/workspace'):
     for step in range(steps):
         z = z_prev
         sit = proto.assign(z)
+        if proto.deep_uncontrollable(sit):
+            stats['deep_visit'] += 1          # 防自毁取证：身处"已确信的混沌核心"的步数
         # 张力 = 用「上一步 latent + 上一步动作」预测「当前 latent」的误差
         if last_action_idx is not None:
             zhat = model.predict(last_z, last_action_idx)
@@ -469,13 +515,15 @@ def run(steps=STEPS, warmup=WARMUP, seed=SEED, outdir='/workspace'):
         gt = world.gt_region()
         log_tension.append((sit, gt, tension, False))
 
-        # ---------------- 意图池（无 reward：唯一依据=张力账本/新颖度）
-        # 每个移动都由「好奇心(该情境平均张力) + 新颖度」打分；
-        # 唯一拦路的是下面的「抑制门控」（目标账仍挂起且不可控 -> 忍住）。
-        intents = []
+        # ---------------- 意图池（无 reward）
+        # 两层打分，都是"我还不知道什么"，与奖励无关：
+        #   base  = 好奇心(张力账) + 新颖度            —— 去哪"看"
+        #   probe = 预期信息增益 Q + 世界模型预言"这步走不动(疑似墙)" —— 主动"问"
+        # 决策 = base + probe。若某个"base 本不会选"的动作因 probe 而夺魁，本步即「主动试探」。
+        intents = []      # (action, ai, total, base, probe, dpred, tgt_sit)
         for ai, a in enumerate(ACTIONS):
             if a == 'WAIT':
-                intents.append((a, ai, 0.0))
+                intents.append((a, ai, 0.0, 0.0, 0.0, 0.0, -1))
                 continue
             zp = model.predict(z, ai)
             tgt_sit = proto.assign(zp, create=False)      # 预测：不得新建原型
@@ -484,19 +532,34 @@ def run(steps=STEPS, warmup=WARMUP, seed=SEED, outdir='/workspace'):
             avg_t = 0.0
             if tgt_sit >= 0 and led[tgt_sit]['n'] > 0:
                 avg_t = led[tgt_sit]['tension'] / led[tgt_sit]['n']
-            score = CURIOSITY * avg_t + novelty
+            base = CURIOSITY * avg_t + novelty
             if tgt_sit in recent:
-                score -= RECENT_PENALTY                   # 刚访问过 -> 别马上折返
-            intents.append((a, ai, score))
+                base -= RECENT_PENALTY                    # 刚访问过 -> 别马上折返
+            # ---- 主动干预（预期信息增益）：把行动当成"向世界提问"
+            dpred = float(torch.norm(zp - z))             # 世界模型预言的位移
+            probe = 0.0
+            if active_probe:
+                q = proto.probe_gain(sit, ai)             # 从"当前情境"执行该方向还能问出多少
+                pred_block = (dpred < 2 * BLOCK_EPS)      # 预言"走不动" -> 疑似前方有墙
+                probe = PROBE_W * (q + (PROBE_BLOCK_W if pred_block else 0.0))
+                if proto.deep_uncontrollable(tgt_sit):    # 防自毁：禁止主动潜入已确信的混沌核心
+                    probe -= DEEP_PENALTY
+            intents.append((a, ai, base + probe, base, probe, dpred, tgt_sit))
 
         # 选择：撞墙后先转向脱困；抑制门控；否则在移动里贪心（随机破平）
-        move_best = max([s for (a, ai, s) in intents if a != 'WAIT'] + [-1e9])
         cur_bad = (sit >= 0 and proto.n[sit] >= MIN_OBS * 2
                    and proto.classify(sit) in UNCTRL)
-        tops = [it for it in intents if it[0] != 'WAIT' and it[2] >= move_best - 1e-9]
+        moves = [it for it in intents if it[0] != 'WAIT']
+        move_best = max([it[2] for it in moves] + [-1e9])
+        base_best = max([it[3] for it in moves] + [-1e9])
+        tops = [it for it in moves if it[2] >= move_best - 1e-9]
         intended = rng.choice(tops)
         i_ai = intended[1]
-        i_tgt = proto.assign(model.predict(z, i_ai), create=False)
+        # 「主动试探」= 该动作按 base 本不会入选，是 probe 项把它推上去的
+        is_probe = (intended[4] > 0) and (intended[3] < base_best - 1e-9)
+        # 出击前记下"内部念头"（假说）：我预言这一步会不会被挡住（前方是不是墙）
+        hyp_exp_block = (intended[5] < 2 * BLOCK_EPS)
+        i_tgt = intended[6]
         i_cls = (proto.classify(i_tgt)
                  if (i_tgt >= 0 and proto.n[i_tgt] >= MIN_OBS * 2) else 'UNKNOWN')
         lt = led[i_tgt] if i_tgt >= 0 else None
@@ -513,7 +576,7 @@ def run(steps=STEPS, warmup=WARMUP, seed=SEED, outdir='/workspace'):
             kind = rng.choice(MOVES); chosen_idx = ACTIONS.index(kind); br = 'eps'
         else:
             kind = intended[0]; chosen_idx = i_ai
-            br = 'escape-move' if cur_bad else 'greedy'
+            br = 'probe' if is_probe else ('escape-move' if cur_bad else 'greedy')
 
         if kind == 'WAIT':
             consec_wait += 1; stats['waits'] += 1
@@ -529,7 +592,7 @@ def run(steps=STEPS, warmup=WARMUP, seed=SEED, outdir='/workspace'):
         if os.environ.get('PXDEBUG') and step < 40:
             print(f"[dbg {step:3d}] gt={world.gt_region():<9} sit={sit} "
                   f"cls={proto.classify(sit):<8} protos={len(proto.C)} "
-                  f"intents={[(a, round(s, 2)) for (a, ai, s) in intents]} move_best={move_best:.2f} "
+                  f"intents={[(a, round(s, 2), round(pr, 2)) for (a, ai, s, b, pr, dp, tg) in intents]} "
                   f"[{br}] -> {kind} (prev_blocked={prev_blocked})")
 
         # ---------------- 执行 + 观测
@@ -537,6 +600,19 @@ def run(steps=STEPS, warmup=WARMUP, seed=SEED, outdir='/workspace'):
         z_new = model.encode(frame)
         if blocked:
             stats['blocked_events'] += 1
+            blocked_pos.append((step, tuple(world.pos)))   # 撞墙位置（L13-2 地理覆盖用）
+        # ---- 主动干预的记账：出击前的"内部念头"是否被证实/证伪（科学假设检验）
+        if br == 'probe':
+            stats['probe'] += 1
+            probe_steps.append(step)
+            if blocked:
+                stats['probe_blocked'] += 1
+            if i_tgt >= 0 and proto.deep_uncontrollable(i_tgt):
+                stats['probe_deep'] += 1         # 主动试探竟指向已确信混沌核心（防自毁失效信号）
+            if blocked == hyp_exp_block:
+                stats['hyp_confirm'] += 1        # 假说被证实（预言撞/不撞，结果一致）
+            else:
+                stats['hyp_refute'] += 1         # 假说被证伪（预言错了 -> 更新这张地图）
         # 情境增量统计（在 sit 上用某动作产生的 latent 增量）
         delta = (z_new - z).detach().cpu().numpy().ravel()
         proto.observe(sit, chosen_idx, delta)
@@ -580,7 +656,8 @@ def run(steps=STEPS, warmup=WARMUP, seed=SEED, outdir='/workspace'):
         prev_blocked = blocked
 
     return dict(world=world, model=model, proto=proto, led=led, stats=stats,
-                log_tension=log_tension, outdir=outdir)
+                log_tension=log_tension, outdir=outdir, probe_steps=probe_steps,
+                blocked_pos=blocked_pos, steps=steps, active_probe=active_probe)
 
 
 # ============================================================ 评测
@@ -589,6 +666,63 @@ def region_tension(log):
     for sit, gt, t, _ in log:
         agg[gt][0] += t; agg[gt][1] += 1
     return {k: (v[0] / v[1], v[1]) for k, v in agg.items()}
+
+
+def band_coverage(blocked_pos, upto=None, G=24):
+    """贴墙带地理覆盖率：真值贴墙格里，有多少格被真正「撞」到过（获得阻塞证据）。
+    这是对「边界发现」的物理口径——不依赖原型粒度。"""
+    probe = PixelWorld(random.Random(0))
+    band = set()
+    for gy in range(G):
+        for gx in range(G):
+            probe.pos = [(gx + 0.5) / G, (gy + 0.5) / G]
+            if probe.gt_region() == 'NEAR_WALL':
+                band.add((gx, gy))
+    hit = set()
+    for (stp, (x, y)) in blocked_pos:
+        if upto is not None and stp > upto:
+            continue
+        cell = (min(G - 1, int(x * G)), min(G - 1, int(y * G)))
+        if cell in band:
+            hit.add(cell)
+    return len(hit), len(band)
+
+
+def l13_summary(res):
+    """L13（主动干预）的关键量。"""
+    st, ps, steps = res['stats'], res['probe_steps'], res['steps']
+    proto = res['proto']
+    half = steps // 2
+    early = sum(1 for s in ps if s < half)
+    late = sum(1 for s in ps if s >= half)
+    hw = tw = 0
+    for p in range(len(proto.C)):
+        if proto.n[p] < MIN_OBS:
+            continue
+        cls = proto.classify(p)
+        if cls == 'UNKNOWN':
+            continue
+        gtd = proto.gt[p]
+        if not gtd:
+            continue
+        gt = max(gtd.items(), key=lambda kv: kv[1])[0]
+        if gt == 'NEAR_WALL':
+            tw += 1
+            if cls in ('BOUNDARY', 'EXTERNAL', 'CHAOS'):
+                hw += 1
+    bh, bt = band_coverage(res['blocked_pos'])
+    bh_half, _ = band_coverage(res['blocked_pos'], upto=half)
+    # 边界收敛轨迹：贴墙带地理覆盖率随时间(25%/50%/75%/100%)如何上升
+    traj = [band_coverage(res['blocked_pos'], upto=int(steps * f))[0] / max(1, bt)
+            for f in (0.25, 0.5, 0.75, 1.0)]
+    return dict(probe=st['probe'], probe_rate=st['probe'] / max(1, steps),
+                probe_blocked=st['probe_blocked'], blocked_events=st['blocked_events'],
+                early=early, late=late,
+                hyp_confirm=st['hyp_confirm'], hyp_refute=st['hyp_refute'],
+                wall_recall=hw / max(1, tw), wall_hit=hw, wall_n=tw,
+                band_hit=bh, band_n=bt, band_cov=bh / max(1, bt),
+                band_cov_half=bh_half / max(1, bt), band_cov_traj=traj,
+                deep_visit=st.get('deep_visit', 0), probe_deep=st.get('probe_deep', 0))
 
 
 def report(res):
@@ -662,6 +796,25 @@ def report(res):
     print(f"    标记={stats['reflect_mark']}  触发={stats['reflect_trig']}  "
           f"转化={stats['reflect_convert']}  转化率={stats['reflect_convert']/max(1,stats['reflect_trig']):.2f}")
 
+    # [L13] 主动干预：把"被动接客"换成"主动向世界提问"
+    s13 = l13_summary(res)
+    print("\n[L13] 主动干预（预期信息增益；无 reward、无死锁依赖）")
+    print(f"    L13-1 主动试探步数 = {s13['probe']} / {res['steps']} = {s13['probe_rate']:.2f}")
+    print(f"          其中撞墙(获得'墙'证据) = {s13['probe_blocked']}  "
+          f"(占全部撞墙 {s13['probe_blocked']}/{s13['blocked_events']})")
+    print(f"          假设检验：证实={s13['hyp_confirm']}  证伪={s13['hyp_refute']}  "
+          f"命中率={s13['hyp_confirm']/max(1,s13['hyp_confirm']+s13['hyp_refute']):.2f}")
+    print(f"    L13-2 墙附近召回(原型口径) = {s13['wall_hit']}/{s13['wall_n']} = {s13['wall_recall']:.2f}")
+    print(f"          贴墙带地理覆盖率 = {s13['band_hit']}/{s13['band_n']} = {s13['band_cov']:.2f} "
+          f"(前半程 {s13['band_cov_half']:.2f})")
+    tr = s13['band_cov_traj']
+    print(f"          收敛轨迹(25/50/75/100%) = "
+          f"{tr[0]:.3f} -> {tr[1]:.3f} -> {tr[2]:.3f} -> {tr[3]:.3f}")
+    print(f"    L13-3 试探频率 前半={s13['early']} vs 后半={s13['late']} "
+          f"(信息增益趋零则应下降)")
+    print(f"          防自毁：身处已确信混沌核心步数={s13['deep_visit']}  "
+          f"主动试探指向混沌核心={s13['probe_deep']} (应≈0)")
+
     # [P6] 感知编码可分性：原始 latent 对真值区域的「最近质心分类」平衡准确率
     print("\n[P6] 感知编码可分性（latent 对真值区域的分类能力，非方差比）")
     G6 = 24
@@ -727,4 +880,24 @@ def report(res):
 
 if __name__ == '__main__':
     sd = int(sys.argv[1]) if len(sys.argv) > 1 and sys.argv[1].isdigit() else SEED
-    report(run(seed=sd))
+    if os.environ.get('PX_NO_ABLATION'):
+        report(run(seed=sd, active_probe=True))
+    else:
+        # 消融：同种子、同环境，仅关掉「主动干预项」——用来回答 L13-2（边界收敛速度）
+        off = run(seed=sd, active_probe=False)
+        on = run(seed=sd, active_probe=True)
+        a, b = l13_summary(off), l13_summary(on)
+        print("=" * 74)
+        print(f"[L13 消融] seed={sd}   主动干预 OFF -> ON")
+        print("=" * 74)
+        print(f"  墙附近召回  OFF {a['wall_recall']:.2f} ({a['wall_hit']}/{a['wall_n']})"
+              f"   ->   ON {b['wall_recall']:.2f} ({b['wall_hit']}/{b['wall_n']})")
+        print(f"  贴墙带地理覆盖 OFF {a['band_cov']:.2f} (前半 {a['band_cov_half']:.2f})"
+              f"   ->   ON {b['band_cov']:.2f} (前半 {b['band_cov_half']:.2f})")
+        print(f"  收敛轨迹 OFF " + " -> ".join(f"{v:.3f}" for v in a['band_cov_traj'])
+              + "    ON " + " -> ".join(f"{v:.3f}" for v in b['band_cov_traj']))
+        print(f"  全部撞墙事件 OFF {a['blocked_events']}   ->   ON {b['blocked_events']}")
+        print(f"  主动试探步数 OFF {a['probe']}   ->   ON {b['probe']}  "
+              f"(其中撞墙 {b['probe_blocked']})")
+        print(f"  防自毁(ON) 身处确信混沌核心 {b['deep_visit']} 步  主动试探指向混沌核心 {b['probe_deep']}")
+        report(on)
