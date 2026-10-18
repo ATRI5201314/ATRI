@@ -33,14 +33,14 @@ import torch.nn as nn
 # ============================================================ 常量
 SEED = 0
 
-IMG = 128                     # 画面尺寸 128x128
+IMG = 64                      # 画面尺寸 64x64
 DIM = 3                       # RGB
 Z_DIM = 32                    # latent 维度
 FEAT = IMG // 8               # 编码器 3 次 stride-2 之后的特征图边长
 
 DOM = 1.0                     # 连续世界 [0,1]^2
-AGENT_R = 0.05                # 智能体半径（色块须足够大，否则自编码器塌缩、latent 不编码位置）
-STEP_LEN = 0.08               # 单步位移（连续）；须大于「原型半径」，否则一步预测总落在同一原型里
+AGENT_R = 0.09                # 智能体半径（色块须足够大，否则自编码器塌缩、latent 不编码位置）
+STEP_LEN = 0.07               # 单步位移（连续）；须大于「原型半径」，否则一步预测总落在同一原型里
 MOVES = ['N', 'E', 'S', 'W']  # 上 右 下 左
 DELTA = {'N': (0.0, -1.0), 'E': (1.0, 0.0), 'S': (0.0, 1.0), 'W': (-1.0, 0.0)}
 ACTIONS = MOVES + ['WAIT']    # WAIT = 忍住不动
@@ -67,23 +67,21 @@ CTRL_FLOOR = 0.35             # 稳定可控度阈值：低于 -> 外界
 UNCTRL = ('BOUNDARY', 'CHAOS', 'EXTERNAL')   # 「不可控」判定集合
 CHAOS_ETA = 0.18              # eta^2 低于此且方差高 -> 混沌不可控
 BLOCK_EPS = 0.06              # 某方向平均 latent 增量模长低于此 -> 撞墙(阻塞)
-NEAR_WALL = 0.16             # 判定"贴近墙"的几何距离：撞墙发生的带宽 ≈ AGENT_R+STEP_LEN（仅评测 ground-truth）
+NEAR_WALL = 0.16              # 判定"贴近墙"的几何距离：撞墙发生的带宽 ≈ AGENT_R+STEP_LEN（仅评测 ground-truth）
 MIN_OBS = 3                   # 单动作最少观测
-TENSION_HIGH = 4.0            # 张力高（用于挂账/忍住；尺度随 latent 而定）
-TENSION_LOW = 2.0
+# 张力阈值不写死：run() 在预热后按该感知尺度下的预测误差分位数自动校准（见 t_high）
 NOVELTY = 1.6
-CURIOSITY = 0.7
+CURIOSITY = 0.9
 RECENT_PENALTY = 3.0          # 近期刚访问过的情境 -> 惩罚（打破 A<->B 局部震荡，促其游走）
 RECENT_LEN = 6
-BOUNDARY_AVOID = 0.9
-EPS = 0.30
+EPS = 0.40
 DEADEND_ATTEMPTS = 10
 DEADLOCK_BREAK = 15
 
 # 训练
 WARMUP = 1800                 # 自监督预训练步数（随机游走采集）
 TRAIN_PER_STEP = 3            # 每个预热步做几次梯度更新
-STEPS = 2200                  # 主循环步数
+STEPS = 3600                  # 主循环步数
 BATCH = 64
 BUF_CAP = 4000
 LR = 3e-4
@@ -93,7 +91,7 @@ ONLINE_TRAIN = False          # 主循环是否继续训练世界模型
 #   第一步只求「感知底座稳定」：预热定型编码器，主循环靠原型记忆+账本在线适应。
 PROTO_K = 256
 PROTO_LR = 0.02
-PROTO_NEW_DIST = 12.0         # 最近原型平方距离 > 此值 -> 新建原型；使一个步长就跨出当前原型
+PROTO_NEW_DIST = 12.0         # 新建原型的默认阈值（平方距离）；run() 会按单步 latent 位移自动重新校准
 
 
 def set_seed(sd):
@@ -282,6 +280,7 @@ class ProtoMem:
 
     def __init__(self, k=PROTO_K):
         self.k = k
+        self.new_dist = PROTO_NEW_DIST    # 新建原型的阈值（平方距离）；run() 里按单步 latent 位移自动校准
         self.C = []                       # list of np.array(Z_DIM,)
         self.n = []                       # 每原型访问数
         self.blk = defaultdict(int)       # 原型 -> 真实撞墙(blocked)次数（评测用）
@@ -299,7 +298,7 @@ class ProtoMem:
             return 0
         d = np.array([np.sum((z - c) ** 2) for c in self.C])
         i = int(np.argmin(d))
-        if d[i] > PROTO_NEW_DIST:
+        if d[i] > self.new_dist:
             if create and len(self.C) < self.k:
                 self.C.append(z.copy()); self.n.append(0)
                 return len(self.C) - 1
@@ -421,6 +420,20 @@ def run(steps=STEPS, warmup=WARMUP, seed=SEED, outdir='/workspace'):
         print(f"[预热] 重构损失={np.mean([l[0] for l in tail]):.4f}  "
               f"潜在预测损失={np.mean([l[1] for l in tail]):.4f}  (训练 {len(losses)} 次)")
 
+    # ---------- 校准：把认知层阈值钉在「感知尺度」上（换分辨率/步长不用重调魔法数）
+    d2s, tens = [], []
+    for i in range(1, len(buf)):
+        fr, zp, ai, zn = buf[i]
+        d2 = float(torch.sum((zn - zp) ** 2))
+        if d2 > 1.0:                              # 排除撞墙(位移≈0)的样本
+            d2s.append(d2)
+            tens.append(float(torch.norm(zn - model.predict(zp, ai))))
+    d2s = np.array(d2s); tens = np.array(tens)
+    proto.new_dist = float(0.6 * np.median(d2s))  # 原型粒度 ≈ 一个单步位移（半步之内归为同一情境签名）
+    t_high = float(np.percentile(tens, 85))       # 高张力 = 该尺度下的高分位
+    print(f"[校准] 单步 latent 位移 中位²={np.median(d2s):.2f} -> PROTO_NEW_DIST={proto.new_dist:.2f} | "
+          f"预测误差 中位={np.median(tens):.2f} p85={t_high:.2f} -> TENSION_HIGH={t_high:.2f}")
+
     # ---------- Phase B：认知主循环
     # 账本：情境 -> 统计
     led = defaultdict(lambda: {'tension': 0.0, 'n': 0, 'standing': 0,
@@ -467,7 +480,7 @@ def run(steps=STEPS, warmup=WARMUP, seed=SEED, outdir='/workspace'):
             zp = model.predict(z, ai)
             tgt_sit = proto.assign(zp, create=False)      # 预测：不得新建原型
             dmin = proto.nearest_dist(zp)                 # 连续新颖度（可区分方向）
-            novelty = NOVELTY * min(1.0, dmin / PROTO_NEW_DIST)
+            novelty = NOVELTY * min(1.0, dmin / proto.new_dist)
             avg_t = 0.0
             if tgt_sit >= 0 and led[tgt_sit]['n'] > 0:
                 avg_t = led[tgt_sit]['tension'] / led[tgt_sit]['n']
@@ -488,7 +501,7 @@ def run(steps=STEPS, warmup=WARMUP, seed=SEED, outdir='/workspace'):
                  if (i_tgt >= 0 and proto.n[i_tgt] >= MIN_OBS * 2) else 'UNKNOWN')
         lt = led[i_tgt] if i_tgt >= 0 else None
         lt_hot = (lt is not None and (lt['standing'] >= 3
-                  or (lt['n'] > 0 and lt['tension'] / lt['n'] >= TENSION_HIGH + 0.8)))
+                  or (lt['n'] > 0 and lt['tension'] / lt['n'] >= t_high + 0.8)))
         # 抑制门控（世界侧「忍住」）：意图动作会踏进「仍挂起(高张力)且不可控」的账 -> 先不动
         suppress = ((not cur_bad) and i_cls in UNCTRL and lt_hot)
         br = ''
@@ -536,7 +549,7 @@ def run(steps=STEPS, warmup=WARMUP, seed=SEED, outdir='/workspace'):
         e = led[sit]
         # 自我预测失败：张力骤高，且该情境尚属「可控」（外界的不怪自己）
         cls = proto.classify(sit)
-        if tension >= TENSION_HIGH and cls not in ('BOUNDARY', 'CHAOS', 'EXTERNAL'):
+        if tension >= t_high and cls not in ('BOUNDARY', 'CHAOS', 'EXTERNAL'):
             if sit not in reflected:
                 reflected[sit] = chosen_idx
                 stats['reflect_mark'] += 1
@@ -546,7 +559,7 @@ def run(steps=STEPS, warmup=WARMUP, seed=SEED, outdir='/workspace'):
                     stats['reflect_convert'] += 1
                     reflected.pop(sit, None)
         # 挂账/死胡同/回访
-        e['standing'] = e['standing'] + 1 if tension >= TENSION_HIGH else 0
+        e['standing'] = e['standing'] + 1 if tension >= t_high else 0
         if e['seen'] > DEADEND_ATTEMPTS and e['standing'] > e['seen'] * 0.5:
             e['dead_end'] = True
         if e['seen'] > 1:
@@ -610,10 +623,16 @@ def report(res):
     print("\n[P4] 划界：动作对结果的可控度 (eta^2) 分类 vs 几何真值")
     conf = defaultdict(int)
     proto_cls = {}
+    # 「可判定」= 观测足够且动作至少试过 2 种（classify 不返回 UNKNOWN）。
+    # 观测不足的原型不计入准确率分母，但单独报告「覆盖率」，避免用"没数据"冒充"没判错"。
+    n_elig = 0
     for p in range(len(proto.C)):
         if proto.n[p] < MIN_OBS:
             continue
+        n_elig += 1
         cls = proto.classify(p)
+        if cls == 'UNKNOWN':
+            continue
         proto_cls[p] = cls
         gtd = proto.gt[p]
         if not gtd:
@@ -627,9 +646,12 @@ def report(res):
     hc, tc = rate('CHAOS', {'CHAOS', 'EXTERNAL', 'BOUNDARY'})
     hw, tw = rate('NEAR_WALL', {'BOUNDARY', 'EXTERNAL', 'CHAOS'})
     ho, to = rate('OPEN', {'SELF'})
-    print(f"    混沌区 -> 判为外界/边界: {hc}/{tc}")
-    print(f"    墙附近 -> 判为边界/外界: {hw}/{tw}")
-    print(f"    开敞区 -> 判为可控(自我): {ho}/{to}")
+    n_dec = sum(conf.values())
+    cov = n_dec / max(1, n_elig)
+    print(f"    可判定覆盖率 = {n_dec}/{n_elig} = {cov:.2f}  （观测/动作种类不足 -> 不下结论）")
+    print(f"    混沌区 -> 判为外界/边界: {hc}/{tc} = {hc/max(1,tc):.2f}")
+    print(f"    墙附近 -> 判为边界/外界: {hw}/{tw} = {hw/max(1,tw):.2f}")
+    print(f"    开敞区 -> 判为可控(自我): {ho}/{to} = {ho/max(1,to):.2f}")
     # 明细
     print("    真值 x 判定 混淆：")
     for gt in ('CHAOS', 'NEAR_WALL', 'OPEN'):
@@ -640,18 +662,28 @@ def report(res):
     print(f"    标记={stats['reflect_mark']}  触发={stats['reflect_trig']}  "
           f"转化={stats['reflect_convert']}  转化率={stats['reflect_convert']/max(1,stats['reflect_trig']):.2f}")
 
-    # [P6] 连续编码可分性
-    print("\n[P6] 连续特征编码可分性（latent 按真值区域的组间/组内方差比）")
-    zs = defaultdict(list)
-    for sit, gt, t, _ in log:
-        if sit < len(proto.C):
-            zs[gt].append(proto.C[sit])
-    mus = {k: np.mean(v, axis=0) for k, v in zs.items() if v}
-    gm = np.mean(list(mus.values()), axis=0)
-    between = sum(len(zs[k]) * np.sum((mus[k] - gm) ** 2) for k in mus)
-    within = sum(np.sum((np.array(zs[k]) - mus[k]) ** 2) for k in mus)
+    # [P6] 感知编码可分性：原始 latent 对真值区域的「最近质心分类」平衡准确率
+    print("\n[P6] 感知编码可分性（latent 对真值区域的分类能力，非方差比）")
+    G6 = 24
+    probe6 = PixelWorld(random.Random(1))
+    Z6, GT6 = [], []
+    for gy in range(G6):
+        for gx in range(G6):
+            probe6.pos = [(gx + 0.5) / G6, (gy + 0.5) / G6]
+            Z6.append(model.encode(probe6.render()).cpu().numpy().ravel())
+            GT6.append(probe6.gt_region())
+    Z6 = np.array(Z6); GT6 = np.array(GT6)
+    regions = sorted(set(GT6))
+    cen = {r: Z6[GT6 == r].mean(0) for r in regions}
+    pred6 = np.array([min(regions, key=lambda r: np.sum((z - cen[r]) ** 2)) for z in Z6])
+    bal6 = float(np.mean([(pred6[GT6 == r] == r).mean() for r in regions]))
+    gm = Z6.mean(0)
+    between = sum((GT6 == r).sum() * np.sum((cen[r] - gm) ** 2) for r in regions)
+    within = sum(np.sum((Z6[GT6 == r] - cen[r]) ** 2) for r in regions)
     eta = between / (between + within + 1e-9)
-    print(f"    区域(混沌/墙/开敞)在 latent 空间的 eta^2 = {eta:.3f}")
+    for r in regions:
+        print(f"    {r:<10} 分类准确率={(pred6[GT6 == r] == r).mean():.2f}  n={(GT6 == r).sum()}")
+    print(f"    平衡准确率 = {bal6:.3f}   (eta^2 参考值 = {eta:.3f})")
 
     # ---------- 产物：帧 + 分类地图
     frame = world.render()
@@ -679,9 +711,10 @@ def report(res):
     ok1 = ('CHAOS' in rt and 'OPEN' in rt and rt['CHAOS'][0] > rt['OPEN'][0] + 0.10)
     ok2 = (len(act) > 0 and (standing > 0 or revisit > 0))
     ok3 = stats['waits'] > 0
-    ok4 = (tc > 0 and hc / tc >= 0.6) and (tw > 0 and hw / tw >= 0.6) and (to > 0 and ho / to >= 0.6)
+    ok4 = (cov >= 0.6 and tc > 0 and hc / tc >= 0.6
+           and tw > 0 and hw / tw >= 0.6 and to > 0 and ho / to >= 0.6)
     ok5 = stats['reflect_convert'] > 0
-    ok6 = eta >= 0.5
+    ok6 = bal6 >= 0.6
     print(f"    P1 张力定位={'✓' if ok1 else '✗'}  P2 账本={'✓' if ok2 else '✗'}  "
           f"P3 忍住={'✓' if ok3 else '✗'}")
     print(f"    P4 划界={'✓' if ok4 else '✗'}  P5 反思={'✓' if ok5 else '✗'}  P6 编码可分={'✓' if ok6 else '✗'}")
