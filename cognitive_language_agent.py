@@ -38,6 +38,7 @@ MOVE_LIST = list(MOVES.keys())
 VOCAB_REG = ['日', '月', '星']                 # 规整区：确定性循环 -> 可预测
 VOCAB_CHAOS = ['陷', '甲', '乙']               # 混沌区：随机 -> 预测不动；'陷'只在多结果情境出现
 K_WIN = 2                                       # 语言窗口长度
+RISK_MARK = '陷'                                # 地表特征：两处陷阱区共享、可被"看见"（无需踏入）
 
 # 阈值
 THETA_HIGH = 0.6
@@ -78,12 +79,20 @@ def slot(v):
 class World:
     """网格世界 + 一条与情境相关的 token 流。
     可控区确定性；多结果(陷阱)区里动作被不可观测地随机偏转（控制失败源）。
-    token 流：规整区走确定性循环(可预测)，多结果区走混沌(预测不动)。"""
+    token 流：规整区走确定性循环(可预测)，多结果区走混沌(预测不动)。
+    traps/w/h 可参数化（供 L10 泛化实验放两处陷阱区）；
+    surf(cell) = 地表特征：可被"看见"、无需踏入——两处陷阱区共享 RISK_MARK。"""
 
-    def __init__(self, jitter=0.0, rng=None):
+    def __init__(self, jitter=0.0, rng=None, traps=None, w=None, h=None):
         self.rng = rng or random.Random(0)
         self.jitter = jitter
         self.reg = 0
+        self.traps = set(traps) if traps is not None else set(TRAP)
+        self.w = w or W
+        self.h = h or H
+
+    def in_bounds(self, x, y):
+        return 0 <= x < self.w and 0 <= y < self.h
 
     def step(self, s, a):
         x, y = s
@@ -91,7 +100,7 @@ class World:
             return s
         dx, dy = MOVES[a]
         tx, ty = x + dx, y + dy
-        if is_trap(x, y):
+        if (x, y) in self.traps:
             # 控制失败源：身处多结果区时，动作被不可观测地随机偏转 -> 动作对结果无稳定影响
             a = self.rng.choice(MOVE_LIST)
             dx, dy = MOVES[a]
@@ -100,17 +109,24 @@ class World:
             a = rotate(a, 1 if self.rng.random() < 0.5 else -1)
             dx, dy = MOVES[a]
             tx, ty = x + dx, y + dy
-        if not in_bounds(tx, ty):
+        if not self.in_bounds(tx, ty):
             return s
         return (tx, ty)
 
     def emit(self, cell):
         """按当前情境发出一个 token。多结果区 -> 混沌(预测不动)。"""
-        if is_trap(*cell):
+        if cell in self.traps:
             return self.rng.choice(VOCAB_CHAOS)
         tok = VOCAB_REG[self.reg % 3]
         self.reg += 1
         return tok
+
+    def surf(self, cell):
+        """地表特征：站在旁边就能看见（不需要踏入）。两处陷阱区共享 RISK_MARK。"""
+        if cell in self.traps:
+            return RISK_MARK
+        x, y = cell
+        return VOCAB_REG[(x * 3 + y) % 3]
 
 
 # ------------------------------------------------------------------ 预测器
@@ -936,12 +952,11 @@ def run_contest(steps=STEPS, speak_budget=SPEAK_BUDGET, seed=20261018, eps=EPS):
         update_entry(ledger, lsig(window, slot(t_l)), 'lang', t_l, step, stats,
                      deadend_log)
 
-        # ---- 规格8：指称绑定 ----
+        # ---- 规格8：指称绑定（持续重估：划界成熟后自动升级为「不可控类」绑定）----
         cooc[tok][s] += 1
-        if tok not in binding:
-            b = try_bind(tok, cooc, wpred)
-            if b is not None:
-                binding[tok] = b
+        b = try_bind(tok, cooc, wpred)
+        if b is not None:
+            binding[tok] = b
 
         # ---- 自我模型 & 反思标记 ----
         label = action if kind == 'MOVE' else kind
@@ -1094,8 +1109,375 @@ def report_contest(steps=STEPS):
         print("      但配对对照下未净改变世界侧行动、且堵嘴不崩盘 -> 语言是记账层，不是行动层。")
 
 
+# ================================================================
+# 实验 · L10 命名泛化（语言作为"先验地图"）
+#   环境：两处陷阱区——旧区(走过、碰壁过) 与 新区(从未踏足)；
+#         两区共享地表特征 RISK_MARK('陷')，站在旁边即可"看见"，无需踏入。
+#   机制：把「情境绑定」升级为「特征抽象 + 先验检索」——
+#         出手之前，用已掌握的词去检索"即将踏入"的状态特征；
+#         命中一个已绑定「不可控类」的标记 -> 先验层标记「疑似不可控」(Predicted High Tension)
+#         -> 语言直接触发 WAIT（语言干预行动）。
+#   验收：L10-1 泛化提前量 / L10-2 试错节省率 / L10-3 词驱动回避率
+# ================================================================
+GW = GH = 12
+OLD_TRAP = {(x, y) for x in range(1, 4) for y in range(1, 4)}     # 旧：紧邻起点——保证"先学成"
+NEW_TRAP = {(x, y) for x in range(8, 11) for y in range(8, 11)}   # 新：远处、从未踏足，共享地表特征
+G_START = (0, 0)
+G_STEPS = 6000
+G_DEMO_SEED = 2            # 演示用 seed（"先验先于遭遇"的典型；稳健性表会给出全部 seed）
+PREDICTED_HIGH_TENSION = THETA_HIGH    # 语言先验命中时，「忍住」避免掉的预期高张力
+
+
+def adjacent_to(cell, zone):
+    x, y = cell
+    return any((x + dx, y + dy) in zone for dx, dy in MOVES.values())
+
+
+def lang_prior_high(cell, binding, world):
+    """先验检索：即将踏入的格子的地表特征，是否命中一个已绑定「不可控类」的词。
+       命中 -> 语言在出手前就把该区标成「疑似不可控」。BIND_CONF 保证不瞎认。"""
+    b = binding.get(world.surf(cell))
+    return b is not None and b[0] == 'EXT'
+
+
+def run_generalize(steps=G_STEPS, speak_budget=SPEAK_BUDGET, seed=20261018, eps=EPS,
+                   lang_gate=True):
+    """lang_gate=False：语言仍可说、可压缩，但不得干预行动（归因隔离对照）。"""
+    rng = random.Random(seed)
+    world = World(rng=random.Random(seed * 7 + 1),
+                  traps=OLD_TRAP | NEW_TRAP, w=GW, h=GH)
+    wpred = WorldPredictor()
+    tpred = TokenPredictor()
+    selfact = defaultdict(lambda: defaultdict(int))
+
+    ledger = {}
+    visited = set()
+    tension_l = defaultdict(float)
+    named = {}
+    binding = {}
+    bind_step = {}
+    adopted = set()
+    cooc = defaultdict(lambda: defaultdict(int))
+    deadend_log = []
+
+    stats = dict(speak=0, move=0, wait=0, wait_by_lang=0, wait_by_phys=0,
+                 accounts=0, lang_accounts=0, dead_ends=0, closures=0,
+                 deadlock_breaks=0)
+    traj = []
+    speak_events = []
+    compression_log = []
+
+    pos = G_START
+    visited.add(pos)
+    history = []
+    consec_wait = 0
+    pending_marks = defaultdict(list)
+
+    first_new_step = None          # 第一次踏入新陷阱区的步数
+    new_inside_tension = 0.0       # 在新陷阱区里累计的物理张力（试错代价）
+    edge_waits_lang = 0            # 新区边缘：因词命中先验而 WAIT
+    edge_waits_phys = 0            # 新区边缘：因物理划界而 WAIT
+    edge_first_step = None         # 第一次逼近新区（身处新区边缘）的步数
+    edge_first_kind = None         # 该边缘决策上实际选了什么（MOVE/WAIT/SPEAK）——用于同窗口配对归因
+
+    for step in range(1, steps + 1):
+        s = pos
+        sp = selfact.get(s)
+        self_pred = max(sp.items(), key=lambda kv: kv[1])[0] if sp else None
+
+        # ---- 统一意图池（Move 4 + Speak + Wait），打分 = 预期张力削减量/成本 ----
+        speak_allowed = stats['speak'] < speak_budget
+        move_targets = []
+        intents = []
+        for a in MOVE_LIST:
+            ns_pred, p = wpred.predict(s, a)
+            if ns_pred is not None and p >= 0.5:
+                t = ns_pred
+            else:
+                dx, dy = MOVES[a]
+                tx, ty = s[0] + dx, s[1] + dy
+                t = (tx, ty) if world.in_bounds(tx, ty) else s
+            move_targets.append(t)
+            red = pred_reduction_move(t, ledger, wpred, visited, named)
+            if lang_gate and lang_prior_high(t, binding, world):
+                red = 0.0               # 语言先验：前方疑似不可控 -> 不值得走
+            intents.append(['MOVE', a, red / COST_MOVE, t])
+        red_s = pred_reduction_speak(ledger, binding, wpred) if speak_allowed else 0.0
+        intents.append(['SPEAK', None, red_s / COST_SPEAK, None])
+
+        # 语言先验命中 -> 「忍住」本身变成高收益动作（避免掉预期高张力）
+        prior_found = (lang_gate and
+                       any(lang_prior_high(t, binding, world) for t in move_targets))
+        wait_red = PREDICTED_HIGH_TENSION if prior_found else WAIT_REDUCTION
+        intents.append(['WAIT', None, wait_red / COST_WAIT, None])
+
+        # ---- 反思（继承）：再遇同一情境签名 -> 压制习惯动作 ----
+        pressed = set()
+        for mk in pending_marks.get(s, []):
+            if mk['act'] in MOVE_LIST:
+                pressed.add(mk['act'])
+        pending_marks.pop(s, None)
+
+        # ---- 选择意图 ----
+        if rng.random() < eps:
+            chosen = rng.choice(intents)
+        else:
+            chosen = None
+            for it in sorted(intents, key=lambda x: -x[2]):
+                if it[0] == 'MOVE' and it[1] in pressed:
+                    continue
+                chosen = it
+                break
+            if chosen is None:
+                chosen = sorted(intents, key=lambda x: -x[2])[0]
+
+        kind, action, _score, target = chosen
+
+        # ---- 门控放行：语言先验命中 -> 忍住；但计入连续忍住，防死锁 ----
+        lang_block = (prior_found and kind == 'WAIT')
+        lang_block_move = (lang_gate and kind == 'MOVE'
+                           and lang_prior_high(target, binding, world))
+        if lang_block or lang_block_move:
+            if consec_wait >= DEADLOCK_BREAK:
+                # 防死锁兜底：逼它绕路（选一个非先验高能的 Move），不许原地冻住
+                stats['deadlock_breaks'] += 1
+                consec_wait = 0
+                if lang_block:
+                    alt = next((it for it in sorted(intents, key=lambda x: -x[2])
+                                if it[0] == 'MOVE'
+                                and not lang_prior_high(it[3], binding, world)), None)
+                    if alt is not None:
+                        _, action, _s, target = alt
+                        kind = 'MOVE'
+            else:
+                kind = 'WAIT'
+                stats['wait_by_lang'] += 1
+                if adjacent_to(s, NEW_TRAP):
+                    edge_waits_lang += 1
+                consec_wait += 1
+
+        # ---- 抑制门控（继承）：物理划界 -> 忍住 ----
+        if kind == 'MOVE':
+            led = ledger.get(wsig(target))
+            if led is not None and led.standing and led.ema > THETA_HIGH:
+                sc = stable_controllability(target, wpred)
+                if sc is not None and sc < CONTROL_FLOOR:
+                    if consec_wait >= DEADLOCK_BREAK:
+                        led.cooldown = step + 200
+                        stats['deadlock_breaks'] += 1
+                        consec_wait = 0
+                    else:
+                        kind = 'WAIT'
+                        stats['wait_by_phys'] += 1
+                        if adjacent_to(s, NEW_TRAP):
+                            edge_waits_phys += 1
+                        consec_wait += 1
+        if kind != 'WAIT':
+            consec_wait = 0
+
+        # ---- 执行 ----
+        spoken = None
+        spoken_cells = set()
+        t_w = 0.0
+        if kind == 'MOVE':
+            ns = world.step(s, action)
+            stats['move'] += 1
+            wpred_ns, p = wpred.predict(s, action)
+            if s in named:
+                t_w = NAMED_RESIDUAL
+            elif wpred_ns is None or wpred_ns != ns:
+                t_w = 1.0
+            else:
+                t_w = 1 - p ** 2
+            wpred.learn(s, action, ns)
+            visited.add(s)
+            update_entry(ledger, wsig(s), 'world', t_w, step, stats, deadend_log)
+            if s in NEW_TRAP:
+                new_inside_tension += t_w     # 在新区里动作被偏转 -> 试错代价
+        elif kind == 'SPEAK':
+            ns = s
+            if not speak_allowed:
+                kind = 'WAIT'; action = WAIT; stats['wait'] += 1
+            else:
+                spoken, spoken_cells = do_speak(step, ledger, binding, adopted, wpred,
+                                                named, compression_log)
+                if spoken is None:
+                    kind = 'WAIT'; action = WAIT; stats['wait'] += 1
+                else:
+                    stats['speak'] += 1
+                    speak_events.append((step, frozenset(spoken_cells)))
+        else:
+            ns = s; action = WAIT; stats['wait'] += 1
+
+        # ---- 规格7：语言侧 token 流（每 tick 照常流入）----
+        tok = world.emit(s)
+        window = tuple(history[-K_WIN:]) if len(history) >= K_WIN else \
+            tuple([PAD] * (K_WIN - len(history)) + history)
+        tp, tpdist = tpred.predict(window)
+        t_l = 1.0 if not tpdist else 1 - tpdist.get(tok, 0.0)
+        tpred.learn(window, tok)
+        history.append(tok)
+        tension_l[tok] = 0.7 * tension_l[tok] + 0.3 * t_l
+        update_entry(ledger, lsig(window, slot(t_l)), 'lang', t_l, step, stats, deadend_log)
+
+        # ---- 规格8：指称绑定（持续重估：划界成熟后自动升级为「不可控类」绑定）----
+        cooc[tok][s] += 1
+        b = try_bind(tok, cooc, wpred)
+        if b is not None:
+            if b[0] == 'EXT' and tok not in bind_step:
+                bind_step[tok] = step
+            binding[tok] = b
+
+        # ---- 自我模型 & 反思 ----
+        label = action if kind == 'MOVE' else kind
+        selfact[s][label] += 1
+        if self_pred is not None and self_pred != label:
+            pending_marks[s].append(dict(act=self_pred, step=step))
+
+        # ---- 记录轨迹 & 首次踏入新区 ----
+        traj.append((step, kind, action, target))
+        if ns in NEW_TRAP and first_new_step is None:
+            first_new_step = step
+        # 同窗口配对：记录「首次逼近新区」这一步的边缘决策
+        if edge_first_kind is None and adjacent_to(s, NEW_TRAP):
+            edge_first_step = step
+            edge_first_kind = kind
+        pos = ns
+
+    return dict(
+        steps=steps, speak_budget=speak_budget, lang_gate=lang_gate, stats=stats,
+        ledger=ledger, binding=binding, bind_step=bind_step, adopted=adopted,
+        named=named, traj=traj,
+        speak_events=speak_events, compression_log=compression_log,
+        tension_l=tension_l, visited=visited,
+        first_new_step=first_new_step, new_inside_tension=new_inside_tension,
+        edge_waits_lang=edge_waits_lang, edge_waits_phys=edge_waits_phys,
+        edge_first_step=edge_first_step, edge_first_kind=edge_first_kind,
+    )
+
+
+def _show(tag, f):
+    return f"{f}" if f is not None else "未踏入"
+
+
+def report_generalize(steps=G_STEPS):
+    R = run_generalize(steps=steps, speak_budget=SPEAK_BUDGET, seed=G_DEMO_SEED, lang_gate=True)
+    R0 = run_generalize(steps=steps, speak_budget=0, seed=G_DEMO_SEED, lang_gate=False)              # 堵嘴
+    RN = run_generalize(steps=steps, speak_budget=SPEAK_BUDGET, seed=G_DEMO_SEED, lang_gate=False)   # 有嘴但不干预
+
+    print("=" * 72)
+    print("实验 · L10 命名泛化（语言作为「先验地图」）")
+    print("=" * 72)
+    print("    环境：旧陷阱区(走过) + 新陷阱区(从未踏足)，两区共享地表特征「陷」(无需踏入即可看见)")
+    print(f"    同池打分 = 预期张力削减量/成本；语言先验命中 -> 「忍住」收益 = {PREDICTED_HIGH_TENSION}")
+    fa_demo = next((st for (st, k, a, t) in R['traj']
+                    if k == 'MOVE' and t is not None and adjacent_to(t, NEW_TRAP)), None)
+    print(f"    演示 seed = {G_DEMO_SEED}：陷→EXT 绑定步 = {R['bind_step'].get('陷')}  "
+          f"首次逼近新区步 = {fa_demo}（先验先于遭遇 -> 具备泛化前提）")
+
+    print("\n[机制] 三组对照")
+    for tag, r in (("有语言·可干预", R), ("堵嘴·无语言", R0), ("有嘴·禁干预", RN)):
+        b = r['binding']
+        print(f"    {tag:<12} Speak={r['stats']['speak']:>3}  "
+              f"Move={r['stats']['move']:>4}  Wait={r['stats']['wait']:>4}  "
+              f"绑定词={sorted(b)}")
+
+    # ---- L10-1 泛化提前量 ----
+    f1, f0, fn = R['first_new_step'], R0['first_new_step'], RN['first_new_step']
+    print("\n[L10-1] 泛化提前量（第一次踏入新陷阱区的步数；越晚=越早停步）")
+    print(f"    有语言·可干预 = {_show('', f1)}   堵嘴·无语言 = {_show('', f0)}   "
+          f"有嘴·禁干预 = {_show('', fn)}")
+    if f1 is None and f0 is not None:
+        print(f"    → 有语言全程未踏入新区；无语言第 {f0} 步撞进去"
+              f"（提前量 ≥ {steps - f0} 步）")
+    elif f1 is not None and f0 is not None:
+        print(f"    → 提前量 = {f0 - f1} 步（正=语言让它更晚才踏进/更早停步）")
+    elif f1 is None and f0 is None:
+        print("    → 两组都没踏入新区（需检查探索是否覆盖到新区）")
+
+    # ---- L10-2 试错节省率 ----
+    t1, t0 = R['new_inside_tension'], R0['new_inside_tension']
+    save = (1 - t1 / t0) if t0 > 0 else 0.0
+    print("\n[L10-2] 试错节省率（去往/身处新区的物理张力总和 = 试错代价）")
+    print(f"    有语言 = {t1:.2f}   堵嘴 = {t0:.2f}   → 试错节省率 = {save * 100:.0f}%")
+
+    # ---- L10-3 词驱动回避率 ----
+    lw, pw = R['edge_waits_lang'], R['edge_waits_phys']
+    tot = lw + pw
+    print("\n[L10-3] 词驱动回避率（新区边缘 WAIT 的触发来源）")
+    if tot:
+        print(f"    词(「陷」)命中触发 = {lw}   物理划界触发 = {pw}   → 词驱动回避率 = {lw / tot * 100:.0f}%")
+    else:
+        print(f"    新区边缘 WAIT：词命中 = {lw}   物理划界 = {pw}（无边缘 WAIT）")
+
+    # ---- 归因隔离（同窗口配对：三组在「首次逼近新区」这一步的边缘决策对照）----
+    print("\n[归因隔离] 同窗口配对对照：三组在「首次逼近新区」这一步各自的边缘决策")
+    for tag, r in (("有语言·可干预", R), ("堵嘴·无语言", R0), ("有嘴·禁干预", RN)):
+        print(f"    {tag:<12} 首近新区步={_show('', r['edge_first_step']):>6}  "
+              f"该步决策={r['edge_first_kind']}")
+    k1, kn, k0 = R['edge_first_kind'], RN['edge_first_kind'], R0['edge_first_kind']
+    attributed = (k1 == 'WAIT') and (kn is not None and kn != 'WAIT')
+    print(f"    有语言在边缘「忍住」(={k1})，禁干预在边缘「迈入」(={kn}) "
+          f"(堵嘴={k0}) -> "
+          f"{'提前停步确由「语言→行动」门控造成（同一窗口下移门控则迈入）' if attributed else '需进一步核查'}")
+
+    # ---- 防坑检查 ----
+    print("\n[防坑]")
+    marks = {w: b for w, b in R['binding'].items() if b[0] == 'EXT'}
+    print(f"    1 草木皆兵：触发先验的词 = {sorted(marks)}（只认绑定「不可控类」且过 BIND_CONF 的词，"
+          f"开敞区地表符号 日月星 从不命中）")
+    print(f"    2 死锁兜底：防死锁强制降级 = {R['stats']['deadlock_breaks']} 次"
+          f"（连续忍住超 {DEADLOCK_BREAK} -> 逼它冲一次/绕路）")
+
+    # ---- 判定 ----
+    print("\n[判定]")
+    if f0 is None:
+        print("    无效：无语言组也没踏进新区 -> 环境/探索没把新区纳入，需调环境。")
+    elif f1 is None:
+        print("    先验地图成立：有语言凭「陷」提前绕开从未踏足的坑；无语言头破血流。")
+    elif f1 > f0:
+        print(f"    部分成立：有语言更晚踏入（提前 {f1 - f0} 步），但最终仍踏入。")
+    else:
+        print("    未成立：语言没有让它更早停步 -> 泛化链没焊上。")
+
+    robust_generalize(steps=steps)
+
+
+def robust_generalize(seeds=(20261018, 1, 2, 3, 7, 42, 99, 123), steps=G_STEPS):
+    """跨 seed 复核：泛化不是无条件涌现——它要求「先验(陷→EXT)在首次逼近新区之前学成」。"""
+    print("\n[稳健性] 跨 seed：泛化的前提 = 先验先于遭遇（陷→EXT 绑定步 < 首次逼近新区步）")
+    print(f"    {'seed':>9} | {'陷→EXT':>7} | {'首近新区':>8} | {'有语言首踏':>9} | {'堵嘴首踏':>8} | 判定")
+    ok_prem, ok_eff = 0, 0
+    for sd in seeds:
+        R = run_generalize(steps=steps, speak_budget=SPEAK_BUDGET, seed=sd, lang_gate=True)
+        R0 = run_generalize(steps=steps, speak_budget=0, seed=sd, lang_gate=False)
+        bs = R['bind_step'].get('陷')
+        fa = next((st for (st, k, a, t) in R['traj']
+                   if k == 'MOVE' and t is not None and adjacent_to(t, NEW_TRAP)), None)
+        f1, f0 = R['first_new_step'], R0['first_new_step']
+        g = lambda x: '—' if x is None else str(x)
+        prem = bs is not None and fa is not None and bs < fa
+        eff = prem and (f1 is None or (f0 is not None and f1 > f0))
+        ok_prem += 1 if prem else 0
+        ok_eff += 1 if eff else 0
+        if bs is None or fa is None:
+            tag = "先验未成/未逼近"
+        elif prem:
+            tag = "先验先学成"
+        else:
+            tag = "学成晚于逼近"
+        print(f"    {sd:>9} | {g(bs):>7} | {g(fa):>8} | {g(f1):>9} | {g(f0):>8} | "
+              f"{tag} / {'生效' if eff else '未生效'}")
+    print(f"    → 前提成立 {ok_prem}/{len(seeds)} 个 seed；其中泛化生效 {ok_eff}/{ok_prem}"
+          + ("（前提成立则必生效）" if ok_prem and ok_eff == ok_prem else ""))
+    print("    结论：泛化是有条件的——语言必须先于遭遇把「那类不可控」学成，才能当先验地图。")
+    print("          这本身是一条可量化的时序律，不是无条件涌现。")
+
+
 if __name__ == '__main__':
     if len(sys.argv) > 1 and sys.argv[1] == 'contest':
         report_contest(steps=int(sys.argv[2]) if len(sys.argv) > 2 and sys.argv[2].isdigit() else STEPS)
+    elif len(sys.argv) > 1 and sys.argv[1] == 'general':
+        report_generalize(steps=int(sys.argv[2]) if len(sys.argv) > 2 and sys.argv[2].isdigit() else G_STEPS)
     else:
         report(run(steps=int(sys.argv[1]) if len(sys.argv) > 1 and sys.argv[1].isdigit() else STEPS))
