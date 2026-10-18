@@ -47,7 +47,7 @@ DEADEND_ATTEMPTS = 8       # 反复尝试仍压不动 -> 死胡同
 DEADLOCK_BREAK = 40        # 连续忍住上限 -> 强制降级，防 Exp5 式锁死
 BIND_MIN = 6               # 指称绑定最少共现
 BIND_CONF = 0.7            # 指称绑定置信
-SPEAK_BUDGET = 4           # 发言硬预算（最多采纳几个词）
+SPEAK_BUDGET = 40          # 发言硬预算（一轮允许的最大发言次数；=0 即"堵嘴"）
 CONTROL_FLOOR = 0.35       # 稳定可控度阈值（低于 -> 外界）
 MIN_OBS = 3                # 稳定可控度：单动作最少观测数
 NOVELTY = 1.1              # 未访问格吸引力
@@ -691,5 +691,411 @@ def report(R):
     print("\n  工作定义提示：Q4 情境签名=窗口+张力槽 为工作定义；Q1 两账不设模态优先。")
 
 
+# ================================================================
+# 实验 · 预算争夺战（The Budget Contest）
+#   增量约束：
+#     1) 统一意图池：Move / Speak / Wait 同池竞争，打分 = 预期张力削减量 / 成本
+#        （不是奖励；是「这一步会把账本张力预计压掉多少」的预测值）
+#     2) 因果绑定：采纳到一个绑定「不可控情境类」的词 = 给该类建了一个"命名/元预测"，
+#        该类的世界张力被这个命名吸收（说话真的改变世界侧的预测张力）
+#     3) 验收：L7 预算分配比 / L8 语言干预行动率 / L9 崩溃测试(SPEAK_BUDGET=0)
+#
+#   注意：语言侧 token 流不受行动影响，每 tick 照常流入（由当前情境决定）。
+# ================================================================
+COST_MOVE = 1.0
+COST_SPEAK = 1.0
+COST_WAIT = 1.0
+WAIT_REDUCTION = 0.03        # 挂起观察的预期收益（很小：本身不削减张力）
+NOVEL_REDUCTION = 0.25       # 未知格的探索信息价值
+KNOWN_REDUCTION = 0.05       # 已知可控格：维持低张力（略高于 WAIT，避免空转）
+
+# 命名（naming）的残余张力：命名把「点预测」升级为「类预测」——
+# 主体不再对不可控区内的每个动作做必然出错的点预测，而是预测「该区属于不可控类」。
+# 于是具体结果不再构成点预测错位；残留张力 = 对「类归属」本身的不确定性。
+# 取 1 - BIND_CONF：绑定置信度之外的那部分，正是「万一它其实可控呢」的残余。
+NAMED_RESIDUAL = 1 - BIND_CONF      # = 0.3：命名后该类世界账的残余张力
+
+
+def pred_reduction_move(t, ledger, wpred, visited, named):
+    """这一步 Move 到 t 预计能把账本张力压掉多少。"""
+    if t in named:
+        return 0.0                      # 该情境已被词命名 -> 张力已被吸收，无需再探
+    led = ledger.get(wsig(t))
+    if led is not None:
+        if led.dead_end:
+            return 0.0
+        if led.standing:
+            if world_revisit_ok(led, wpred):
+                return led.ema            # 可复现 -> 有希望真的压平
+            return led.ema * 0.3          # 暂时压不动 -> 保留注意力（可能靠"命名"解决）
+        return 0.05
+    if t not in visited:
+        return NOVEL_REDUCTION
+    return KNOWN_REDUCTION
+
+
+def _covered_standing(ledger, cov):
+    return [e for e in ledger.values() if e.standing and e.sig in cov]
+
+
+def pred_reduction_speak(ledger, binding, wpred):
+    """这一步 Speak 预计能新压掉多少张力（边际净削减，规格9「净压缩收益>0」）。
+       关键口径：反复说同一个词不会重复削同一批张力——被命名/吸收过的条目
+       张力已降到 NAMED_RESIDUAL，再算进去只会高估 Speak，让它无脑压过 Move。
+       因此只累计「相对 NAMED_RESIDUAL 还高出多少」。"""
+    best = 0.0
+    for w in binding:
+        if binding[w][0] != 'EXT':
+            continue        # 只有绑定「不可控情境类」的词会吸收张力
+        cov = covered_sigs(w, binding, ledger, wpred)
+        red = sum(max(0.0, e.ema - NAMED_RESIDUAL) for e in _covered_standing(ledger, cov))
+        best = max(best, red)
+    return best
+
+
+def do_speak(step, ledger, binding, adopted, wpred, named, compression_log):
+    """执行 Speak：说出净张力削减最大的词（反复说同一个词 = 反复命名当前情境）。
+
+       因果绑定（规格要求）：只有绑定到「不可控情境类」的词，才具备「命名」的力量——
+       它作为检索键，把不可控区那批世界账从「点预测」改写为「类预测」，
+       该类张力被命名吸收到 NAMED_RESIDUAL，并把该类标记进 named（预测器侧生效）。
+       绑定到单一可控情境的词，只参与账本压缩（叙述变短），不改动预测器。"""
+    best, best_red = None, 0.0
+    for w in binding:
+        if binding[w][0] != 'EXT':
+            continue
+        cov = covered_sigs(w, binding, ledger, wpred)
+        red = sum(max(0.0, e.ema - NAMED_RESIDUAL) for e in _covered_standing(ledger, cov))
+        if red > best_red:
+            best_red, best = red, w
+    if best is None or best_red <= 0.0:
+        return None, set()
+    adopted.add(best)
+    is_ext_word = True
+    cov = covered_sigs(best, binding, ledger, wpred)
+    cells = set()
+    for e in ledger.values():
+        if e.sig not in cov:
+            continue
+        if e.modality == 'world':
+            e.ema = min(e.ema, NAMED_RESIDUAL)   # 点预测 -> 类预测，张力被命名吸收
+            named[e.sig[0]] = best
+            cells.add(e.sig[0])
+        else:
+            e.ema = min(e.ema, NAMED_RESIDUAL)
+    compression_log.append((step, best, best_red, len(cells)))
+    return best, cells
+
+
+def run_contest(steps=STEPS, speak_budget=SPEAK_BUDGET, seed=20261018, eps=EPS):
+    rng = random.Random(seed)
+    world = World(rng=random.Random(seed * 7 + 1))
+    wpred = WorldPredictor()
+    tpred = TokenPredictor()
+    selfact = defaultdict(lambda: defaultdict(int))
+
+    ledger = {}
+    visited = set()
+    tension_l = defaultdict(float)
+    tension_w = defaultdict(float)
+    named = {}                                   # cell -> word（已被词命名的情境）
+    binding = {}
+    adopted = set()
+    cooc = defaultdict(lambda: defaultdict(int))
+    deadend_log = []
+
+    stats = dict(speak=0, move=0, wait=0, accounts=0, lang_accounts=0, dead_ends=0,
+                 closures=0, named_adopts=0, wait_suppressed=0, deadlock_breaks=0,
+                 trap_steps=0)
+    traj = []                                    # (step, kind, action, target)
+    speak_events = []                            # (step, frozenset(cells))
+    compression_log = []
+    trap_wtrace = []                             # 每步：多结果区的世界侧平均张力
+    lang_wtrace = []                             # 每步：语言侧平均张力
+
+    pos = (1, 1)
+    visited.add(pos)
+    history = []
+    consec_wait = 0
+    pending_marks = defaultdict(list)             # cell -> [反思标记]（按情境签名触发）
+
+    for step in range(1, steps + 1):
+        s = pos
+        sp = selfact.get(s)
+        self_pred = max(sp.items(), key=lambda kv: kv[1])[0] if sp else None
+
+        # ---- 统一意图池：Move(4) + Speak + Wait，同池打分 ----
+        speak_allowed = stats['speak'] < speak_budget
+        move_target = {}
+        intents = []
+        for a in MOVE_LIST:
+            ns_pred, p = wpred.predict(s, a)
+            if ns_pred is not None and p >= 0.5:
+                t = ns_pred
+            else:
+                dx, dy = MOVES[a]
+                tx, ty = s[0] + dx, s[1] + dy
+                t = (tx, ty) if in_bounds(tx, ty) else s
+            move_target[a] = t
+            red = pred_reduction_move(t, ledger, wpred, visited, named)
+            intents.append(['MOVE', a, red / COST_MOVE, t])
+        red_s = pred_reduction_speak(ledger, binding, wpred) if speak_allowed else 0.0
+        intents.append(['SPEAK', None, red_s / COST_SPEAK, None])
+        intents.append(['WAIT', None, WAIT_REDUCTION / COST_WAIT, None])
+
+        # ---- 反思（继承）：再遇同一情境签名 -> 压制习惯动作 ----
+        pressed = set()
+        for mk in pending_marks.get(s, []):
+            if mk['act'] in MOVE_LIST:
+                pressed.add(mk['act'])
+        pending_marks.pop(s, None)
+
+        # ---- 选择意图（同池竞争；反思压制参与）----
+        if rng.random() < eps:
+            chosen = rng.choice(intents)
+        else:
+            chosen = None
+            for it in sorted(intents, key=lambda x: -x[2]):
+                if it[0] == 'MOVE' and it[1] in pressed:
+                    continue
+                chosen = it
+                break
+            if chosen is None:
+                chosen = sorted(intents, key=lambda x: -x[2])[0]
+
+        kind, action, score, target = chosen
+
+        # ---- 抑制门控（继承）：Move 目标若已判不可控 -> 忍住(WAIT) ----
+        if kind == 'MOVE':
+            led = ledger.get(wsig(target))
+            if led is not None and led.standing and led.ema > THETA_HIGH:
+                sc = stable_controllability(target, wpred)
+                if sc is not None and sc < CONTROL_FLOOR:
+                    if consec_wait >= DEADLOCK_BREAK:
+                        led.cooldown = step + 200
+                        stats['deadlock_breaks'] += 1
+                        consec_wait = 0
+                    else:
+                        kind = 'WAIT'
+                        stats['wait_suppressed'] += 1
+                        consec_wait += 1
+        if kind != 'WAIT':
+            consec_wait = 0
+
+        # ---- 执行 ----
+        spoken = None
+        spoken_cells = set()
+        if kind == 'MOVE':
+            ns = world.step(s, action)
+            stats['move'] += 1
+            # 世界张力与账本（模态=world）
+            # 因果绑定：若该情境已被命名（归入不可控类），预测器不再做点预测，
+            # 而是预测「属于该类」——具体结果不再构成错位，张力降到类归属残余。
+            wpred_ns, p = wpred.predict(s, action)
+            if s in named:
+                t_w = NAMED_RESIDUAL
+            elif wpred_ns is None or wpred_ns != ns:
+                t_w = 1.0
+            else:
+                t_w = 1 - p ** 2
+            wpred.learn(s, action, ns)
+            visited.add(s)
+            tension_w[s] = 0.7 * tension_w[s] + 0.3 * t_w
+            update_entry(ledger, wsig(s), 'world', t_w, step, stats, deadend_log)
+        elif kind == 'SPEAK':
+            ns = s
+            if not speak_allowed:
+                kind = 'WAIT'
+                action = WAIT
+                stats['wait'] += 1
+            else:
+                spoken, spoken_cells = do_speak(step, ledger, binding, adopted, wpred,
+                                                named, compression_log)
+                if spoken is None:
+                    kind = 'WAIT'
+                    action = WAIT
+                    stats['wait'] += 1
+                else:
+                    stats['speak'] += 1
+                    stats['named_adopts'] += 1
+                    speak_events.append((step, frozenset(spoken_cells)))
+        else:
+            ns = s
+            action = WAIT
+            stats['wait'] += 1
+
+        # ---- 规格7：符号序列语言侧（每 tick 照常流入）----
+        tok = world.emit(s)
+        window = tuple(history[-K_WIN:]) if len(history) >= K_WIN else \
+            tuple([PAD] * (K_WIN - len(history)) + history)
+        tp, tpdist = tpred.predict(window)
+        t_l = 1.0 if not tpdist else 1 - tpdist.get(tok, 0.0)
+        tpred.learn(window, tok)
+        history.append(tok)
+        tension_l[tok] = 0.7 * tension_l[tok] + 0.3 * t_l
+        update_entry(ledger, lsig(window, slot(t_l)), 'lang', t_l, step, stats,
+                     deadend_log)
+
+        # ---- 规格8：指称绑定 ----
+        cooc[tok][s] += 1
+        if tok not in binding:
+            b = try_bind(tok, cooc, wpred)
+            if b is not None:
+                binding[tok] = b
+
+        # ---- 自我模型 & 反思标记 ----
+        label = action if kind == 'MOVE' else kind
+        selfact[s][label] += 1
+        if self_pred is not None and self_pred != label:
+            pending_marks[s].append(dict(act=self_pred, step=step))
+
+        # ---- 记录轨迹 & 张力走势 ----
+        traj.append((step, kind, action, target))
+        tw = [e.ema for e in ledger.values()
+              if (not e.closed) and e.modality == 'world' and is_trap(*e.sig[0])]
+        trap_wtrace.append(sum(tw) / len(tw) if tw else 0.0)
+        lw = [e.ema for e in ledger.values() if e.standing and e.modality == 'lang']
+        lang_wtrace.append(sum(lw) / len(lw) if lw else 0.0)
+
+        if is_trap(*s):
+            stats['trap_steps'] += 1
+        pos = ns
+
+    # ---------------- 派生：划界 ----------------
+    self_cells, ext_cells, unknown = set(), set(), set()
+    for cell in {c for (c, a) in wpred.obs}:
+        sc = stable_controllability(cell, wpred)
+        if sc is None:
+            unknown.add(cell)
+        elif sc >= CONTROL_FLOOR:
+            self_cells.add(cell)
+        else:
+            ext_cells.add(cell)
+    open_cells = [c for c in (self_cells | ext_cells) if not is_trap(*c)]
+    open_in_self = sum(1 for c in open_cells if c in self_cells)
+
+    return dict(
+        steps=steps, speak_budget=speak_budget, stats=stats, ledger=ledger,
+        binding=binding, adopted=adopted, named=named, traj=traj,
+        speak_events=speak_events, compression_log=compression_log,
+        tension_l=tension_l, trap_wtrace=trap_wtrace, lang_wtrace=lang_wtrace,
+        visited=visited, self_cells=self_cells, ext_cells=ext_cells, unknown=unknown,
+        trap_in_ext=sum(1 for c in TRAP if c in ext_cells),
+        open_in_self=open_in_self, open_total=len(open_cells),
+    )
+
+
+def report_contest(steps=STEPS):
+    R = run_contest(steps=steps, speak_budget=SPEAK_BUDGET)
+    R0 = run_contest(steps=steps, speak_budget=0)         # L9：堵住嘴
+
+    st = R['stats']
+    print("=" * 70)
+    print("实验 · 预算争夺战（Move / Speak / Wait 同池竞争）")
+    print("=" * 70)
+
+    print("\n[意图池] 同池打分 = 预期张力削减量 / 成本；无 reward/loss")
+    print(f"    Move={st['move']}  Speak={st['speak']}  Wait={st['wait']}  "
+          f"（世界侧忍住={st['wait_suppressed']}，防死锁降级={st['deadlock_breaks']}）")
+    print(f"    采纳词 = {sorted(R['adopted'])}   命名情境格 = {len(R['named'])} 个")
+
+    # ---- L7 预算分配比 ----
+    tot = st['move'] + st['speak'] + st['wait']
+    print("\n[L7] 预算分配比")
+    print(f"    Move : Speak : Wait = {st['move']}/{tot} : {st['speak']}/{tot} : {st['wait']}/{tot}")
+    if st['speak']:
+        print(f"    → Speak/Move = {st['speak'] / st['move']:.2f}"
+              if st['move'] else "    → Move=0")
+
+    # ---- L8 语言干预行动率 ----
+    print("\n[L8] 语言干预行动率（Speak 后 3 步内，Move 指向「同一不可控情境」的概率）")
+    by_step = {r[0]: r for r in R['traj']}
+    moves = [r for r in R['traj'] if r[1] == 'MOVE']
+    base_rate = (sum(1 for r in moves if is_trap(*r[3])) / len(moves)) if moves else 0.0
+    post_steps = set()
+    for (sstep, _cells) in R['speak_events']:
+        for d in range(1, 4):
+            post_steps.add(sstep + d)
+    post_mv = [by_step[t] for t in post_steps if t in by_step and by_step[t][1] == 'MOVE']
+    win_hit = sum(1 for r in post_mv if is_trap(*r[3]))
+    post_rate = (win_hit / len(post_mv)) if post_mv else 0.0
+    delta = post_rate - base_rate
+    print(f"    基线：全程序 Move 指向不可控区概率 = {base_rate:.2f}（全程序 {len(moves)} 步 Move）")
+    print(f"    Speak 后 3 步内 = {post_rate:.2f}（去重后 {len(post_mv)} 步 Move）")
+    print(f"    → 朴素变化 Δ = {delta:+.2f}")
+
+    # 同窗口对照：R 与 R0 在首次说话前轨迹一致，故 T1..T2 窗口天然配对；
+    # 该窗口内 R 有嘴、R0 堵嘴 —— 差值才是语言对行动的净干预（排除时间/位置混淆）。
+    net_jn = None
+    if R['speak_events']:
+        t1 = R['speak_events'][0][0]
+        t2 = max(s for (s, _c) in R['speak_events']) + 3
+
+        def wrate(rr):
+            mv = [x for x in rr['traj'] if x[1] == 'MOVE' and t1 <= x[0] <= t2]
+            return ((sum(1 for x in mv if is_trap(*x[3])) / len(mv), len(mv)) if mv else (0.0, 0))
+        rw, nw = wrate(R)
+        r0w, n0 = wrate(R0)
+        net_jn = rw - r0w
+        print(f"    同窗口[{t1},{t2}]对照：有嘴 = {rw:.2f}({nw}步)  堵嘴 = {r0w:.2f}({n0}步)"
+              f"  → 净干预 = {net_jn:+.2f}")
+        print("    （" + ("语言真的改变了世界侧行动"
+                        if abs(net_jn) >= 0.10 else "语言未净改变行动 -> 疑似脱节") + "）")
+
+    # ---- 因果绑定：命名那次说话是否真的降低了「不可控区」的预测张力 ----
+    print("\n[因果绑定] 命名是否真的降低了「不可控区」的预测张力")
+    named_events = [r for r in R['compression_log'] if r[3] > 0]
+
+    def win(lo, hi):
+        lo, hi = max(0, lo), min(len(R['trap_wtrace']), hi)
+        seg = R['trap_wtrace'][lo:hi]
+        return (sum(seg) / len(seg)) if seg else 0.0
+
+    if named_events:
+        fstep, fword, _fred, fn = named_events[0]
+        pre, post = win(fstep - 7, fstep - 1), win(fstep - 1, fstep + 5)
+        print(f"    首次命名 step={fstep} 词「{fword}」覆盖 {fn} 个不可控情境格")
+        print(f"    命名前 不可控区平均世界张力 = {pre:.3f}")
+        print(f"    命名后 = {post:.3f}   下降 = {pre - post:+.3f}")
+        extra = [(st, win(st - 2, st - 1), win(st - 1, st + 2)) for (st, _w, _r, _n) in named_events[1:]]
+        if extra:
+            drops = [a - b for (_, a, b) in extra]
+            print(f"    后续重复命名 {len(extra)} 次：平均再降 {sum(drops)/len(drops):+.3f}"
+                  f"（≈0 = 同一个词不再产生新削减 -> 边际收益归零）")
+    else:
+        print("    无命名事件，无法测因果链")
+
+    # ---- L9 崩溃测试 ----
+    print("\n[L9] 崩溃测试：把 SPEAK_BUDGET 强制设为 0（堵嘴）")
+    def eff(r):
+        mv = [x for x in r['traj'] if x[1] == 'MOVE']
+        waste = (sum(1 for x in mv if is_trap(*x[3])) / len(mv)) if mv else 0.0
+        cov = r['open_in_self'] / r['open_total'] if r['open_total'] else 0.0
+        return cov, waste, r['trap_in_ext']
+    c1, w1, e1 = eff(R)
+    c0, w0, e0 = eff(R0)
+    print(f"    有嘴：开敞覆盖 {c1*100:.0f}%   浪费在不可控区的 Move 占比 {w1*100:.0f}%   "
+          f"多结果区->外界 {e1}/9   停留 {R['stats']['trap_steps']}")
+    print(f"    堵嘴：开敞覆盖 {c0*100:.0f}%   浪费在不可控区的 Move 占比 {w0*100:.0f}%   "
+          f"多结果区->外界 {e0}/9   停留 {R0['stats']['trap_steps']}")
+    collapse = (c1 - c0) > 0.05 or (e1 - e0) >= 2 or (w0 - w1) > 0.10
+    print(f"    → {'崩盘：堵嘴后探索效率下降，语言是认知必需品' if collapse else '未崩盘：此判据下语言非必需'}")
+
+    # ---- 结论判定 ----
+    print("\n[判定]")
+    if st['speak'] == 0:
+        print("    工具人：说话从不被选中 -> 语言模块与世界模块脱节。")
+    elif st['move'] and st['speak'] / max(1, st['move']) >= 0.5:
+        print("    自欺者：说话压过行动（Speak/Move≥0.5）-> 沉溺命名、身体停摆。")
+    elif net_jn is not None and abs(net_jn) >= 0.10:
+        print("    真参与：说话既吸收张力（因果绑定），又净改变了世界侧行动。")
+    else:
+        print("    日记本（脱节）：说话确实吸收/压缩了张力（因果绑定成立），")
+        print("      但配对对照下未净改变世界侧行动、且堵嘴不崩盘 -> 语言是记账层，不是行动层。")
+
+
 if __name__ == '__main__':
-    report(run(steps=int(sys.argv[1]) if len(sys.argv) > 1 and sys.argv[1].isdigit() else STEPS))
+    if len(sys.argv) > 1 and sys.argv[1] == 'contest':
+        report_contest(steps=int(sys.argv[2]) if len(sys.argv) > 2 and sys.argv[2].isdigit() else STEPS)
+    else:
+        report(run(steps=int(sys.argv[1]) if len(sys.argv) > 1 and sys.argv[1].isdigit() else STEPS))
