@@ -324,17 +324,16 @@ class ProtoMem:
 
     def probe_gain(self, sit, ai):
         """预期信息增益：从「当前情境 sit」执行动作 ai，还能改变多少我对此地的判断。
-        与 reward 无关——它只因「答案还没定」而想动手。这里的关键修正：
-        动作的后果是记在「当前情境」上的（observe 用 sit），所以信息增益要问
-        「从这我往这个方向走，这个方向的能不能走，我还不知道吗」——
-        而不是问「预测到的目标情境的新鲜度」。
-          1) 该方向尚未检验（试得少） -> 高（"这里朝那边到底能不能走"还没被问过）
-          2) 该情境的可控度 eta^2 骑在决策边界上 -> 高（"这到底是墙还是路？"）
-          3) 观测越多、结论越硬 -> 越低（问也白问，信息增益趋零 -> 试探自然衰减）
+        与 reward 无关——它只因「答案还没定」而想动手。两条关键设计：
+          (a) 动作的后果记在「当前情境」上（observe 用 sit），所以信息增益要问
+              「从这往这个方向走、这个方向能不能走，我还不知道吗」；
+          (b) 「这个方向还没试过」是离散事实，不随访问次数衰减——
+              否则贴墙这类「被反复路过、却从没朝墙里推过」的情境，
+              试探冲动会被访问数稀释掉（这正是它"沿墙走不相墙"的机制根源）。
+        只在该方向被试过（untried↓）或可控性已确证（edge↓）时才归零 -> 试探自然衰减。
         """
         if sit < 0:
             return 1.0                                   # 完全陌生
-        n = self.n[sit]
         rec = self.st.get((sit, ai))
         seen_dir = rec[0] if rec is not None else 0
         untried = 1.0 / (1.0 + seen_dir)                 # 没试过=1；反复试过 -> 趋 0
@@ -345,7 +344,8 @@ class ProtoMem:
             eta2 = s[0]
             d = min(abs(eta2 - CHAOS_ETA), abs(eta2 - CTRL_FLOOR))
             edge = math.exp(-d / PROBE_Q_EDGE_W)         # 骑在决策边界上
-        return (0.30 + 0.70 * edge) * (0.20 + 0.80 * untried) / (1.0 + 0.12 * n)
+        # 无访问数衰减：未试过的方向 => 强信息增益；已试过/已确证 => 归零
+        return (0.30 + 0.70 * edge) * (0.05 + 0.95 * untried)
 
     def deep_uncontrollable(self, t):
         """是否已「确信」该情境是无法自控的核心（用于防自毁，禁止主动潜入）。"""
@@ -566,7 +566,13 @@ def run(steps=STEPS, warmup=WARMUP, seed=SEED, outdir='/workspace', active_probe
         lt_hot = (lt is not None and (lt['standing'] >= 3
                   or (lt['n'] > 0 and lt['tension'] / lt['n'] >= t_high + 0.8)))
         # 抑制门控（世界侧「忍住」）：意图动作会踏进「仍挂起(高张力)且不可控」的账 -> 先不动
-        suppress = ((not cur_bad) and i_cls in UNCTRL and lt_hot)
+        # 例外：主动试探（信息增益驱动）在「可控/不可控的边缘」不受此门控阻挡——
+        #   门控本意是防死锁/防乱冲，但它会连"朝墙里推一步去证实它是墙"也一并禁掉，
+        #   使边界永远只能被路过、不能被撞到。规格要求试探恰恰要发生在边缘，
+        #   故 BOUNDARY/EXTERNAL（边缘）放行，只有已确信的 CHAOS 核心仍由 DEEP_PENALTY 兜底禁止。
+        probe_edge = ((active_probe and is_probe)
+                      and i_cls in ('BOUNDARY', 'EXTERNAL'))
+        suppress = ((not cur_bad) and i_cls in UNCTRL and lt_hot and not probe_edge)
         br = ''
         if prev_blocked and rng.random() < 0.7:
             kind = rng.choice(MOVES); chosen_idx = ACTIONS.index(kind); br = 'escape'
