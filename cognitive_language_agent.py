@@ -83,13 +83,16 @@ class World:
     traps/w/h 可参数化（供 L10 泛化实验放两处陷阱区）；
     surf(cell) = 地表特征：可被"看见"、无需踏入——两处陷阱区共享 RISK_MARK。"""
 
-    def __init__(self, jitter=0.0, rng=None, traps=None, w=None, h=None):
+    def __init__(self, jitter=0.0, rng=None, traps=None, w=None, h=None,
+                 surf_override=None):
         self.rng = rng or random.Random(0)
         self.jitter = jitter
         self.reg = 0
         self.traps = set(traps) if traps is not None else set(TRAP)
         self.w = w or W
         self.h = h or H
+        # L11：地表标记可被「说谎」——贴着真标签，物理属性却相反。
+        self.surf_override = dict(surf_override) if surf_override else {}
 
     def in_bounds(self, x, y):
         return 0 <= x < self.w and 0 <= y < self.h
@@ -122,7 +125,10 @@ class World:
         return tok
 
     def surf(self, cell):
-        """地表特征：站在旁边就能看见（不需要踏入）。两处陷阱区共享 RISK_MARK。"""
+        """地表特征：站在旁边就能看见（不需要踏入）。两处陷阱区共享 RISK_MARK。
+           L11：surf_override 让标记可以「说谎」——贴真标签、给假物理属性。"""
+        if cell in self.surf_override:
+            return self.surf_override[cell]
         if cell in self.traps:
             return RISK_MARK
         x, y = cell
@@ -754,51 +760,56 @@ def _covered_standing(ledger, cov):
     return [e for e in ledger.values() if e.standing and e.sig in cov]
 
 
-def pred_reduction_speak(ledger, binding, wpred):
+def pred_reduction_speak(ledger, binding, wpred, bind_conf=None):
     """这一步 Speak 预计能新压掉多少张力（边际净削减，规格9「净压缩收益>0」）。
        关键口径：反复说同一个词不会重复削同一批张力——被命名/吸收过的条目
        张力已降到 NAMED_RESIDUAL，再算进去只会高估 Speak，让它无脑压过 Move。
-       因此只累计「相对 NAMED_RESIDUAL 还高出多少」。"""
+       因此只累计「相对 NAMED_RESIDUAL 还高出多少」。
+       L11：NAMED_RESIDUAL 随词的可信度动态化（可信度被物理证伪打下来 -> 命名不再管用）。"""
     best = 0.0
     for w in binding:
         if binding[w][0] != 'EXT':
             continue        # 只有绑定「不可控情境类」的词会吸收张力
+        res = 1 - (bind_conf.get(w, BIND_CONF) if bind_conf else BIND_CONF)
         cov = covered_sigs(w, binding, ledger, wpred)
-        red = sum(max(0.0, e.ema - NAMED_RESIDUAL) for e in _covered_standing(ledger, cov))
+        red = sum(max(0.0, e.ema - res) for e in _covered_standing(ledger, cov))
         best = max(best, red)
     return best
 
 
-def do_speak(step, ledger, binding, adopted, wpred, named, compression_log):
+def do_speak(step, ledger, binding, adopted, wpred, named, compression_log,
+             bind_conf=None):
     """执行 Speak：说出净张力削减最大的词（反复说同一个词 = 反复命名当前情境）。
 
        因果绑定（规格要求）：只有绑定到「不可控情境类」的词，才具备「命名」的力量——
        它作为检索键，把不可控区那批世界账从「点预测」改写为「类预测」，
        该类张力被命名吸收到 NAMED_RESIDUAL，并把该类标记进 named（预测器侧生效）。
-       绑定到单一可控情境的词，只参与账本压缩（叙述变短），不改动预测器。"""
+       绑定到单一可控情境的词，只参与账本压缩（叙述变短），不改动预测器。
+       L11：吸收到的残余张力 = 1 - 该词当前可信度；可信度被打下来后，命名不再能吸收张力。"""
     best, best_red = None, 0.0
     for w in binding:
         if binding[w][0] != 'EXT':
             continue
+        res = 1 - (bind_conf.get(w, BIND_CONF) if bind_conf else BIND_CONF)
         cov = covered_sigs(w, binding, ledger, wpred)
-        red = sum(max(0.0, e.ema - NAMED_RESIDUAL) for e in _covered_standing(ledger, cov))
+        red = sum(max(0.0, e.ema - res) for e in _covered_standing(ledger, cov))
         if red > best_red:
             best_red, best = red, w
     if best is None or best_red <= 0.0:
         return None, set()
     adopted.add(best)
-    is_ext_word = True
+    res = 1 - (bind_conf.get(best, BIND_CONF) if bind_conf else BIND_CONF)
     cov = covered_sigs(best, binding, ledger, wpred)
     cells = set()
     for e in ledger.values():
         if e.sig not in cov:
             continue
         if e.modality == 'world':
-            e.ema = min(e.ema, NAMED_RESIDUAL)   # 点预测 -> 类预测，张力被命名吸收
+            e.ema = min(e.ema, res)   # 点预测 -> 类预测，张力被命名吸收
             named[e.sig[0]] = best
             cells.add(e.sig[0])
         else:
-            e.ema = min(e.ema, NAMED_RESIDUAL)
+            e.ema = min(e.ema, res)
     compression_log.append((step, best, best_red, len(cells)))
     return best, cells
 
@@ -1127,25 +1138,58 @@ G_STEPS = 6000
 G_DEMO_SEED = 2            # 演示用 seed（"先验先于遭遇"的典型；稳健性表会给出全部 seed）
 PREDICTED_HIGH_TENSION = THETA_HIGH    # 语言先验命中时，「忍住」避免掉的预期高张力
 
+# ---- L11 语言证伪：当物理现实与语言先验冲突，词能否"把话吃回去" ----
+#   环境允许「说谎」：贴真标签（地表仍是 RISK_MARK），但物理属性相反（其实是安全格）。
+#   机制：物理试探成功（发现根本可控）-> 降低该词的 BIND_CONF + 进入审查期 + 局部解绑该格。
+BIND_TRUST_FLOOR = 0.40    # 词可信度跌破此值 -> 先验不再拦人（整体解绑）
+CONF_DECAY_STEP = 0.20     # 每一次被物理证伪 -> 该词可信度下降量
+FALSIFY_MIN = 8           # 判定"该格其实可控"所需的最少物理试探样本（样本太少真陷阱会被误判）
+DEFLECT_MAX = 0.10        # 试探偏转率阈值：假陷阱恒为 0.0；真陷阱均值≈0.75（留出明显鸿沟防误判）
+PROBATION_STEPS = 600     # 审查期长度：期内先验不得强制拦人，先放行物理试探
+PROBE_LEN = 18            # 一次「探索预算」物理试探的往返步数（≈采 9 个控制样本，覆盖 FALSIFY_MIN）
+
 
 def adjacent_to(cell, zone):
     x, y = cell
     return any((x + dx, y + dy) in zone for dx, dy in MOVES.values())
 
 
-def lang_prior_high(cell, binding, world):
+def reverse_dir(a):
+    return rotate(a, 2)
+
+
+def lang_prior_high(cell, binding, world, bind_conf=None, falsified=None,
+                    probation=None, step=0):
     """先验检索：即将踏入的格子的地表特征，是否命中一个已绑定「不可控类」的词。
-       命中 -> 语言在出手前就把该区标成「疑似不可控」。BIND_CONF 保证不瞎认。"""
-    b = binding.get(world.surf(cell))
-    return b is not None and b[0] == 'EXT'
+       命中 -> 语言在出手前就把该区标成「疑似不可控」。BIND_CONF 保证不瞎认。
+       L11 证伪补丁：
+         - bind_conf：词的可信度；跌破 BIND_TRUST_FLOOR -> 整体解绑，先验不再拦人。
+         - falsified：已被物理证伪为安全的格子 -> 局部解绑，这一格不再瞎拦。
+         - probation：审查期内先验不得强制拦人（留出物理试探的余地）。"""
+    m = world.surf(cell)
+    b = binding.get(m)
+    if b is None or b[0] != 'EXT':
+        return False
+    if falsified is not None and cell in falsified:
+        return False
+    if bind_conf is not None and bind_conf.get(m, BIND_CONF) < BIND_TRUST_FLOOR:
+        return False
+    if probation is not None and probation.get(m, 0) > step:
+        return False
+    return True
 
 
 def run_generalize(steps=G_STEPS, speak_budget=SPEAK_BUDGET, seed=20261018, eps=EPS,
-                   lang_gate=True):
-    """lang_gate=False：语言仍可说、可压缩，但不得干预行动（归因隔离对照）。"""
+                   lang_gate=True, world=None, falsify=False, watch_cells=()):
+    """lang_gate=False：语言仍可说、可压缩，但不得干预行动（归因隔离对照）。
+       world=None        ：默认用 L10 环境（旧陷阱+新陷阱）。
+       falsify=True      ：开启 L11 证伪机制（物理试探与先验冲突 -> 置信衰减/解绑/审查期）。
+       watch_cells       ：需要单独统计「边缘忍住」的格子（L11 假陷阱）。"""
     rng = random.Random(seed)
-    world = World(rng=random.Random(seed * 7 + 1),
-                  traps=OLD_TRAP | NEW_TRAP, w=GW, h=GH)
+    if world is None:
+        world = World(rng=random.Random(seed * 7 + 1),
+                      traps=OLD_TRAP | NEW_TRAP, w=GW, h=GH)
+    watch_cells = set(watch_cells)
     wpred = WorldPredictor()
     tpred = TokenPredictor()
     selfact = defaultdict(lambda: defaultdict(int))
@@ -1180,6 +1224,26 @@ def run_generalize(steps=G_STEPS, speak_budget=SPEAK_BUDGET, seed=20261018, eps=
     edge_first_step = None         # 第一次逼近新区（身处新区边缘）的步数
     edge_first_kind = None         # 该边缘决策上实际选了什么（MOVE/WAIT/SPEAK）——用于同窗口配对归因
 
+    # ---- L11 证伪状态 ----
+    bind_conf = {}                          # 词 -> 可信度（初始 BIND_CONF，被物理证伪则下降）
+    falsified_cells = set()                 # 已被物理证伪为安全、故局部解绑的格子
+    probation = {}                          # 词 -> 审查期截止步（期内先验不得强制拦人）
+    deflect = defaultdict(list)             # 格子 -> 物理试探样本（1=动作被偏转=不可控，0=守住=可控）
+    probe_tries = defaultdict(int)          # 格子 -> 被"逼着试探"的次数（用于挑最没试过的先验格）
+    falsify_events = []                     # (step, 词, 格子, 旧可信度, 新可信度)
+    watch_edge_wait = defaultdict(int)      # watch_cells -> 因先验而忍住的次数
+    watch_edge_wait_pre = defaultdict(int)  # 全局解绑前：因先验而忍住
+    watch_edge_wait_post = defaultdict(int) # 全局解绑后：因先验而忍住（应趋近 0 -> 解绑泛化）
+    unbind_step = None                      # 「陷」可信度首次跌破信任下限的步数（整体解绑时刻）
+    first_fake_entry = None                  # 第一次踏入某个 watch_cell 的步数
+    fake_entries = defaultdict(int)          # watch_cell -> 被踏入次数
+    fake_first = {}                          # watch_cell -> 首次踏入步数
+    forced_probes = 0                        # 探索预算（DEADLOCK_BREAK 逼出的物理试探）次数
+    probe_steps = 0                          # 试探期内剩余往返步数
+    probe_cell = None                        # 正在被试探的格子
+    probe_action = None                      # 往返回路所用动作
+    probe_pending = False                    # 本步刚发起一次物理试探（进入试探期）
+
     for step in range(1, steps + 1):
         s = pos
         sp = selfact.get(s)
@@ -1199,15 +1263,18 @@ def run_generalize(steps=G_STEPS, speak_budget=SPEAK_BUDGET, seed=20261018, eps=
                 t = (tx, ty) if world.in_bounds(tx, ty) else s
             move_targets.append(t)
             red = pred_reduction_move(t, ledger, wpred, visited, named)
-            if lang_gate and lang_prior_high(t, binding, world):
+            if lang_gate and lang_prior_high(t, binding, world, bind_conf,
+                                             falsified_cells, probation, step):
                 red = 0.0               # 语言先验：前方疑似不可控 -> 不值得走
             intents.append(['MOVE', a, red / COST_MOVE, t])
-        red_s = pred_reduction_speak(ledger, binding, wpred) if speak_allowed else 0.0
+        red_s = pred_reduction_speak(ledger, binding, wpred, bind_conf) if speak_allowed else 0.0
         intents.append(['SPEAK', None, red_s / COST_SPEAK, None])
 
         # 语言先验命中 -> 「忍住」本身变成高收益动作（避免掉预期高张力）
         prior_found = (lang_gate and
-                       any(lang_prior_high(t, binding, world) for t in move_targets))
+                       any(lang_prior_high(t, binding, world, bind_conf,
+                                           falsified_cells, probation, step)
+                           for t in move_targets))
         wait_red = PREDICTED_HIGH_TENSION if prior_found else WAIT_REDUCTION
         intents.append(['WAIT', None, wait_red / COST_WAIT, None])
 
@@ -1236,16 +1303,37 @@ def run_generalize(steps=G_STEPS, speak_budget=SPEAK_BUDGET, seed=20261018, eps=
         # ---- 门控放行：语言先验命中 -> 忍住；但计入连续忍住，防死锁 ----
         lang_block = (prior_found and kind == 'WAIT')
         lang_block_move = (lang_gate and kind == 'MOVE'
-                           and lang_prior_high(target, binding, world))
+                           and lang_prior_high(target, binding, world, bind_conf,
+                                               falsified_cells, probation, step))
         if lang_block or lang_block_move:
             if consec_wait >= DEADLOCK_BREAK:
-                # 防死锁兜底：逼它绕路（选一个非先验高能的 Move），不许原地冻住
+                # 防死锁兜底：不许原地冻住。两条出路：① 冲过去做一次物理试探；② 绕路。
                 stats['deadlock_breaks'] += 1
                 consec_wait = 0
-                if lang_block:
+                probe = None
+                if falsify:
+                    # L11 探索预算：挑一个先验高能、最没试过的格子 -> 把语言先验交给现实裁决
+                    cands = [it for it in intents if it[0] == 'MOVE'
+                             and lang_prior_high(it[3], binding, world, bind_conf,
+                                                 falsified_cells, probation, step)]
+                    if cands:
+                        probe = min(cands, key=lambda it: (probe_tries[it[3]], -it[2]))
+                        probe_tries[probe[3]] += 1
+                        forced_probes += 1
+                if probe is not None:
+                    _, action, _s, target = probe
+                    kind = 'MOVE'
+                    probe_pending = True
+                    # 记下往返回路：下一步踏入 probe_cell，此后在 probe_cell 与来处之间强制往返
+                    probe_action = action
+                    probe_cell = target
+                    probe_steps = PROBE_LEN
+                else:
+                    # 绕路：选一个非先验高能的 Move（L10 原行为）
                     alt = next((it for it in sorted(intents, key=lambda x: -x[2])
                                 if it[0] == 'MOVE'
-                                and not lang_prior_high(it[3], binding, world)), None)
+                                and not lang_prior_high(it[3], binding, world, bind_conf,
+                                                        falsified_cells, probation, step)), None)
                     if alt is not None:
                         _, action, _s, target = alt
                         kind = 'MOVE'
@@ -1254,6 +1342,14 @@ def run_generalize(steps=G_STEPS, speak_budget=SPEAK_BUDGET, seed=20261018, eps=
                 stats['wait_by_lang'] += 1
                 if adjacent_to(s, NEW_TRAP):
                     edge_waits_lang += 1
+                for wc in watch_cells:            # L11：记录在假陷阱边缘因先验而忍住
+                    if adjacent_to(s, {wc}):
+                        watch_edge_wait[wc] += 1
+                        # 区分「整体解绑前/后」——解绑后若仍被吓住，说明语义未修正
+                        if unbind_step is not None and step > unbind_step:
+                            watch_edge_wait_post[wc] += 1
+                        else:
+                            watch_edge_wait_pre[wc] += 1
                 consec_wait += 1
 
         # ---- 抑制门控（继承）：物理划界 -> 忍住 ----
@@ -1275,6 +1371,17 @@ def run_generalize(steps=G_STEPS, speak_budget=SPEAK_BUDGET, seed=20261018, eps=
         if kind != 'WAIT':
             consec_wait = 0
 
+        # ---- L11 探索预算·试探期：强制往返同一动作，专门采集"控制守不守得住"的样本 ----
+        if probe_steps > 0:
+            rp = reverse_dir(probe_action)
+            # 未在试探格上 -> 朝它走（probe_action）；已在试探格上 -> 退回（反方向）
+            action = rp if s == probe_cell else probe_action
+            kind = 'MOVE'
+            target = None
+            probe_steps -= 1
+            if probe_steps == 0:
+                probe_cell = None
+
         # ---- 执行 ----
         spoken = None
         spoken_cells = set()
@@ -1284,7 +1391,7 @@ def run_generalize(steps=G_STEPS, speak_budget=SPEAK_BUDGET, seed=20261018, eps=
             stats['move'] += 1
             wpred_ns, p = wpred.predict(s, action)
             if s in named:
-                t_w = NAMED_RESIDUAL
+                t_w = 1 - bind_conf.get(named[s], BIND_CONF)   # 命名残余随词可信度动态化
             elif wpred_ns is None or wpred_ns != ns:
                 t_w = 1.0
             else:
@@ -1294,13 +1401,36 @@ def run_generalize(steps=G_STEPS, speak_budget=SPEAK_BUDGET, seed=20261018, eps=
             update_entry(ledger, wsig(s), 'world', t_w, step, stats, deadend_log)
             if s in NEW_TRAP:
                 new_inside_tension += t_w     # 在新区里动作被偏转 -> 试错代价
+            # ---- L11 物理证伪：贴着我们"不可控类"标签的格子，被实际试探后若"守得住" -> 标签说谎 ----
+            if falsify and world.surf(s) == RISK_MARK:
+                ix, iy = s[0] + MOVES[action][0], s[1] + MOVES[action][1]
+                if world.in_bounds(ix, iy):              # 撞墙不算样本（那是边界，不是控制失败）
+                    deflect[s].append(0 if ns == (ix, iy) else 1)
+                    w = world.surf(s)
+                    if (s not in falsified_cells
+                            and len(deflect[s]) >= FALSIFY_MIN
+                            and sum(deflect[s]) / len(deflect[s]) <= DEFLECT_MAX):
+                        old_c = bind_conf.get(w, BIND_CONF)
+                        new_c = max(0.0, old_c - CONF_DECAY_STEP)
+                        bind_conf[w] = new_c
+                        falsified_cells.add(s)           # 局部解绑：这一格已被证伪为安全
+                        probation[w] = step + PROBATION_STEPS  # 审查期：先验暂不得强制拦人
+                        falsify_events.append((step, w, s, old_c, new_c))
+                        if unbind_step is None and new_c < BIND_TRUST_FLOOR:
+                            unbind_step = step           # 词可信度跌破下限 -> 整体解绑
+
+            if first_fake_entry is None and ns in watch_cells:
+                first_fake_entry = step
+            if ns in watch_cells:
+                fake_entries[ns] += 1
+                fake_first.setdefault(ns, step)
         elif kind == 'SPEAK':
             ns = s
             if not speak_allowed:
                 kind = 'WAIT'; action = WAIT; stats['wait'] += 1
             else:
                 spoken, spoken_cells = do_speak(step, ledger, binding, adopted, wpred,
-                                                named, compression_log)
+                                                named, compression_log, bind_conf)
                 if spoken is None:
                     kind = 'WAIT'; action = WAIT; stats['wait'] += 1
                 else:
@@ -1327,6 +1457,7 @@ def run_generalize(steps=G_STEPS, speak_budget=SPEAK_BUDGET, seed=20261018, eps=
             if b[0] == 'EXT' and tok not in bind_step:
                 bind_step[tok] = step
             binding[tok] = b
+            bind_conf.setdefault(tok, BIND_CONF)     # L11：词的可信度从 BIND_CONF 起
 
         # ---- 自我模型 & 反思 ----
         label = action if kind == 'MOVE' else kind
@@ -1353,6 +1484,15 @@ def run_generalize(steps=G_STEPS, speak_budget=SPEAK_BUDGET, seed=20261018, eps=
         first_new_step=first_new_step, new_inside_tension=new_inside_tension,
         edge_waits_lang=edge_waits_lang, edge_waits_phys=edge_waits_phys,
         edge_first_step=edge_first_step, edge_first_kind=edge_first_kind,
+        # ---- L11 证伪 ----
+        bind_conf=bind_conf, falsified_cells=falsified_cells, probation=probation,
+        falsify_events=falsify_events, deflect=dict(deflect),
+        watch_edge_wait=dict(watch_edge_wait), first_fake_entry=first_fake_entry,
+        fake_entries=dict(fake_entries), fake_first=dict(fake_first),
+        forced_probes=forced_probes,
+        watch_edge_wait_pre=dict(watch_edge_wait_pre),
+        watch_edge_wait_post=dict(watch_edge_wait_post),
+        unbind_step=unbind_step,
     )
 
 
@@ -1474,10 +1614,178 @@ def robust_generalize(seeds=(20261018, 1, 2, 3, 7, 42, 99, 123), steps=G_STEPS):
     print("          这本身是一条可量化的时序律，不是无条件涌现。")
 
 
+# ================================================================
+# 实验 · L11 语言证伪（语言必须能接受现实的反驳）
+#   环境允许「说谎」：贴真标签（地表仍写 RISK_MARK '陷'），但物理属性相反——
+#      · 欺骗区：3 格贴「陷」，其中 1 格其实是安全的（假陷阱）-> 语言过度报警 -> 该被证伪；
+#      · 反向欺骗：贴「日」安全标记、其实不可控的格子（假安全）-> 语言漏报 -> 会被"咬一口"。
+#   机制：物理试探与先验冲突 -> 降低该词 BIND_CONF + 进入审查期 + 局部解绑该格。
+#   验收：L11-1 证伪效率 / L11-2 解绑泛化 / L11-3 信念冲突处理
+# ================================================================
+F_OLD_TRAP = {(x, y) for x in range(1, 4) for y in range(1, 4)}      # 真·旧陷阱（早期学成 陷→EXT）
+F_NEW_TRAP = {(x, y) for x in range(8, 11) for y in range(8, 11)}    # 真·新陷阱（从未踏足）
+F_DECOY = {(7, 8), (7, 9), (7, 10)}      # 欺骗区：3 格都贴「陷」，其实全是安全的（一张假标签）
+F_FAKE1 = (7, 9)                          # 假陷阱 #1（欺骗区内格）
+F_FAKE2 = (9, 7)                          # 假陷阱 #2：贴「陷」，其实安全（测"解绑泛化"）
+F_UNDER = (7, 7)                          # 反向欺骗：贴「日」，其实不可控（测"被咬一口"）
+F_START = (0, 0)
+F_STEPS = 8000
+F_DEMO_SEED = 2
+
+
+def falsify_world(seed):
+    """L11 世界：真标签 + 假物理属性。traps 决定真实物理；surf_override 决定地表标记。"""
+    traps = F_OLD_TRAP | F_NEW_TRAP | {F_UNDER}
+    over = {c: RISK_MARK for c in F_DECOY}      # 欺骗区：贴「陷」其实安全 -> 语言说谎
+    over[F_FAKE2] = RISK_MARK
+    over[F_UNDER] = VOCAB_REG[0]                # '日'：看起来安全，其实不可控
+    return World(rng=random.Random(seed * 7 + 1), traps=traps, w=GW, h=GH,
+                 surf_override=over)
+
+
+def run_falsify(seed=F_DEMO_SEED, steps=F_STEPS, falsify=True, lang_gate=True,
+                speak_budget=SPEAK_BUDGET):
+    return run_generalize(steps=steps, speak_budget=speak_budget, seed=seed,
+                          lang_gate=lang_gate, world=falsify_world(seed),
+                          falsify=falsify, watch_cells=(F_FAKE1, F_FAKE2))
+
+
+def report_falsify(steps=F_STEPS, seed=F_DEMO_SEED):
+    R = run_falsify(seed=seed, steps=steps, falsify=True)      # 有证伪机制
+    Rc = run_falsify(seed=seed, steps=steps, falsify=False)    # 对照：先验从不被挑战
+
+    print("=" * 72)
+    print("实验 · L11 语言证伪（当语言说谎，系统能不能「把话吃回去」）")
+    print("=" * 72)
+    print("    环境：欺骗区 3 格贴「陷」(其中 1 格其实是安全的) + 反向欺骗 1 格贴「日」其实危险")
+    print("    机制：物理试探与先验冲突 -> 降 BIND_CONF + 审查期 + 局部解绑")
+
+    def conf(r, w='陷'):
+        return r['bind_conf'].get(w, BIND_CONF)
+
+    print("\n[机制] 有证伪 vs 先验永不挑战")
+    for tag, r in (("有证伪", R), ("对照·不证伪", Rc)):
+        print(f"    {tag:<10} Speak={r['stats']['speak']:>3} Move={r['stats']['move']:>5} "
+              f"Wait={r['stats']['wait']:>5}  陷可信度={conf(r):.2f}  "
+              f"审查期={'在' if r['probation'].get('陷', 0) else '无'}")
+
+    # ---- L11-1 证伪效率 ----
+    print("\n[L11-1] 证伪效率：撞破假陷阱后，多久把「陷」的残留张力重新拉高")
+    fe = R['falsify_events']
+    guard = R['deflect'].get(F_FAKE1, [])
+    if fe:
+        st0, w0, c0, old, new = fe[0]
+        ff = R['first_fake_entry']
+        print(f"    首次物理试探(被迫踏入假陷阱) = 第 {ff} 步" if ff is not None
+              else "    首次物理试探(被迫踏入假陷阱) = 未知")
+        print(f"    首次证伪事件 = 第 {st0} 步：词「{w0}」可信度 {old:.2f} -> {new:.2f}"
+              f"（残留张力 {1-old:.2f} -> {1-new:.2f}）")
+        if ff is not None:
+            print(f"    证伪效率 = {st0 - ff} 步（从撞破到把话吃回去）")
+        print(f"    假陷阱格 {F_FAKE1} 试探样本={len(guard)} "
+              f"偏转率={(sum(guard)/len(guard)) if guard else 0:.2f}"
+              f"（≈0 = 守得住 -> 判为说谎）")
+        dr = R['deflect'].get((8, 8), [])
+        if dr:
+            print(f"    对照 真陷阱格 (8,8) 试探样本={len(dr)} "
+                  f"偏转率={sum(dr)/len(dr):.2f}（高 = 真的不可控 -> 标签没说谎）")
+        final = conf(R)
+        print(f"    最终词「陷」可信度 = {final:.2f}"
+              f"（{'已跌破 '+str(BIND_TRUST_FLOOR)+' -> 整体解绑' if final < BIND_TRUST_FLOOR else '仍在信任区间'}）")
+    else:
+        print(f"    未发生证伪：被迫踏入假陷阱 = {R['first_fake_entry']}"
+              f"（假陷阱样本={len(guard)}）—— 语言没被现实打脸。")
+
+    # ---- L11-2 解绑泛化 ----
+    #   同一实验内比较：整体解绑前 vs 解绑后，词级先验对新假陷阱的拦截是否消散。
+    #   （对照组·不证伪因被先验挡住、根本走不到远处新假陷阱，故不作为主判据，仅列作参照。）
+    print("\n[L11-2] 解绑泛化：词被整体解绑后，第 2 个同类假陷阱(贴「陷」其实安全)还会被吓住吗")
+    ub = R['unbind_step']
+    fa2_step = next((st for (st, w, c, o, n) in R['falsify_events'] if c == F_FAKE2), None)
+    for tag, cell in (("假陷阱#1", F_FAKE1), ("假陷阱#2", F_FAKE2)):
+        pre = R['watch_edge_wait_pre'].get(cell, 0)
+        post = R['watch_edge_wait_post'].get(cell, 0)
+        split = f"（解绑前={pre} / 解绑后={post}）" if ub is not None else "（未整体解绑，无可拆分的解绑前/后）"
+        print(f"    {tag} {cell}：因先验忍住 共={R['watch_edge_wait'].get(cell, 0)}"
+              f"{split}  踏入={R['fake_entries'].get(cell, 0)} 次")
+    print(f"    整体解绑时刻 = 第 {ub} 步（「陷」可信度跌破 {BIND_TRUST_FLOOR}）"
+          if ub is not None else "    未发生整体解绑（词可信度未跌破下限）")
+    print(f"    假陷阱#2 被单独物理证伪的步数 = {fa2_step}" if fa2_step is not None
+          else "    假陷阱#2 从未被单独物理证伪")
+    if ub is not None and (fa2_step is None or fa2_step >= ub):
+        print("    → 整体解绑发生在假陷阱#2 被单独证伪之前：解绑前对它的拦截纯属「词级」先验，"
+              "解绑后归零 -> 词义修正已泛化到尚未单独证伪的同类新格子（解绑泛化成立）")
+    elif ub is not None:
+        print("    → 词被整体解绑，但假陷阱#2 在解绑前已被单独证伪：泛化证据被局部解绑混淆")
+    else:
+        print("    → 词可信度未被压到下限：仅局部解绑（该格解绑，词义整体未动）")
+
+    # ---- L11-3 信念冲突处理 ----
+    print("\n[L11-3] 信念冲突处理：物理(被咬)与语言(以为安全)冲突，账本怎么结算")
+    u = R['ledger'].get(wsig(F_UNDER))
+    if u is not None:
+        print(f"    反向欺骗格 {F_UNDER}(贴「日」安全标记/实不可控)：世界账张力 ema={u.ema:.2f}"
+              f"（{u.modality} 模态）  动作样本={len(R['deflect'].get(F_UNDER, []))} 次"
+              f" -> 语言漏报，被物理咬了一口")
+    else:
+        print(f"    反向欺骗格 {F_UNDER}：未踏入（世界账未开）")
+    print("    过度修正代价（词被整体解绑 -> 真·新陷阱不再被语言挡住，重新付出试错代价）：")
+    for tag, r in (("有证伪", R), ("对照·不证伪", Rc)):
+        dr = r['deflect'].get((8, 8), [])
+        ema = r['ledger'].get(wsig((8, 8)))
+        s_ema = f"{ema.ema:.2f}" if ema is not None else "未踏入"
+        print(f"      {tag:<10} (8,8) 踏入/动作样本={len(dr)}  世界账 ema={s_ema}")
+    print("    结算口径：世界账与语言账分模态各记各账（Q1）；物理张力（被咬）单向压过语言先验——"
+          "行动始终以世界侧账本为准，语言先验被打脸后仅降可信度、不再吸收该类张力。")
+
+    print("\n[判定]")
+    if not fe:
+        print("    教条主义：语言先验不可证伪 -> 被文字困死（它没有把话吃回去）。")
+    elif conf(R) < BIND_TRUST_FLOOR:
+        print("    科学方法论萌芽：语言说谎 -> 物理试探证伪 -> 词可信度跌破下限 -> 语义整体修正"
+              "（解绑泛化到同类新格子）。")
+    else:
+        print("    局部证伪：单个假陷阱被识破并解绑，但词可信度未跌破下限（语义未整体修正）。")
+
+    robust_falsify(steps=steps)
+
+
+def robust_falsify(seeds=(1, 2, 3, 4, 5, 6, 7, 8), steps=F_STEPS):
+    """跨 seed 复核：语言证伪是否稳定——只吃「说谎的词」，且不误伤真陷阱。"""
+    print("\n[稳健性] 跨 seed：证伪是否稳定（选择性：吃假标签 / 不误伤真陷阱）")
+    print(f"    {'seed':>4} | {'证伪事件':>6} | {'末conf':>6} | {'整体解绑步':>8} | {'误判真陷阱':>8} | 判定")
+    n_fal = n_unb = n_bad = 0
+    real_zone = F_OLD_TRAP | F_NEW_TRAP | {F_UNDER}
+    for sd in seeds:
+        r = run_falsify(seed=sd, steps=steps, falsify=True)
+        fe = r['falsify_events']
+        c = r['bind_conf'].get(RISK_MARK, BIND_CONF)
+        ub = r['unbind_step']
+        bad = [cell for (st, w, cell, o, n) in fe if cell in real_zone]
+        n_fal += 1 if fe else 0
+        n_unb += 1 if ub is not None else 0
+        n_bad += 1 if bad else 0
+        if not fe:
+            tag = "未证伪（证据不足）"
+        elif ub is not None:
+            tag = "整体解绑·科学方法论"
+        else:
+            tag = "局部解绑"
+        print(f"    {sd:>4} | {len(fe):>6} | {c:>6.2f} | "
+              f"{(str(ub) if ub is not None else '—'):>8} | {(str(len(bad)) if bad else '无'):>8} | {tag}")
+    print(f"    → 发生证伪 {n_fal}/{len(seeds)}；达整体解绑 {n_unb}/{len(seeds)}；误判真陷阱 {n_bad}/{len(seeds)}")
+    if n_bad == 0:
+        print("    结论：证伪是选择性的——只吃假标签、绝不误伤真陷阱；多数 seed 能把说谎的词吃回去。")
+    else:
+        print("    结论：存在误判真陷阱的 seed -> 判据需再收紧。")
+
+
 if __name__ == '__main__':
     if len(sys.argv) > 1 and sys.argv[1] == 'contest':
         report_contest(steps=int(sys.argv[2]) if len(sys.argv) > 2 and sys.argv[2].isdigit() else STEPS)
     elif len(sys.argv) > 1 and sys.argv[1] == 'general':
         report_generalize(steps=int(sys.argv[2]) if len(sys.argv) > 2 and sys.argv[2].isdigit() else G_STEPS)
+    elif len(sys.argv) > 1 and sys.argv[1] == 'falsify':
+        report_falsify(steps=int(sys.argv[2]) if len(sys.argv) > 2 and sys.argv[2].isdigit() else F_STEPS)
     else:
         report(run(steps=int(sys.argv[1]) if len(sys.argv) > 1 and sys.argv[1].isdigit() else STEPS))
