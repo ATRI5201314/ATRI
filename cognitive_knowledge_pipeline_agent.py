@@ -606,7 +606,7 @@ class Pipeline:
                 title = re.sub(r'\s+', ' ', e.findtext('a:title', '', ns) or '').strip()
                 summ = re.sub(r'\s+', ' ', e.findtext('a:summary', '', ns) or '').strip()
                 dom = 'biology' if cat.startswith('q-bio') else 'physics'
-                if self.ingest(dict(url=f'{ARXIV_ABS}/{aid}', kind='arxiv', title=title,
+                if self.ingest(dict(url=ARXIV_ABS.format(id=aid), kind='arxiv', title=title,
                                     abstract=summ, subjects=cat, body='', source='arxiv_api',
                                     domain=dom, pages=0)):
                     got += 1
