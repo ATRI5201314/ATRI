@@ -1,0 +1,60 @@
+[L30] 实验一：打破引力（α 扫描）...
+[L30]   alpha=1.00  C_knn=0.5657  growth=6.1688  halos=8  C_halo=0.8
+[L30]   alpha=1.40  C_knn=0.5911  growth=4.9017  halos=15  C_halo=0.7698
+[L30]   alpha=1.80  C_knn=0.6547  growth=4.165  halos=25  C_halo=0.619
+[L30]   alpha=2.00  C_knn=0.688  growth=3.8869  halos=43  C_halo=0.5911
+[L30]   alpha=2.10  C_knn=0.7066  growth=3.7468  halos=43  C_halo=0.5604
+[L30]   alpha=2.30  C_knn=0.7297  growth=3.4445  halos=53  C_halo=0.5838
+[L30]   alpha=2.50  C_knn=0.7484  growth=3.1113  halos=62  C_halo=0.5005
+[L30]   alpha=2.70  C_knn=0.7608  growth=2.7533  halos=66  C_halo=0.4821
+[L30]   alpha=3.00  C_knn=0.7566  growth=2.1941  halos=56  C_halo=0.3634
+[L30]   alpha=3.30  C_knn=0.7486  growth=1.6906  halos=49  C_halo=0.3859
+[L30]   alpha=3.50  C_knn=0.7306  growth=1.4015  halos=44  C_halo=0.4706
+[L30] 实验一：打破引力（G 扫描）...
+[L30]   G=0.10  C_knn=0.483  growth=0.097  halos=0
+[L30]   G=0.25  C_knn=0.4944  growth=0.4331  halos=0
+[L30]   G=0.50  C_knn=0.5406  growth=1.3149  halos=4
+[L30]   G=0.75  C_knn=0.617  growth=2.5072  halos=12
+[L30]   G=1.00  复用 alpha=2 的同一点
+[L30]   G=1.50  C_knn=0.7258  growth=7.0362  halos=58
+[L30]   G=2.00  C_knn=0.6806  growth=10.8683  halos=65
+[L30]   G=3.00  C_knn=0.6578  growth=14.169  halos=56
+[L30]   G=4.00  C_knn=0.6463  growth=15.3494  halos=59
+[L30] 实验二：打破生物逻辑（p 扫描）...
+[L30]   p=0.000  C_gene=0.6324  damage=0.0417  lambda=-0.1589  period=0.0
+[L30]   p=0.001  C_gene=0.66  damage=5.375  lambda=0.08409  period=0.0
+[L30]   p=0.001  C_gene=0.6434  damage=5.2917  lambda=0.08331  period=0.0
+[L30]   p=0.002  C_gene=0.5781  damage=5.375  lambda=0.08409  period=0.0
+[L30]   p=0.003  C_gene=0.5871  damage=5.375  lambda=0.08409  period=0.0
+[L30]   p=0.005  C_gene=0.6067  damage=6.5417  lambda=0.09391  period=0.0
+[L30]   p=0.010  C_gene=0.592  damage=7.8333  lambda=0.10292  period=0.0
+[L30]   p=0.020  C_gene=0.5861  damage=9.0833  lambda=0.11032  period=0.0
+[L30]   p=0.050  C_gene=0.5963  damage=8.75  lambda=0.10845  period=0.0
+[L30]   p=0.100  C_gene=0.5618  damage=6.9167  lambda=0.0967  period=0.0
+[L30]   p=0.150  C_gene=0.4732  damage=6.2917  lambda=0.09196  period=0.0
+[L30]   p=0.200  C_gene=0.2658  damage=3.9583  lambda=0.06879  period=0.0
+[L30]   p=0.250  C_gene=0.2043  damage=4.7917  lambda=0.07834  period=0.0
+[L30]   p=0.350  C_gene=0.0905  damage=5.6667  lambda=0.08673  period=0.0
+[L30]   p=0.500  C_gene=0.0142  damage=3.3333  lambda=0.0602  period=0.0
+[L30] 实验二：打破生物逻辑（K 扫描）...
+[L30]   K=1  C_gene=0.2941  damage=0.0  period=1.0
+[L30]   K=2  C_gene=0.6324  damage=0.0417  period=0.0
+[L30]   K=3  C_gene=0.3619  damage=44.5417  period=0.0
+[L30]   K=4  C_gene=0.3361  damage=73.2917  period=0.0
+[L30]   K=5  C_gene=0.2591  damage=89.5417  period=0.0
+[L30] 实验二：全耦合极限（meanfield）...
+[L30]   meanfield  C_gene=0.1185  damage=0.0  period=1.0
+[L30]   警告：p 的半衰点(0.1828) 与最陡点(0.00075) 相差 244 倍，按 §0 承诺该临界点只能算 crossover。
+[L30] 5 阶环富集（保度零模型，40 次重连）...
+[L30]   宇宙 obs=354 z=4.72 ｜ 细胞 obs=9 z=1.68
+[L30] 与 11403 篇人类题录对照 ...
+[L30]   引力∧基因文档=3  严格同句=0  临界∧环∧双域=0
+[L30] 绘图 ...
+[L30] 完成：/workspace/L30_悬崖推演报告.md  (88.9s, 155MB)
+[L30] ===== 神谕 =====
+【实测】引力侧（序参量：halo 网络聚类）：α 从 1.40 推到 3.50，该序参量 0.770 → 0.471，半衰点 α*=1.80；同一批粒子的局部聚类则从 0.566 到 0.731。两者方向相反时，结构不是被抹平，是被打碎。
+【实测】细胞侧：身份网络半衰点 p*=0.183；但损伤扩散在 p_c=0.0001 就穿越 1 个基因。身份比动力学稳定多撑了 2035 倍。
+【实测】5 阶环富集（对保度随机图）：宇宙 z=4.72（观测 354），细胞 z=1.68（观测 9）。
+【拟合】两条归一化崩塌曲线残差 RMS=0.093，置换零假设 5% 分位 0.2567。
+【结论】崩塌形状对上了（RMS=0.093），但没过的判据是：5 阶环富集未过（细胞侧 z=1.68，阈值 2.0）。所以只能说两个世界「死法同类」，不能说「同一个常数」。系统在这里踩了刹车。
+[L30] 判定：partial —— 崩塌形状对上了（RMS=0.093，零假设中位 0.504），但5 阶环富集未过（细胞侧 z=1.68，阈值 2.0）——只能算部分同构。
