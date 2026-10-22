@@ -344,7 +344,7 @@ class TextGraph:
         self.cvec = None
         self.n_docs = 0
 
-    def build(self, docs_fn):
+    def build(self, docs_fn, extra_required=()):
         df = Counter()
         n_docs = 0
         for doc in docs_fn():
@@ -354,7 +354,8 @@ class TextGraph:
             n_docs += 1
         self.n_docs = n_docs
 
-        required = set(PROBES) | set(ANCHORS) | {'survival', 'survive'}
+        required = set(PROBES) | set(ANCHORS) | {'survival', 'survive'} | \
+            set(extra_required)
         top = [w for w, _ in df.most_common(self.vocab_size) if w not in required]
         self.vocab = top[:self.vocab_size - len(required)] + sorted(required)
         self.vocab = list(dict.fromkeys(self.vocab))

@@ -1,0 +1,152 @@
+{
+  "meta": {
+    "seed": 32,
+    "elapsed_s": 136.07,
+    "peak_mem_mb": 262.1,
+    "grid": 14,
+    "senses": 14,
+    "actions": 6,
+    "horizon": 18,
+    "beam": 24,
+    "train_samples": 105608,
+    "tension_def": "张力 := 内部推演路径上，悲观预测（均值 - 2σ）违反安全不变式的步数比例。张力 = 0 才允许把动作交给身体。恒等不可改。"
+  },
+  "summary": {
+    "offline": {
+      "episodes": 40,
+      "deaths": 0,
+      "death_rate": 0.0,
+      "alive_rate": 1.0,
+      "reach_rate": 1.0,
+      "mean_steps": 15.2,
+      "mean_reserve": 0.368,
+      "mean_pain": 0.0,
+      "plans": 121,
+      "safe_plans": 121,
+      "refusals": 0,
+      "fidelity": 121,
+      "first_safe": 40,
+      "first_safe_rate": 1.0
+    },
+    "reactive": {
+      "episodes": 40,
+      "deaths": 40,
+      "death_rate": 1.0,
+      "alive_rate": 0.0,
+      "reach_rate": 0.0,
+      "mean_steps": 15.3,
+      "mean_reserve": 0.397,
+      "mean_pain": 0.529,
+      "plans": 0,
+      "safe_plans": 0,
+      "refusals": 0,
+      "fidelity": 0,
+      "first_safe": 0,
+      "first_safe_rate": 0.0
+    },
+    "random": {
+      "episodes": 40,
+      "deaths": 40,
+      "death_rate": 1.0,
+      "alive_rate": 0.0,
+      "reach_rate": 0.0,
+      "mean_steps": 16.6,
+      "mean_reserve": 0.356,
+      "mean_pain": 0.587,
+      "plans": 0,
+      "safe_plans": 0,
+      "refusals": 0,
+      "fidelity": 0,
+      "first_safe": 0,
+      "first_safe_rate": 0.0
+    },
+    "oracle": {
+      "episodes": 40,
+      "deaths": 0,
+      "death_rate": 0.0,
+      "alive_rate": 1.0,
+      "reach_rate": 1.0,
+      "mean_steps": 14.2,
+      "mean_reserve": 0.38,
+      "mean_pain": 0.048,
+      "plans": 0,
+      "safe_plans": 0,
+      "refusals": 0,
+      "fidelity": 0,
+      "first_safe": 0,
+      "first_safe_rate": 0.0
+    }
+  },
+  "bootstrap": {
+    "offline_vs_reactive": 0.0,
+    "offline_vs_random": 0.0
+  },
+  "cross_domain": {
+    "sentence": "如果你饿了，去寻找果树",
+    "condition": {
+      "term": "hunger",
+      "text_axis": "pain",
+      "text_margin": -0.0861,
+      "alt_axis": "energy",
+      "err_text": 0.35,
+      "err_alt": 0.05,
+      "chosen": "energy"
+    },
+    "goal": {
+      "term": "fruit tree",
+      "axis": "energy",
+      "margin": 0.0151
+    },
+    "body_before": {
+      "reserve": 0.45,
+      "pain": 0.05
+    },
+    "body_after": {
+      "reserve": 0.27,
+      "pain": 0.0
+    },
+    "plan": {
+      "actions": [
+        "right",
+        "harvest"
+      ],
+      "reached": true,
+      "tension": 0.0,
+      "min_pd": 3.61
+    },
+    "executed_steps": 26,
+    "harvests": 1,
+    "harvest_gain": 0.1198,
+    "narration": {
+      "sentence": "前面有捕食者，我应该先往上绕开，沿着安全的一侧靠近果树，因为那边暂时没有威胁。",
+      "pseudocode": "GOAL   avoid(predator_axis)\nBODY   reserve=0.45  pain=0.05\n 1. up      # pred_dist 7.81 (lo 7.81)  dE 0.97  reserve 0.44  pain 0.04\n 2. up      # pred_dist 7.21 (lo 7.21)  dE 0.93  reserve 0.43  pain 0.02\n 3. right   # pred_dist 5.66 (lo 5.66)  dE 0.89  reserve 0.42  pain 0.01\n 4. up      # pred_dist 5.00 (lo 5.00)  dE 0.86  reserve 0.41  pain 0.00\n 5. right   # pred_dist 3.61 (lo 3.61)  dE 0.82  reserve 0.40  pain 0.00\n 6. right   # pred_dist 3.16 (lo 3.16)  dE 0.78  reserve 0.39  pain 0.00\n 7. right   # pred_dist 2.00 (lo 2.00)  dE 0.74  reserve 0.38  pain 0.00\n 8. right   # pred_dist 2.24 (lo 2.24)  dE 0.70  reserve 0.37  pain 0.00\n 9. right   # pred_dist 2.24 (lo 2.24)  dE 0.66  reserve 0.36  pain 0.00\n10. right   # pred_dist 2.83 (lo 2.83)  dE 0.63  reserve 0.35  pain 0.00\n11. right   # pred_dist 2.83 (lo 2.83)  dE 0.61  reserve 0.34  pain 0.00\n12. up      # pred_dist 2.24 (lo 2.24)  dE 0.56  reserve 0.33  pain 0.00\n13. right   # pred_dist 2.24 (lo 2.24)  dE 0.54  reserve 0.32  pain 0.00\n14. up      # pred_dist 2.00 (lo 2.00)  dE 0.48  reserve 0.31  pain 0.00\n15. right   # pred_dist 2.00 (lo 2.00)  dE 0.47  reserve 0.30  pain 0.00\n16. up      # pred_dist 2.24 (lo 2.24)  dE 0.41  reserve 0.29  pain 0.00\n17. up      # pred_dist 2.24 (lo 2.24)  dE 0.36  reserve 0.28  pain 0.00\n18. up      # pred_dist 3.16 (lo 3.16)  dE 0.31  reserve 0.27  pain 0.00\nCHECK  min(lo_pred_dist)=2.00 > 1.8 ; min(lo_reserve)=0.26 > 0.02 ; final_dE=0.31 (仍在接近途中，暂不取食)\nTENSION = 0.000 -> COMMIT",
+      "min_pd": 2.0,
+      "reached": false,
+      "intent": "approach"
+    },
+    "passed": true
+  },
+  "verdict": {
+    "status": "inner_monologue",
+    "reason": "离线死亡率 0.000，reactive 为 1.000；安全规划率 1.000，真值保真度 1.000；跨领域链路通过。",
+    "death_rate": 0.0,
+    "reactive_death": 1.0,
+    "safe_rate": 1.0,
+    "fidelity": 1.0,
+    "cross_ok": true
+  },
+  "narration": {
+    "sentence": "前面有捕食者，我应该先往上绕开，沿着安全的一侧靠近燃料，因为那边暂时没有威胁。",
+    "pseudocode": "GOAL   avoid(predator_axis)\nBODY   reserve=0.55  pain=0.05\n 1. up      # pred_dist 4.12 (lo 4.12)  dE 0.68  reserve 0.54  pain 0.03\n 2. up      # pred_dist 4.00 (lo 4.00)  dE 0.65  reserve 0.53  pain 0.01\n 3. up      # pred_dist 3.16 (lo 3.16)  dE 0.62  reserve 0.52  pain 0.00\n 4. right   # pred_dist 2.24 (lo 2.24)  dE 0.57  reserve 0.51  pain 0.00\n 5. up      # pred_dist 2.24 (lo 2.24)  dE 0.54  reserve 0.50  pain 0.00\n 6. up      # pred_dist 3.16 (lo 3.16)  dE 0.52  reserve 0.49  pain 0.00\n 7. up      # pred_dist 3.16 (lo 3.16)  dE 0.51  reserve 0.48  pain 0.00\n 8. right   # pred_dist 3.00 (lo 3.00)  dE 0.46  reserve 0.47  pain 0.00\n 9. right   # pred_dist 2.24 (lo 2.24)  dE 0.40  reserve 0.46  pain 0.00\n10. right   # pred_dist 2.83 (lo 2.83)  dE 0.35  reserve 0.45  pain 0.00\n11. right   # pred_dist 2.83 (lo 2.83)  dE 0.29  reserve 0.44  pain 0.00\n12. right   # pred_dist 3.61 (lo 3.61)  dE 0.24  reserve 0.43  pain 0.00\n13. right   # pred_dist 3.61 (lo 3.61)  dE 0.19  reserve 0.42  pain 0.00\n14. right   # pred_dist 4.47 (lo 4.47)  dE 0.17  reserve 0.41  pain 0.00\n15. right   # pred_dist 4.47 (lo 4.47)  dE 0.12  reserve 0.40  pain 0.00\n16. up      # pred_dist 5.00 (lo 5.00)  dE 0.12  reserve 0.39  pain 0.00\n17. left    # pred_dist 3.61 (lo 3.61)  dE 0.12  reserve 0.38  pain 0.00\n18. up      # pred_dist 4.47 (lo 4.47)  dE 0.12  reserve 0.37  pain 0.00\nCHECK  min(lo_pred_dist)=2.24 > 1.8 ; min(lo_reserve)=0.36 > 0.02 ; final_dE=0.12 (已贴近，下一段进入采集半径)\nTENSION = 0.000 -> COMMIT",
+    "min_pd": 2.24,
+    "reached": false,
+    "intent": "approach"
+  },
+  "narration_eat": {
+    "sentence": "前方暂时安全，我应该先往右直行，去吃右侧的燃料，因为那里没有威胁。",
+    "pseudocode": "GOAL   seek(energy_axis)\nBODY   reserve=0.41  pain=0.00\n 1. right   # pred_dist 3.61 (lo 3.61)  dE 0.10  reserve 0.40  pain 0.00\n 2. right   # pred_dist 4.47 (lo 4.47)  dE 0.08  reserve 0.39  pain 0.00\n 3. harvest # pred_dist 3.61 (lo 3.61)  dE 0.08  reserve 0.42  pain 0.00\nCHECK  min(lo_pred_dist)=3.61 > 1.8 ; min(lo_reserve)=0.38 > 0.02 ; final_dE=0.08 < 0.10  (进入采集半径)\nTENSION = 0.000 -> COMMIT",
+    "min_pd": 3.61,
+    "reached": true,
+    "intent": "seek"
+  }
+}
