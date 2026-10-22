@@ -1,0 +1,673 @@
+{
+  "meta": {
+    "seed": 29,
+    "elapsed_s": 18.2,
+    "peak_mem_mb": 240.9,
+    "universe": {
+      "n": 48000,
+      "ng": 64,
+      "t": 4.332,
+      "halo_count": 171
+    },
+    "cell": {
+      "n_genes": 300,
+      "K": 2,
+      "attractor_period_median": 3.0,
+      "unconverged_frac": 0.0,
+      "n_attractors": 3
+    },
+    "tension_def": "张力 := 在当前同构假设 H 下，被判定为「解释不了」的观测命题数 / 观测命题总数。命题 = 某个拓扑不变量在 A、B 两侧的差落在容差内。恒等不可改。"
+  },
+  "universe": {
+    "n_nodes": 171,
+    "n_edges": 342,
+    "mean_deg": 4.0,
+    "max_deg": 9,
+    "hub_ratio": 2.25,
+    "alpha": 4.9854,
+    "alpha_r2": 0.9251,
+    "k_min": 4,
+    "clustering": 0.6813,
+    "modularity": 0.8367,
+    "giant_ratio": 0.5789,
+    "n_components": 23,
+    "avg_path": 6.9515,
+    "sigma_smallworld": 15.4494,
+    "degree_gini": 0.312,
+    "halo_link": 0.0055,
+    "halo_in_frac": 0.374,
+    "halo_mass_median": 35.0
+  },
+  "cell": {
+    "n_nodes": 300,
+    "n_edges": 600,
+    "mean_deg": 4.0,
+    "max_deg": 28,
+    "hub_ratio": 7.0,
+    "alpha": 3.0706,
+    "alpha_r2": 0.8721,
+    "k_min": 3,
+    "clustering": 0.5602,
+    "modularity": 0.6962,
+    "giant_ratio": 0.4467,
+    "n_components": 91,
+    "avg_path": 4.0137,
+    "sigma_smallworld": 42.9241,
+    "degree_gini": 0.6123,
+    "corr_thr": 0.5399
+  },
+  "baseline": {
+    "universe": {
+      "alpha": 1.7539999999999996,
+      "hub_ratio": 0.0,
+      "clustering": 0.00040000000000006697,
+      "modularity": 0.015499999999999958,
+      "giant_ratio": 0.1543,
+      "sigma_smallworld": 0.8648999999999987
+    },
+    "cell": {
+      "alpha": 0.1791999999999998,
+      "hub_ratio": 1.25,
+      "clustering": 0.04200000000000004,
+      "modularity": 0.038900000000000046,
+      "giant_ratio": 0.033299999999999996,
+      "sigma_smallworld": 0.34429999999999694
+    }
+  },
+  "search_log": [
+    {
+      "subset": [
+        "clustering"
+      ],
+      "tension": 0.0,
+      "holds": [
+        true
+      ],
+      "holdout": [
+        false
+      ],
+      "deltas": {
+        "clustering": 0.1211
+      }
+    },
+    {
+      "subset": [
+        "alpha",
+        "clustering"
+      ],
+      "tension": 0.5,
+      "holds": [
+        false,
+        true
+      ],
+      "holdout": [
+        true,
+        false
+      ],
+      "deltas": {
+        "alpha": 1.9148,
+        "clustering": 0.1211
+      }
+    },
+    {
+      "subset": [
+        "hub_ratio",
+        "clustering"
+      ],
+      "tension": 0.5,
+      "holds": [
+        false,
+        true
+      ],
+      "holdout": [
+        false,
+        false
+      ],
+      "deltas": {
+        "hub_ratio": 4.75,
+        "clustering": 0.1211
+      }
+    },
+    {
+      "subset": [
+        "clustering",
+        "modularity"
+      ],
+      "tension": 0.5,
+      "holds": [
+        true,
+        false
+      ],
+      "holdout": [
+        false,
+        false
+      ],
+      "deltas": {
+        "clustering": 0.1211,
+        "modularity": 0.1405
+      }
+    },
+    {
+      "subset": [
+        "clustering",
+        "giant_ratio"
+      ],
+      "tension": 0.5,
+      "holds": [
+        true,
+        false
+      ],
+      "holdout": [
+        false,
+        true
+      ],
+      "deltas": {
+        "clustering": 0.1211,
+        "giant_ratio": 0.1322
+      }
+    },
+    {
+      "subset": [
+        "clustering",
+        "sigma_smallworld"
+      ],
+      "tension": 0.5,
+      "holds": [
+        true,
+        false
+      ],
+      "holdout": [
+        false,
+        false
+      ],
+      "deltas": {
+        "clustering": 0.1211,
+        "sigma_smallworld": 27.4747
+      }
+    },
+    {
+      "subset": [
+        "alpha",
+        "hub_ratio",
+        "clustering"
+      ],
+      "tension": 0.6667,
+      "holds": [
+        false,
+        false,
+        true
+      ],
+      "holdout": [
+        true,
+        false,
+        false
+      ],
+      "deltas": {
+        "alpha": 1.9148,
+        "hub_ratio": 4.75,
+        "clustering": 0.1211
+      }
+    },
+    {
+      "subset": [
+        "alpha",
+        "clustering",
+        "modularity"
+      ],
+      "tension": 0.6667,
+      "holds": [
+        false,
+        true,
+        false
+      ],
+      "holdout": [
+        true,
+        false,
+        false
+      ],
+      "deltas": {
+        "alpha": 1.9148,
+        "clustering": 0.1211,
+        "modularity": 0.1405
+      }
+    },
+    {
+      "subset": [
+        "alpha",
+        "clustering",
+        "giant_ratio"
+      ],
+      "tension": 0.6667,
+      "holds": [
+        false,
+        true,
+        false
+      ],
+      "holdout": [
+        true,
+        false,
+        true
+      ],
+      "deltas": {
+        "alpha": 1.9148,
+        "clustering": 0.1211,
+        "giant_ratio": 0.1322
+      }
+    },
+    {
+      "subset": [
+        "alpha",
+        "clustering",
+        "sigma_smallworld"
+      ],
+      "tension": 0.6667,
+      "holds": [
+        false,
+        true,
+        false
+      ],
+      "holdout": [
+        true,
+        false,
+        false
+      ],
+      "deltas": {
+        "alpha": 1.9148,
+        "clustering": 0.1211,
+        "sigma_smallworld": 27.4747
+      }
+    },
+    {
+      "subset": [
+        "hub_ratio",
+        "clustering",
+        "modularity"
+      ],
+      "tension": 0.6667,
+      "holds": [
+        false,
+        true,
+        false
+      ],
+      "holdout": [
+        false,
+        false,
+        false
+      ],
+      "deltas": {
+        "hub_ratio": 4.75,
+        "clustering": 0.1211,
+        "modularity": 0.1405
+      }
+    },
+    {
+      "subset": [
+        "hub_ratio",
+        "clustering",
+        "giant_ratio"
+      ],
+      "tension": 0.6667,
+      "holds": [
+        false,
+        true,
+        false
+      ],
+      "holdout": [
+        false,
+        false,
+        true
+      ],
+      "deltas": {
+        "hub_ratio": 4.75,
+        "clustering": 0.1211,
+        "giant_ratio": 0.1322
+      }
+    },
+    {
+      "subset": [
+        "hub_ratio",
+        "clustering",
+        "sigma_smallworld"
+      ],
+      "tension": 0.6667,
+      "holds": [
+        false,
+        true,
+        false
+      ],
+      "holdout": [
+        false,
+        false,
+        false
+      ],
+      "deltas": {
+        "hub_ratio": 4.75,
+        "clustering": 0.1211,
+        "sigma_smallworld": 27.4747
+      }
+    },
+    {
+      "subset": [
+        "clustering",
+        "modularity",
+        "giant_ratio"
+      ],
+      "tension": 0.6667,
+      "holds": [
+        true,
+        false,
+        false
+      ],
+      "holdout": [
+        false,
+        false,
+        true
+      ],
+      "deltas": {
+        "clustering": 0.1211,
+        "modularity": 0.1405,
+        "giant_ratio": 0.1322
+      }
+    },
+    {
+      "subset": [
+        "clustering",
+        "modularity",
+        "sigma_smallworld"
+      ],
+      "tension": 0.6667,
+      "holds": [
+        true,
+        false,
+        false
+      ],
+      "holdout": [
+        false,
+        false,
+        false
+      ],
+      "deltas": {
+        "clustering": 0.1211,
+        "modularity": 0.1405,
+        "sigma_smallworld": 27.4747
+      }
+    },
+    {
+      "subset": [
+        "clustering",
+        "giant_ratio",
+        "sigma_smallworld"
+      ],
+      "tension": 0.6667,
+      "holds": [
+        true,
+        false,
+        false
+      ],
+      "holdout": [
+        false,
+        true,
+        false
+      ],
+      "deltas": {
+        "clustering": 0.1211,
+        "giant_ratio": 0.1322,
+        "sigma_smallworld": 27.4747
+      }
+    },
+    {
+      "subset": [
+        "alpha"
+      ],
+      "tension": 1.0,
+      "holds": [
+        false
+      ],
+      "holdout": [
+        true
+      ],
+      "deltas": {
+        "alpha": 1.9148
+      }
+    },
+    {
+      "subset": [
+        "hub_ratio"
+      ],
+      "tension": 1.0,
+      "holds": [
+        false
+      ],
+      "holdout": [
+        false
+      ],
+      "deltas": {
+        "hub_ratio": 4.75
+      }
+    },
+    {
+      "subset": [
+        "modularity"
+      ],
+      "tension": 1.0,
+      "holds": [
+        false
+      ],
+      "holdout": [
+        false
+      ],
+      "deltas": {
+        "modularity": 0.1405
+      }
+    },
+    {
+      "subset": [
+        "giant_ratio"
+      ],
+      "tension": 1.0,
+      "holds": [
+        false
+      ],
+      "holdout": [
+        true
+      ],
+      "deltas": {
+        "giant_ratio": 0.1322
+      }
+    }
+  ],
+  "decision": {
+    "status": "qualitative",
+    "reason": "定量层面未结案（6 个不变量里只有 1 个在容差内）；但 4/5 个拓扑性质落在同一类别——两侧属于同一类复杂网络",
+    "subset": [
+      "clustering"
+    ],
+    "tension": 0.0,
+    "qualitative": {
+      "hit": 4,
+      "total": 5,
+      "rows": [
+        {
+          "key": "alpha",
+          "a": 4.9854,
+          "b": 3.0706,
+          "label_a": "重尾",
+          "label_b": "重尾",
+          "same": true
+        },
+        {
+          "key": "clustering",
+          "a": 0.6813,
+          "b": 0.5602,
+          "label_a": "强聚类",
+          "label_b": "强聚类",
+          "same": true
+        },
+        {
+          "key": "modularity",
+          "a": 0.8367,
+          "b": 0.6962,
+          "label_a": "强模块",
+          "label_b": "强模块",
+          "same": true
+        },
+        {
+          "key": "giant_ratio",
+          "a": 0.5789,
+          "b": 0.4467,
+          "label_a": "多团连通",
+          "label_b": "多团连通",
+          "same": true
+        },
+        {
+          "key": "hub_ratio",
+          "a": 2.25,
+          "b": 7.0,
+          "label_a": "无显著 hub",
+          "label_b": "强 hub",
+          "same": false
+        }
+      ]
+    }
+  },
+  "density_history": [
+    {
+      "t": 0.0,
+      "delta_rms": 0.16674315383842517,
+      "delta_max": 0.7123945211300364,
+      "delta_min": -0.5141777002746517
+    },
+    {
+      "t": 0.2,
+      "delta_rms": 0.166973855400636,
+      "delta_max": 0.7139127801369056,
+      "delta_min": -0.5160934958506049
+    },
+    {
+      "t": 0.4,
+      "delta_rms": 0.16800474907210258,
+      "delta_max": 0.718793769338381,
+      "delta_min": -0.5215507138044682
+    },
+    {
+      "t": 0.6,
+      "delta_rms": 0.1708616638672195,
+      "delta_max": 0.7286957732366097,
+      "delta_min": -0.5306725507096131
+    },
+    {
+      "t": 0.8,
+      "delta_rms": 0.17704471433211386,
+      "delta_max": 0.7828279553132791,
+      "delta_min": -0.5437599378340339
+    },
+    {
+      "t": 1.0,
+      "delta_rms": 0.18824041920385584,
+      "delta_max": 0.9024655323772999,
+      "delta_min": -0.5659693530554231
+    },
+    {
+      "t": 1.2,
+      "delta_rms": 0.20599463044914237,
+      "delta_max": 1.073085312879356,
+      "delta_min": -0.6006010004617834
+    },
+    {
+      "t": 1.4,
+      "delta_rms": 0.2314538485285886,
+      "delta_max": 1.295522254952855,
+      "delta_min": -0.6424989585542491
+    },
+    {
+      "t": 1.6,
+      "delta_rms": 0.26536047639731164,
+      "delta_max": 1.5842784792339728,
+      "delta_min": -0.6856621464150296
+    },
+    {
+      "t": 1.8,
+      "delta_rms": 0.3083034495627043,
+      "delta_max": 1.9600107221457885,
+      "delta_min": -0.7307982180388448
+    },
+    {
+      "t": 2.0,
+      "delta_rms": 0.36106373770528527,
+      "delta_max": 2.44111913537945,
+      "delta_min": -0.775686002819375
+    },
+    {
+      "t": 2.2,
+      "delta_rms": 0.4248121453465377,
+      "delta_max": 3.110866755045528,
+      "delta_min": -0.8178636179315197
+    },
+    {
+      "t": 2.4,
+      "delta_rms": 0.5012073733950076,
+      "delta_max": 4.2122253196408295,
+      "delta_min": -0.8573315575740613
+    },
+    {
+      "t": 2.6,
+      "delta_rms": 0.592103910791876,
+      "delta_max": 5.88144203668525,
+      "delta_min": -0.8922427911763836
+    },
+    {
+      "t": 2.8,
+      "delta_rms": 0.6994211877071189,
+      "delta_max": 8.24447460901753,
+      "delta_min": -0.9208839275962009
+    },
+    {
+      "t": 3.0,
+      "delta_rms": 0.8247552024054051,
+      "delta_max": 11.538310993713806,
+      "delta_min": -0.9443264922435747
+    },
+    {
+      "t": 3.2,
+      "delta_rms": 0.9695377523920854,
+      "delta_max": 15.480898750112136,
+      "delta_min": -0.9627450845566882
+    },
+    {
+      "t": 3.4,
+      "delta_rms": 1.1336434123285977,
+      "delta_max": 20.04593554028679,
+      "delta_min": -0.9771995120732054
+    },
+    {
+      "t": 3.6,
+      "delta_rms": 1.3111319585270267,
+      "delta_max": 23.175153116185154,
+      "delta_min": -0.986970981534881
+    },
+    {
+      "t": 3.8,
+      "delta_rms": 1.511260029186089,
+      "delta_max": 24.956515379267938,
+      "delta_min": -0.992750979322287
+    },
+    {
+      "t": 4.0,
+      "delta_rms": 1.7596776611374498,
+      "delta_max": 33.75338183034252,
+      "delta_min": -0.9963745430048642
+    },
+    {
+      "t": 4.1805,
+      "delta_rms": 2.0362599538507364,
+      "delta_max": 48.570168754160036,
+      "delta_min": -0.998190283423847
+    },
+    {
+      "t": 4.3321,
+      "delta_rms": 2.2879305239198735,
+      "delta_max": 59.27804444447032,
+      "delta_min": -0.9991019211614669
+    }
+  ]
+}
