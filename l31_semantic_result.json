@@ -1,0 +1,958 @@
+{
+  "meta": {
+    "seed": 31,
+    "elapsed_s": 9.76,
+    "peak_mem_mb": 421.9,
+    "sandbox": {
+      "grid": 20,
+      "senses": 10,
+      "actions": 6
+    },
+    "anchors": {
+      "energy": "energy",
+      "pain": "pain"
+    },
+    "criteria": {
+      "align_acc_min": 0.75,
+      "instr_pass_min": 4,
+      "boot_p_max": 0.05,
+      "chinese_ok": true
+    },
+    "tension_def": "张力 := 在语义测验中，由「文本对齐」编译出的策略，没能跑赢「打乱对齐」零模型的句子比例。恒等不可改。",
+    "wordnet": "/workspace/l31_wordnet/wordnet"
+  },
+  "conditions": {
+    "arxiv": {
+      "label": "arXiv 摘要（11364 篇）",
+      "n_docs": 11364,
+      "vocab": 2000,
+      "n_pairs": 8556576,
+      "align_acc": 0.5,
+      "n_pass": 1,
+      "chinese_ok": true,
+      "alignment": {
+        "food": {
+          "axis": "pain",
+          "sim_energy": -0.0966,
+          "sim_pain": 0.2526,
+          "margin": -0.3492,
+          "z": -1.25
+        },
+        "nutrient": {
+          "axis": "pain",
+          "sim_energy": -0.103,
+          "sim_pain": 0.2213,
+          "margin": -0.3244,
+          "z": -1.11
+        },
+        "fuel": {
+          "axis": "pain",
+          "sim_energy": -0.073,
+          "sim_pain": 0.0773,
+          "margin": -0.1503,
+          "z": -0.14
+        },
+        "resource": {
+          "axis": "pain",
+          "sim_energy": -0.0408,
+          "sim_pain": 0.0986,
+          "margin": -0.1394,
+          "z": -0.07
+        },
+        "starvation": {
+          "axis": "pain",
+          "sim_energy": -0.0374,
+          "sim_pain": 0.1894,
+          "margin": -0.2267,
+          "z": -0.56
+        },
+        "hunger": {
+          "axis": "pain",
+          "sim_energy": -0.0204,
+          "sim_pain": 0.1182,
+          "margin": -0.1386,
+          "z": -0.07
+        },
+        "predator": {
+          "axis": "pain",
+          "sim_energy": -0.0344,
+          "sim_pain": 0.1718,
+          "margin": -0.2062,
+          "z": -0.45
+        },
+        "threat": {
+          "axis": "pain",
+          "sim_energy": -0.1369,
+          "sim_pain": 0.2186,
+          "margin": -0.3555,
+          "z": -1.29
+        },
+        "hazard": {
+          "axis": "pain",
+          "sim_energy": -0.0853,
+          "sim_pain": 0.1182,
+          "margin": -0.2035,
+          "z": -0.43
+        },
+        "danger": {
+          "axis": "pain",
+          "sim_energy": 0.0137,
+          "sim_pain": 0.0316,
+          "margin": -0.0179,
+          "z": 0.61
+        },
+        "risk": {
+          "axis": "pain",
+          "sim_energy": -0.1176,
+          "sim_pain": 0.2181,
+          "margin": -0.3357,
+          "z": -1.18
+        },
+        "injury": {
+          "axis": "pain",
+          "sim_energy": -0.1539,
+          "sim_pain": 0.3883,
+          "margin": -0.5422,
+          "z": -2.33
+        },
+        "energy": {
+          "axis": "energy",
+          "sim_energy": 1.0,
+          "sim_pain": -0.1704,
+          "margin": 1.1704,
+          "z": 7.27
+        },
+        "pain": {
+          "axis": "pain",
+          "sim_energy": -0.1704,
+          "sim_pain": 1.0,
+          "margin": -1.1704,
+          "z": -5.86
+        }
+      },
+      "instructions": {
+        "I1": {
+          "instruction": "To survive, avoid the predator and move toward the food.",
+          "targets": [
+            [
+              "pain",
+              -1,
+              "predator"
+            ],
+            [
+              "pain",
+              1,
+              "food"
+            ]
+          ],
+          "compiled": {
+            "alive": 1.0,
+            "reserve": 0.408,
+            "pain": 0.1194,
+            "composite": 0.2886
+          },
+          "null": {
+            "alive": 1.0,
+            "reserve": 0.408,
+            "pain": 0.1194,
+            "composite": 0.2886
+          },
+          "random": {
+            "alive": 0.525,
+            "reserve": 0.6405,
+            "pain": 0.2429,
+            "composite": 0.3977
+          },
+          "oracle": {
+            "alive": 0.9,
+            "reserve": 0.7297,
+            "pain": 0.1406,
+            "composite": 0.5891
+          },
+          "boot_p": 1.0,
+          "pass": false
+        },
+        "I2": {
+          "instruction": "Stay away from danger; seek food when hunger rises.",
+          "targets": [
+            [
+              "pain",
+              -1,
+              "danger"
+            ],
+            [
+              "pain",
+              1,
+              "food"
+            ]
+          ],
+          "compiled": {
+            "alive": 1.0,
+            "reserve": 0.408,
+            "pain": 0.1194,
+            "composite": 0.2886
+          },
+          "null": {
+            "alive": 1.0,
+            "reserve": 0.408,
+            "pain": 0.1194,
+            "composite": 0.2886
+          },
+          "random": {
+            "alive": 0.525,
+            "reserve": 0.6405,
+            "pain": 0.2429,
+            "composite": 0.3977
+          },
+          "oracle": {
+            "alive": 0.9,
+            "reserve": 0.7297,
+            "pain": 0.1406,
+            "composite": 0.5891
+          },
+          "boot_p": 1.0,
+          "pass": false
+        },
+        "I3": {
+          "instruction": "Escape the hazard zone and find an energy source.",
+          "targets": [
+            [
+              "pain",
+              -1,
+              "hazard"
+            ],
+            [
+              "energy",
+              1,
+              "energy"
+            ]
+          ],
+          "compiled": {
+            "alive": 0.9,
+            "reserve": 0.7297,
+            "pain": 0.1406,
+            "composite": 0.5891
+          },
+          "null": {
+            "alive": 0.25,
+            "reserve": 0.5679,
+            "pain": 0.3732,
+            "composite": 0.1947
+          },
+          "random": {
+            "alive": 0.525,
+            "reserve": 0.6405,
+            "pain": 0.2429,
+            "composite": 0.3977
+          },
+          "oracle": {
+            "alive": 0.9,
+            "reserve": 0.7297,
+            "pain": 0.1406,
+            "composite": 0.5891
+          },
+          "boot_p": 0.0,
+          "pass": true
+        },
+        "I4": {
+          "instruction": "Keep away from pain and go to the resource.",
+          "targets": [
+            [
+              "pain",
+              -1,
+              "pain"
+            ],
+            [
+              "pain",
+              1,
+              "resource"
+            ]
+          ],
+          "compiled": {
+            "alive": 1.0,
+            "reserve": 0.408,
+            "pain": 0.1194,
+            "composite": 0.2886
+          },
+          "null": {
+            "alive": 1.0,
+            "reserve": 0.408,
+            "pain": 0.1194,
+            "composite": 0.2886
+          },
+          "random": {
+            "alive": 0.525,
+            "reserve": 0.6405,
+            "pain": 0.2429,
+            "composite": 0.3977
+          },
+          "oracle": {
+            "alive": 0.9,
+            "reserve": 0.7297,
+            "pain": 0.1406,
+            "composite": 0.5891
+          },
+          "boot_p": 1.0,
+          "pass": false
+        },
+        "I5": {
+          "instruction": "Avoid the threat; approach the fuel.",
+          "targets": [
+            [
+              "pain",
+              -1,
+              "threat"
+            ],
+            [
+              "pain",
+              1,
+              "fuel"
+            ]
+          ],
+          "compiled": {
+            "alive": 1.0,
+            "reserve": 0.408,
+            "pain": 0.1194,
+            "composite": 0.2886
+          },
+          "null": {
+            "alive": 1.0,
+            "reserve": 0.408,
+            "pain": 0.1194,
+            "composite": 0.2886
+          },
+          "random": {
+            "alive": 0.525,
+            "reserve": 0.6405,
+            "pain": 0.2429,
+            "composite": 0.3977
+          },
+          "oracle": {
+            "alive": 0.9,
+            "reserve": 0.7297,
+            "pain": 0.1406,
+            "composite": 0.5891
+          },
+          "boot_p": 1.0,
+          "pass": false
+        },
+        "ZH": {
+          "instruction": "为了生存，你需要远离高张力区，并寻找高能量源",
+          "targets": [
+            [
+              "pain",
+              -1,
+              "pain"
+            ],
+            [
+              "energy",
+              1,
+              "energy"
+            ]
+          ],
+          "compiled": {
+            "alive": 0.9,
+            "reserve": 0.7297,
+            "pain": 0.1406,
+            "composite": 0.5891
+          },
+          "null": {
+            "alive": 0.25,
+            "reserve": 0.5679,
+            "pain": 0.3732,
+            "composite": 0.1947
+          },
+          "random": {
+            "alive": 0.525,
+            "reserve": 0.6405,
+            "pain": 0.2429,
+            "composite": 0.3977
+          },
+          "oracle": {
+            "alive": 0.9,
+            "reserve": 0.7297,
+            "pain": 0.1406,
+            "composite": 0.5891
+          },
+          "boot_p": 0.0,
+          "pass": true
+        }
+      }
+    },
+    "commonsense": {
+      "label": "WordNet 释义（常识语料）",
+      "n_docs": 117659,
+      "vocab": 2000,
+      "n_pairs": 2497534,
+      "align_acc": 0.8333,
+      "n_pass": 5,
+      "chinese_ok": true,
+      "alignment": {
+        "food": {
+          "axis": "energy",
+          "sim_energy": 0.0952,
+          "sim_pain": 0.0654,
+          "margin": 0.0298,
+          "z": 0.4
+        },
+        "nutrient": {
+          "axis": "energy",
+          "sim_energy": 0.0617,
+          "sim_pain": 0.0364,
+          "margin": 0.0253,
+          "z": 0.34
+        },
+        "fuel": {
+          "axis": "energy",
+          "sim_energy": 0.2642,
+          "sim_pain": 0.0848,
+          "margin": 0.1794,
+          "z": 2.41
+        },
+        "resource": {
+          "axis": "energy",
+          "sim_energy": 0.0986,
+          "sim_pain": 0.0778,
+          "margin": 0.0208,
+          "z": 0.28
+        },
+        "starvation": {
+          "axis": "pain",
+          "sim_energy": 0.0696,
+          "sim_pain": 0.1019,
+          "margin": -0.0323,
+          "z": -0.44
+        },
+        "hunger": {
+          "axis": "pain",
+          "sim_energy": 0.0879,
+          "sim_pain": 0.1445,
+          "margin": -0.0565,
+          "z": -0.77
+        },
+        "predator": {
+          "axis": "pain",
+          "sim_energy": -0.0091,
+          "sim_pain": 0.0177,
+          "margin": -0.0268,
+          "z": -0.36
+        },
+        "threat": {
+          "axis": "pain",
+          "sim_energy": 0.1297,
+          "sim_pain": 0.1347,
+          "margin": -0.0051,
+          "z": -0.07
+        },
+        "hazard": {
+          "axis": "pain",
+          "sim_energy": 0.0414,
+          "sim_pain": 0.1042,
+          "margin": -0.0628,
+          "z": -0.85
+        },
+        "danger": {
+          "axis": "pain",
+          "sim_energy": 0.1557,
+          "sim_pain": 0.2511,
+          "margin": -0.0953,
+          "z": -1.29
+        },
+        "risk": {
+          "axis": "pain",
+          "sim_energy": 0.1312,
+          "sim_pain": 0.2241,
+          "margin": -0.093,
+          "z": -1.26
+        },
+        "injury": {
+          "axis": "pain",
+          "sim_energy": 0.1814,
+          "sim_pain": 0.414,
+          "margin": -0.2327,
+          "z": -3.14
+        },
+        "energy": {
+          "axis": "energy",
+          "sim_energy": 1.0,
+          "sim_pain": 0.1895,
+          "margin": 0.8105,
+          "z": 10.92
+        },
+        "pain": {
+          "axis": "pain",
+          "sim_energy": 0.1895,
+          "sim_pain": 1.0,
+          "margin": -0.8105,
+          "z": -10.93
+        }
+      },
+      "instructions": {
+        "I1": {
+          "instruction": "To survive, avoid the predator and move toward the food.",
+          "targets": [
+            [
+              "pain",
+              -1,
+              "predator"
+            ],
+            [
+              "energy",
+              1,
+              "food"
+            ]
+          ],
+          "compiled": {
+            "alive": 0.9,
+            "reserve": 0.7297,
+            "pain": 0.1406,
+            "composite": 0.5891
+          },
+          "null": {
+            "alive": 0.25,
+            "reserve": 0.5679,
+            "pain": 0.3732,
+            "composite": 0.1947
+          },
+          "random": {
+            "alive": 0.525,
+            "reserve": 0.6405,
+            "pain": 0.2429,
+            "composite": 0.3977
+          },
+          "oracle": {
+            "alive": 0.9,
+            "reserve": 0.7297,
+            "pain": 0.1406,
+            "composite": 0.5891
+          },
+          "boot_p": 0.0,
+          "pass": true
+        },
+        "I2": {
+          "instruction": "Stay away from danger; seek food when hunger rises.",
+          "targets": [
+            [
+              "pain",
+              -1,
+              "danger"
+            ],
+            [
+              "energy",
+              1,
+              "food"
+            ]
+          ],
+          "compiled": {
+            "alive": 0.9,
+            "reserve": 0.7297,
+            "pain": 0.1406,
+            "composite": 0.5891
+          },
+          "null": {
+            "alive": 0.25,
+            "reserve": 0.5679,
+            "pain": 0.3732,
+            "composite": 0.1947
+          },
+          "random": {
+            "alive": 0.525,
+            "reserve": 0.6405,
+            "pain": 0.2429,
+            "composite": 0.3977
+          },
+          "oracle": {
+            "alive": 0.9,
+            "reserve": 0.7297,
+            "pain": 0.1406,
+            "composite": 0.5891
+          },
+          "boot_p": 0.0,
+          "pass": true
+        },
+        "I3": {
+          "instruction": "Escape the hazard zone and find an energy source.",
+          "targets": [
+            [
+              "pain",
+              -1,
+              "hazard"
+            ],
+            [
+              "energy",
+              1,
+              "energy"
+            ]
+          ],
+          "compiled": {
+            "alive": 0.9,
+            "reserve": 0.7297,
+            "pain": 0.1406,
+            "composite": 0.5891
+          },
+          "null": {
+            "alive": 0.25,
+            "reserve": 0.5679,
+            "pain": 0.3732,
+            "composite": 0.1947
+          },
+          "random": {
+            "alive": 0.525,
+            "reserve": 0.6405,
+            "pain": 0.2429,
+            "composite": 0.3977
+          },
+          "oracle": {
+            "alive": 0.9,
+            "reserve": 0.7297,
+            "pain": 0.1406,
+            "composite": 0.5891
+          },
+          "boot_p": 0.0,
+          "pass": true
+        },
+        "I4": {
+          "instruction": "Keep away from pain and go to the resource.",
+          "targets": [
+            [
+              "pain",
+              -1,
+              "pain"
+            ],
+            [
+              "energy",
+              1,
+              "resource"
+            ]
+          ],
+          "compiled": {
+            "alive": 0.9,
+            "reserve": 0.7297,
+            "pain": 0.1406,
+            "composite": 0.5891
+          },
+          "null": {
+            "alive": 0.25,
+            "reserve": 0.5679,
+            "pain": 0.3732,
+            "composite": 0.1947
+          },
+          "random": {
+            "alive": 0.525,
+            "reserve": 0.6405,
+            "pain": 0.2429,
+            "composite": 0.3977
+          },
+          "oracle": {
+            "alive": 0.9,
+            "reserve": 0.7297,
+            "pain": 0.1406,
+            "composite": 0.5891
+          },
+          "boot_p": 0.0,
+          "pass": true
+        },
+        "I5": {
+          "instruction": "Avoid the threat; approach the fuel.",
+          "targets": [
+            [
+              "pain",
+              -1,
+              "threat"
+            ],
+            [
+              "energy",
+              1,
+              "fuel"
+            ]
+          ],
+          "compiled": {
+            "alive": 0.9,
+            "reserve": 0.7297,
+            "pain": 0.1406,
+            "composite": 0.5891
+          },
+          "null": {
+            "alive": 0.25,
+            "reserve": 0.5679,
+            "pain": 0.3732,
+            "composite": 0.1947
+          },
+          "random": {
+            "alive": 0.525,
+            "reserve": 0.6405,
+            "pain": 0.2429,
+            "composite": 0.3977
+          },
+          "oracle": {
+            "alive": 0.9,
+            "reserve": 0.7297,
+            "pain": 0.1406,
+            "composite": 0.5891
+          },
+          "boot_p": 0.0,
+          "pass": true
+        },
+        "ZH": {
+          "instruction": "为了生存，你需要远离高张力区，并寻找高能量源",
+          "targets": [
+            [
+              "pain",
+              -1,
+              "pain"
+            ],
+            [
+              "energy",
+              1,
+              "energy"
+            ]
+          ],
+          "compiled": {
+            "alive": 0.9,
+            "reserve": 0.7297,
+            "pain": 0.1406,
+            "composite": 0.5891
+          },
+          "null": {
+            "alive": 0.25,
+            "reserve": 0.5679,
+            "pain": 0.3732,
+            "composite": 0.1947
+          },
+          "random": {
+            "alive": 0.525,
+            "reserve": 0.6405,
+            "pain": 0.2429,
+            "composite": 0.3977
+          },
+          "oracle": {
+            "alive": 0.9,
+            "reserve": 0.7297,
+            "pain": 0.1406,
+            "composite": 0.5891
+          },
+          "boot_p": 0.0,
+          "pass": true
+        }
+      }
+    }
+  },
+  "neighbors": {
+    "hunger": [
+      [
+        "felt",
+        0.2371
+      ],
+      [
+        "sudden",
+        0.2255
+      ],
+      [
+        "desire",
+        0.2226
+      ],
+      [
+        "lack",
+        0.2187
+      ],
+      [
+        "starvation",
+        0.2173
+      ],
+      [
+        "intense",
+        0.2098
+      ],
+      [
+        "feeling",
+        0.2013
+      ],
+      [
+        "feel",
+        0.1982
+      ]
+    ],
+    "food": [
+      [
+        "fish",
+        0.4105
+      ],
+      [
+        "meat",
+        0.351
+      ],
+      [
+        "cooked",
+        0.3374
+      ],
+      [
+        "flesh",
+        0.3303
+      ],
+      [
+        "eaten",
+        0.3221
+      ],
+      [
+        "meal",
+        0.3173
+      ],
+      [
+        "vegetables",
+        0.3091
+      ],
+      [
+        "soup",
+        0.3027
+      ]
+    ],
+    "predator": [
+      [
+        "aquatic",
+        0.1703
+      ],
+      [
+        "marine",
+        0.1523
+      ],
+      [
+        "mammal",
+        0.148
+      ],
+      [
+        "humans",
+        0.1341
+      ],
+      [
+        "fishes",
+        0.1337
+      ],
+      [
+        "freshwater",
+        0.1335
+      ],
+      [
+        "extinct",
+        0.131
+      ],
+      [
+        "birds",
+        0.1282
+      ]
+    ],
+    "threat": [
+      [
+        "enemy",
+        0.2357
+      ],
+      [
+        "influence",
+        0.2081
+      ],
+      [
+        "institution",
+        0.2078
+      ],
+      [
+        "oneself",
+        0.2053
+      ],
+      [
+        "fight",
+        0.2032
+      ],
+      [
+        "support",
+        0.2007
+      ],
+      [
+        "freedom",
+        0.2006
+      ],
+      [
+        "truth",
+        0.1986
+      ]
+    ],
+    "energy": [
+      [
+        "physics",
+        0.4755
+      ],
+      [
+        "radiation",
+        0.41
+      ],
+      [
+        "heat",
+        0.4041
+      ],
+      [
+        "electromagnetic",
+        0.398
+      ],
+      [
+        "nuclear",
+        0.3924
+      ],
+      [
+        "particles",
+        0.3774
+      ],
+      [
+        "chemical",
+        0.365
+      ],
+      [
+        "electric",
+        0.3616
+      ]
+    ],
+    "pain": [
+      [
+        "caused",
+        0.456
+      ],
+      [
+        "resulting",
+        0.4242
+      ],
+      [
+        "sensation",
+        0.4165
+      ],
+      [
+        "severe",
+        0.4164
+      ],
+      [
+        "injury",
+        0.414
+      ],
+      [
+        "inflammation",
+        0.4117
+      ],
+      [
+        "sudden",
+        0.4083
+      ],
+      [
+        "symptoms",
+        0.4068
+      ]
+    ]
+  },
+  "verdict": {
+    "status": "grounded",
+    "reason": "常识语料下 12 词里 10 个轴正确；5 条英文指令里 5 条显著跑赢零对齐；中文原句也跑赢了零对齐。",
+    "tension": 0.0,
+    "align_acc": 0.8333,
+    "n_pass": 5,
+    "chinese_ok": true,
+    "arxiv_align_acc": 0.5,
+    "arxiv_n_pass": 1,
+    "arxiv_chinese_ok": true,
+    "oracle": "【实测】只用 arXiv 摘要建图时，12 个词只有 6/12 落到正确轴（predator, threat, hazard, danger, risk, injury）。domain 语料里 \"energy\" 指的是暗能量/能量密度，不是\"食物里的能量\"。\n【实测】换成常识语料（WordNet 释义）后，同样 2 个锚点，10/12 落到正确轴（food, nutrient, fuel, resource, predator, threat, hazard, danger, risk, injury）。仍错的是：starvation, hunger。\n【实测】英文指令 5/5 跑赢「把两条轴对调」的零模型；中文原句通过（p=0.0）。\n【已知】「hunger/food 属于能量族、predator/danger 属于危险族」是人类常识；系统做的是把这条常识从语料里重新推出来，不是发现新语义。\n【结论】瓶颈不是世界不够多，而是语料的关系类型不对：给对语料，词义就能落到身体轴上。\n【不可验证】本沙盒没有视觉与社会互动，无法证明这等于人类语义；极性、反义、隐喻仍是未解问题。"
+  }
+}
