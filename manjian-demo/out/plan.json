@@ -10,9 +10,9 @@
       "id": "e001",
       "shotId": "s12",
       "source": "/workspace/manjian-demo/assets/frames/f12.jpg",
-      "start": 0.449,
+      "start": 0,
       "end": 2.325,
-      "duration": 1.876,
+      "duration": 2.325,
       "camera": "zoom-in",
       "transition": "fade",
       "effects": [
@@ -351,7 +351,7 @@
         "grain",
         "flash"
       ],
-      "intensity": 0.6,
+      "intensity": 0.85,
       "section": "drop",
       "beat": 35
     },
@@ -536,7 +536,7 @@
         "grain",
         "flash"
       ],
-      "intensity": 0.3,
+      "intensity": 0.85,
       "section": "outro",
       "beat": 47
     },
