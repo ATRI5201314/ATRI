@@ -1,0 +1,759 @@
+{
+  "title": "破晓",
+  "width": 1080,
+  "height": 1920,
+  "fps": 30,
+  "duration": 30,
+  "music": "/workspace/manjian-demo/assets/beat_128.wav",
+  "segments": [
+    {
+      "id": "e001",
+      "shotId": "s12",
+      "source": "/workspace/manjian-demo/assets/frames/f12.jpg",
+      "start": 0.449,
+      "end": 2.325,
+      "duration": 1.876,
+      "camera": "zoom-in",
+      "transition": "fade",
+      "effects": [
+        "grain"
+      ],
+      "intensity": 0.25,
+      "section": "intro",
+      "beat": 0
+    },
+    {
+      "id": "e002",
+      "shotId": "s14",
+      "source": "/workspace/manjian-demo/assets/frames/f14.jpg",
+      "start": 2.325,
+      "end": 4.2,
+      "duration": 1.875,
+      "camera": "pan-right",
+      "transition": "cut",
+      "effects": [
+        "grain"
+      ],
+      "intensity": 0.3,
+      "section": "intro",
+      "beat": 4
+    },
+    {
+      "id": "e003",
+      "shotId": "s09",
+      "source": "/workspace/manjian-demo/assets/frames/f09.jpg",
+      "start": 4.2,
+      "end": 5.606,
+      "duration": 1.406,
+      "camera": "zoom-out",
+      "transition": "cut",
+      "effects": [
+        "grain"
+      ],
+      "intensity": 0.35,
+      "section": "intro",
+      "beat": 8
+    },
+    {
+      "id": "e004",
+      "shotId": "s08",
+      "source": "/workspace/manjian-demo/assets/frames/f08.jpg",
+      "start": 5.606,
+      "end": 7.481,
+      "duration": 1.875,
+      "camera": "pan-left",
+      "transition": "cut",
+      "effects": [
+        "grain"
+      ],
+      "intensity": 0.4,
+      "section": "intro",
+      "beat": 11
+    },
+    {
+      "id": "e005",
+      "shotId": "s05",
+      "source": "/workspace/manjian-demo/assets/frames/f05.jpg",
+      "start": 7.481,
+      "end": 8.419,
+      "duration": 0.938,
+      "camera": "zoom-in",
+      "transition": "cut",
+      "effects": [
+        "grain"
+      ],
+      "intensity": 0.45,
+      "section": "build",
+      "beat": 15
+    },
+    {
+      "id": "e006",
+      "shotId": "s03",
+      "source": "/workspace/manjian-demo/assets/frames/f03.jpg",
+      "start": 8.419,
+      "end": 9.357,
+      "duration": 0.938,
+      "camera": "pan-right",
+      "transition": "cut",
+      "effects": [
+        "grain"
+      ],
+      "intensity": 0.25,
+      "section": "build",
+      "beat": 17
+    },
+    {
+      "id": "e007",
+      "shotId": "s12",
+      "source": "/workspace/manjian-demo/assets/frames/f12.jpg",
+      "start": 9.357,
+      "end": 9.826,
+      "duration": 0.469,
+      "camera": "zoom-out",
+      "transition": "cut",
+      "effects": [
+        "grain"
+      ],
+      "intensity": 0.3,
+      "section": "build",
+      "beat": 19
+    },
+    {
+      "id": "e008",
+      "shotId": "s14",
+      "source": "/workspace/manjian-demo/assets/frames/f14.jpg",
+      "start": 9.826,
+      "end": 10.294,
+      "duration": 0.468,
+      "camera": "pan-left",
+      "transition": "cut",
+      "effects": [
+        "grain",
+        "shake"
+      ],
+      "intensity": 0.35,
+      "section": "build",
+      "beat": 20
+    },
+    {
+      "id": "e009",
+      "shotId": "s09",
+      "source": "/workspace/manjian-demo/assets/frames/f09.jpg",
+      "start": 10.294,
+      "end": 11.232,
+      "duration": 0.938,
+      "camera": "zoom-in",
+      "transition": "cut",
+      "effects": [
+        "grain"
+      ],
+      "intensity": 0.4,
+      "section": "build",
+      "beat": 21
+    },
+    {
+      "id": "e010",
+      "shotId": "s06",
+      "source": "/workspace/manjian-demo/assets/frames/f06.jpg",
+      "start": 11.232,
+      "end": 11.701,
+      "duration": 0.469,
+      "camera": "shake",
+      "transition": "glitch",
+      "effects": [
+        "grain",
+        "flash",
+        "rgb-split",
+        "bloom"
+      ],
+      "intensity": 0.8,
+      "section": "drop",
+      "beat": 23
+    },
+    {
+      "id": "e011",
+      "shotId": "s05",
+      "source": "/workspace/manjian-demo/assets/frames/f05.jpg",
+      "start": 11.701,
+      "end": 12.17,
+      "duration": 0.469,
+      "camera": "shake",
+      "transition": "cut",
+      "effects": [
+        "grain"
+      ],
+      "intensity": 0.6,
+      "section": "drop",
+      "beat": 24
+    },
+    {
+      "id": "e012",
+      "shotId": "s08",
+      "source": "/workspace/manjian-demo/assets/frames/f08.jpg",
+      "start": 12.17,
+      "end": 12.638,
+      "duration": 0.468,
+      "camera": "zoom-out",
+      "transition": "cut",
+      "effects": [
+        "grain",
+        "glitch"
+      ],
+      "intensity": 0.65,
+      "section": "drop",
+      "beat": 25
+    },
+    {
+      "id": "e013",
+      "shotId": "s12",
+      "source": "/workspace/manjian-demo/assets/frames/f12.jpg",
+      "start": 12.638,
+      "end": 13.107,
+      "duration": 0.469,
+      "camera": "zoom-in",
+      "transition": "cut",
+      "effects": [
+        "grain",
+        "scanline"
+      ],
+      "intensity": 0.7,
+      "section": "drop",
+      "beat": 26
+    },
+    {
+      "id": "e014",
+      "shotId": "s14",
+      "source": "/workspace/manjian-demo/assets/frames/f14.jpg",
+      "start": 13.107,
+      "end": 13.576,
+      "duration": 0.469,
+      "camera": "punch-in",
+      "transition": "glitch",
+      "effects": [
+        "grain",
+        "rgb-split"
+      ],
+      "intensity": 0.75,
+      "section": "drop",
+      "beat": 27
+    },
+    {
+      "id": "e015",
+      "shotId": "s09",
+      "source": "/workspace/manjian-demo/assets/frames/f09.jpg",
+      "start": 13.576,
+      "end": 14.045,
+      "duration": 0.469,
+      "camera": "shake",
+      "transition": "cut",
+      "effects": [
+        "grain",
+        "bloom"
+      ],
+      "intensity": 0.8,
+      "section": "drop",
+      "beat": 28
+    },
+    {
+      "id": "e016",
+      "shotId": "s06",
+      "source": "/workspace/manjian-demo/assets/frames/f06.jpg",
+      "start": 14.045,
+      "end": 14.514,
+      "duration": 0.469,
+      "camera": "zoom-out",
+      "transition": "cut",
+      "effects": [
+        "grain"
+      ],
+      "intensity": 0.6,
+      "section": "drop",
+      "beat": 29
+    },
+    {
+      "id": "e017",
+      "shotId": "s05",
+      "source": "/workspace/manjian-demo/assets/frames/f05.jpg",
+      "start": 14.514,
+      "end": 14.982,
+      "duration": 0.468,
+      "camera": "zoom-in",
+      "transition": "cut",
+      "effects": [
+        "grain"
+      ],
+      "intensity": 0.65,
+      "section": "drop",
+      "beat": 30
+    },
+    {
+      "id": "e018",
+      "shotId": "s08",
+      "source": "/workspace/manjian-demo/assets/frames/f08.jpg",
+      "start": 14.982,
+      "end": 15.92,
+      "duration": 0.938,
+      "camera": "punch-in",
+      "transition": "cut",
+      "effects": [
+        "grain",
+        "rgb-split"
+      ],
+      "intensity": 0.7,
+      "section": "drop",
+      "beat": 31
+    },
+    {
+      "id": "e019",
+      "shotId": "s12",
+      "source": "/workspace/manjian-demo/assets/frames/f12.jpg",
+      "start": 15.92,
+      "end": 16.389,
+      "duration": 0.469,
+      "camera": "shake",
+      "transition": "cut",
+      "effects": [
+        "grain",
+        "scanline"
+      ],
+      "intensity": 0.75,
+      "section": "drop",
+      "beat": 33
+    },
+    {
+      "id": "e020",
+      "shotId": "s14",
+      "source": "/workspace/manjian-demo/assets/frames/f14.jpg",
+      "start": 16.389,
+      "end": 16.858,
+      "duration": 0.469,
+      "camera": "zoom-out",
+      "transition": "cut",
+      "effects": [
+        "grain",
+        "glitch",
+        "bloom"
+      ],
+      "intensity": 0.8,
+      "section": "drop",
+      "beat": 34
+    },
+    {
+      "id": "e021",
+      "shotId": "s09",
+      "source": "/workspace/manjian-demo/assets/frames/f09.jpg",
+      "start": 16.858,
+      "end": 17.326,
+      "duration": 0.468,
+      "camera": "punch-in",
+      "transition": "flash",
+      "effects": [
+        "grain",
+        "flash"
+      ],
+      "intensity": 0.6,
+      "section": "drop",
+      "beat": 35
+    },
+    {
+      "id": "e022",
+      "shotId": "s06",
+      "source": "/workspace/manjian-demo/assets/frames/f06.jpg",
+      "start": 17.326,
+      "end": 17.795,
+      "duration": 0.469,
+      "camera": "punch-in",
+      "transition": "cut",
+      "effects": [
+        "grain",
+        "rgb-split"
+      ],
+      "intensity": 0.65,
+      "section": "drop",
+      "beat": 36
+    },
+    {
+      "id": "e023",
+      "shotId": "s05",
+      "source": "/workspace/manjian-demo/assets/frames/f05.jpg",
+      "start": 17.795,
+      "end": 18.264,
+      "duration": 0.469,
+      "camera": "shake",
+      "transition": "glitch",
+      "effects": [
+        "grain"
+      ],
+      "intensity": 0.7,
+      "section": "drop",
+      "beat": 37
+    },
+    {
+      "id": "e024",
+      "shotId": "s08",
+      "source": "/workspace/manjian-demo/assets/frames/f08.jpg",
+      "start": 18.264,
+      "end": 18.733,
+      "duration": 0.469,
+      "camera": "zoom-out",
+      "transition": "cut",
+      "effects": [
+        "grain"
+      ],
+      "intensity": 0.75,
+      "section": "drop",
+      "beat": 38
+    },
+    {
+      "id": "e025",
+      "shotId": "s12",
+      "source": "/workspace/manjian-demo/assets/frames/f12.jpg",
+      "start": 18.733,
+      "end": 19.202,
+      "duration": 0.469,
+      "camera": "zoom-in",
+      "transition": "cut",
+      "effects": [
+        "grain",
+        "scanline",
+        "bloom"
+      ],
+      "intensity": 0.8,
+      "section": "drop",
+      "beat": 39
+    },
+    {
+      "id": "e026",
+      "shotId": "s14",
+      "source": "/workspace/manjian-demo/assets/frames/f14.jpg",
+      "start": 19.202,
+      "end": 19.671,
+      "duration": 0.469,
+      "camera": "punch-in",
+      "transition": "cut",
+      "effects": [
+        "grain",
+        "rgb-split"
+      ],
+      "intensity": 0.6,
+      "section": "drop",
+      "beat": 40
+    },
+    {
+      "id": "e027",
+      "shotId": "s09",
+      "source": "/workspace/manjian-demo/assets/frames/f09.jpg",
+      "start": 19.671,
+      "end": 20.608,
+      "duration": 0.937,
+      "camera": "shake",
+      "transition": "cut",
+      "effects": [
+        "grain"
+      ],
+      "intensity": 0.65,
+      "section": "drop",
+      "beat": 41
+    },
+    {
+      "id": "e028",
+      "shotId": "s06",
+      "source": "/workspace/manjian-demo/assets/frames/f06.jpg",
+      "start": 20.608,
+      "end": 21.077,
+      "duration": 0.469,
+      "camera": "zoom-out",
+      "transition": "cut",
+      "effects": [
+        "grain",
+        "glitch"
+      ],
+      "intensity": 0.7,
+      "section": "drop",
+      "beat": 43
+    },
+    {
+      "id": "e029",
+      "shotId": "s05",
+      "source": "/workspace/manjian-demo/assets/frames/f05.jpg",
+      "start": 21.077,
+      "end": 21.546,
+      "duration": 0.469,
+      "camera": "zoom-in",
+      "transition": "cut",
+      "effects": [
+        "grain"
+      ],
+      "intensity": 0.75,
+      "section": "drop",
+      "beat": 44
+    },
+    {
+      "id": "e030",
+      "shotId": "s08",
+      "source": "/workspace/manjian-demo/assets/frames/f08.jpg",
+      "start": 21.546,
+      "end": 22.015,
+      "duration": 0.469,
+      "camera": "punch-in",
+      "transition": "cut",
+      "effects": [
+        "grain",
+        "rgb-split",
+        "bloom"
+      ],
+      "intensity": 0.8,
+      "section": "drop",
+      "beat": 45
+    },
+    {
+      "id": "e031",
+      "shotId": "s12",
+      "source": "/workspace/manjian-demo/assets/frames/f12.jpg",
+      "start": 22.015,
+      "end": 22.483,
+      "duration": 0.468,
+      "camera": "shake",
+      "transition": "cut",
+      "effects": [
+        "grain",
+        "scanline"
+      ],
+      "intensity": 0.6,
+      "section": "drop",
+      "beat": 46
+    },
+    {
+      "id": "e032",
+      "shotId": "s14",
+      "source": "/workspace/manjian-demo/assets/frames/f14.jpg",
+      "start": 22.483,
+      "end": 23.89,
+      "duration": 1.407,
+      "camera": "shake",
+      "transition": "flash",
+      "effects": [
+        "grain",
+        "flash"
+      ],
+      "intensity": 0.3,
+      "section": "outro",
+      "beat": 47
+    },
+    {
+      "id": "e033",
+      "shotId": "s09",
+      "source": "/workspace/manjian-demo/assets/frames/f09.jpg",
+      "start": 23.89,
+      "end": 25.296,
+      "duration": 1.406,
+      "camera": "zoom-in",
+      "transition": "cut",
+      "effects": [
+        "grain"
+      ],
+      "intensity": 0.35,
+      "section": "outro",
+      "beat": 50
+    },
+    {
+      "id": "e034",
+      "shotId": "s03",
+      "source": "/workspace/manjian-demo/assets/frames/f03.jpg",
+      "start": 25.296,
+      "end": 26.234,
+      "duration": 0.938,
+      "camera": "pan-right",
+      "transition": "cut",
+      "effects": [
+        "grain"
+      ],
+      "intensity": 0.4,
+      "section": "outro",
+      "beat": 53
+    },
+    {
+      "id": "e035",
+      "shotId": "s05",
+      "source": "/workspace/manjian-demo/assets/frames/f05.jpg",
+      "start": 26.234,
+      "end": 27.64,
+      "duration": 1.406,
+      "camera": "zoom-out",
+      "transition": "cut",
+      "effects": [
+        "grain"
+      ],
+      "intensity": 0.45,
+      "section": "outro",
+      "beat": 55
+    },
+    {
+      "id": "e036",
+      "shotId": "s08",
+      "source": "/workspace/manjian-demo/assets/frames/f08.jpg",
+      "start": 27.64,
+      "end": 28.578,
+      "duration": 0.938,
+      "camera": "pan-left",
+      "transition": "cut",
+      "effects": [
+        "grain"
+      ],
+      "intensity": 0.25,
+      "section": "outro",
+      "beat": 58
+    },
+    {
+      "id": "e037",
+      "shotId": "s12",
+      "source": "/workspace/manjian-demo/assets/frames/f12.jpg",
+      "start": 28.578,
+      "end": 30,
+      "duration": 1.422,
+      "camera": "zoom-in",
+      "transition": "cut",
+      "effects": [
+        "grain"
+      ],
+      "intensity": 0.3,
+      "section": "outro",
+      "beat": 60
+    }
+  ],
+  "textEvents": [
+    {
+      "start": 0.918,
+      "end": 3.1180000000000003,
+      "text": "破晓",
+      "size": 132,
+      "y": 0.2,
+      "color": "white",
+      "align": "center",
+      "role": "title"
+    },
+    {
+      "start": 7.781,
+      "end": 9.881,
+      "text": "当世界开始崩坏",
+      "size": 54,
+      "y": 0.7,
+      "color": "white",
+      "align": "center",
+      "role": "lyric"
+    },
+    {
+      "start": 11.232,
+      "end": 11.572,
+      "text": "断",
+      "size": 240,
+      "y": 0.38,
+      "color": "#ffe6a8",
+      "align": "center",
+      "role": "impact"
+    },
+    {
+      "start": 13.107,
+      "end": 13.447,
+      "text": "斩",
+      "size": 240,
+      "y": 0.38,
+      "color": "#ffe6a8",
+      "align": "center",
+      "role": "impact"
+    },
+    {
+      "start": 14.982,
+      "end": 15.322,
+      "text": "裂",
+      "size": 240,
+      "y": 0.38,
+      "color": "#ffe6a8",
+      "align": "center",
+      "role": "impact"
+    },
+    {
+      "start": 16.858,
+      "end": 17.198,
+      "text": "燃",
+      "size": 240,
+      "y": 0.38,
+      "color": "#ffe6a8",
+      "align": "center",
+      "role": "impact"
+    },
+    {
+      "start": 18.733,
+      "end": 19.073,
+      "text": "爆",
+      "size": 240,
+      "y": 0.38,
+      "color": "#ffe6a8",
+      "align": "center",
+      "role": "impact"
+    },
+    {
+      "start": 20.608,
+      "end": 20.948,
+      "text": "醒",
+      "size": 240,
+      "y": 0.38,
+      "color": "#ffe6a8",
+      "align": "center",
+      "role": "impact"
+    },
+    {
+      "start": 22.883,
+      "end": 25.483,
+      "text": "这一次，为自己而战",
+      "size": 58,
+      "y": 0.74,
+      "color": "white",
+      "align": "center",
+      "role": "lyric"
+    },
+    {
+      "start": 28.6,
+      "end": 29.8,
+      "text": "DSH · MANJIAN ENGINE",
+      "size": 40,
+      "y": 0.86,
+      "color": "#d9d9d9",
+      "align": "center",
+      "role": "credits"
+    }
+  ],
+  "style": {
+    "name": "manjian-hard-cut",
+    "pacing": {
+      "intro": 1.6,
+      "build": 0.85,
+      "drop": 0.46,
+      "outro": 1.35
+    },
+    "grade": {
+      "saturation": 1.12,
+      "contrast": 1.1,
+      "brightness": 0.012,
+      "warmth": 0.02
+    },
+    "effectDensity": {
+      "intro": 0.2,
+      "build": 0.45,
+      "drop": 0.82,
+      "outro": 0.25
+    },
+    "transitionBias": [
+      "cut",
+      "flash",
+      "glitch",
+      "whip"
+    ],
+    "safeArea": {
+      "top": 0.08,
+      "bottom": 0.16
+    }
+  },
+  "bpm": 128,
+  "generatedBy": "dsh-manjian"
+}

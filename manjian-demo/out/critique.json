@@ -1,0 +1,564 @@
+{
+  "critique": {
+    "score": 87.9,
+    "metrics": [
+      {
+        "id": "onBeat",
+        "label": "切点踩拍率",
+        "value": 1,
+        "target": "≥ 0.95",
+        "score": 1,
+        "weight": 0.3,
+        "note": "36 个内部切点中 36 个落在节拍 ±50ms 内"
+      },
+      {
+        "id": "pacing",
+        "label": "段落节奏",
+        "value": 0.819,
+        "target": "每段贴近目标镜头长度",
+        "score": 0.8185724405301195,
+        "weight": 0.2,
+        "note": "intro/build/drop/outro 的镜头长度分布"
+      },
+      {
+        "id": "variety",
+        "label": "素材变化度",
+        "value": 0.432,
+        "target": "无连续重复、素材复用有间隔",
+        "score": 0.43243243243243246,
+        "weight": 0.15,
+        "note": "7 个不同镜头 / 37 段，连续重复 0 次"
+      },
+      {
+        "id": "arc",
+        "label": "情绪曲线",
+        "value": 1,
+        "target": "intro→build→drop 镜头持续加速",
+        "score": 1,
+        "weight": 0.12,
+        "note": "intro 1.87s / build 0.75s / drop 0.51s"
+      },
+      {
+        "id": "impact",
+        "label": "重音处理",
+        "value": 1,
+        "target": "每个重音都有闪白/故障/冲击",
+        "score": 1,
+        "weight": 0.1,
+        "note": "3/3 个重音被强化"
+      },
+      {
+        "id": "contrast",
+        "label": "明暗对比",
+        "value": 1,
+        "target": "相邻镜头亮度有起伏",
+        "score": 1,
+        "weight": 0.08,
+        "note": "相邻亮度差均值 59.9%"
+      },
+      {
+        "id": "duration",
+        "label": "时长准确度",
+        "value": 30,
+        "target": "30s",
+        "score": 0.9999999999999998,
+        "weight": 0.05,
+        "note": "成片 30.00s / 目标 30s"
+      },
+      {
+        "id": "spread",
+        "label": "镜头离散度",
+        "value": 0.494,
+        "target": "有长短变化",
+        "score": 0.5,
+        "weight": 0,
+        "note": "信息项，不计分"
+      }
+    ],
+    "issues": [],
+    "verdict": "ship",
+    "iteration": 5
+  },
+  "history": [
+    {
+      "score": 87.9,
+      "metrics": [
+        {
+          "id": "onBeat",
+          "label": "切点踩拍率",
+          "value": 1,
+          "target": "≥ 0.95",
+          "score": 1,
+          "weight": 0.3,
+          "note": "36 个内部切点中 36 个落在节拍 ±50ms 内"
+        },
+        {
+          "id": "pacing",
+          "label": "段落节奏",
+          "value": 0.819,
+          "target": "每段贴近目标镜头长度",
+          "score": 0.8185724405301195,
+          "weight": 0.2,
+          "note": "intro/build/drop/outro 的镜头长度分布"
+        },
+        {
+          "id": "variety",
+          "label": "素材变化度",
+          "value": 0.432,
+          "target": "无连续重复、素材复用有间隔",
+          "score": 0.43243243243243246,
+          "weight": 0.15,
+          "note": "7 个不同镜头 / 37 段，连续重复 0 次"
+        },
+        {
+          "id": "arc",
+          "label": "情绪曲线",
+          "value": 1,
+          "target": "intro→build→drop 镜头持续加速",
+          "score": 1,
+          "weight": 0.12,
+          "note": "intro 1.87s / build 0.75s / drop 0.51s"
+        },
+        {
+          "id": "impact",
+          "label": "重音处理",
+          "value": 1,
+          "target": "每个重音都有闪白/故障/冲击",
+          "score": 1,
+          "weight": 0.1,
+          "note": "3/3 个重音被强化"
+        },
+        {
+          "id": "contrast",
+          "label": "明暗对比",
+          "value": 1,
+          "target": "相邻镜头亮度有起伏",
+          "score": 1,
+          "weight": 0.08,
+          "note": "相邻亮度差均值 59.9%"
+        },
+        {
+          "id": "duration",
+          "label": "时长准确度",
+          "value": 30,
+          "target": "30s",
+          "score": 0.9999999999999998,
+          "weight": 0.05,
+          "note": "成片 30.00s / 目标 30s"
+        },
+        {
+          "id": "spread",
+          "label": "镜头离散度",
+          "value": 0.494,
+          "target": "有长短变化",
+          "score": 0.5,
+          "weight": 0,
+          "note": "信息项，不计分"
+        }
+      ],
+      "issues": [],
+      "verdict": "ship",
+      "iteration": 0
+    },
+    {
+      "score": 87.9,
+      "metrics": [
+        {
+          "id": "onBeat",
+          "label": "切点踩拍率",
+          "value": 1,
+          "target": "≥ 0.95",
+          "score": 1,
+          "weight": 0.3,
+          "note": "36 个内部切点中 36 个落在节拍 ±50ms 内"
+        },
+        {
+          "id": "pacing",
+          "label": "段落节奏",
+          "value": 0.819,
+          "target": "每段贴近目标镜头长度",
+          "score": 0.8185724405301195,
+          "weight": 0.2,
+          "note": "intro/build/drop/outro 的镜头长度分布"
+        },
+        {
+          "id": "variety",
+          "label": "素材变化度",
+          "value": 0.432,
+          "target": "无连续重复、素材复用有间隔",
+          "score": 0.43243243243243246,
+          "weight": 0.15,
+          "note": "7 个不同镜头 / 37 段，连续重复 0 次"
+        },
+        {
+          "id": "arc",
+          "label": "情绪曲线",
+          "value": 1,
+          "target": "intro→build→drop 镜头持续加速",
+          "score": 1,
+          "weight": 0.12,
+          "note": "intro 1.87s / build 0.75s / drop 0.51s"
+        },
+        {
+          "id": "impact",
+          "label": "重音处理",
+          "value": 1,
+          "target": "每个重音都有闪白/故障/冲击",
+          "score": 1,
+          "weight": 0.1,
+          "note": "3/3 个重音被强化"
+        },
+        {
+          "id": "contrast",
+          "label": "明暗对比",
+          "value": 1,
+          "target": "相邻镜头亮度有起伏",
+          "score": 1,
+          "weight": 0.08,
+          "note": "相邻亮度差均值 59.9%"
+        },
+        {
+          "id": "duration",
+          "label": "时长准确度",
+          "value": 30,
+          "target": "30s",
+          "score": 0.9999999999999998,
+          "weight": 0.05,
+          "note": "成片 30.00s / 目标 30s"
+        },
+        {
+          "id": "spread",
+          "label": "镜头离散度",
+          "value": 0.494,
+          "target": "有长短变化",
+          "score": 0.5,
+          "weight": 0,
+          "note": "信息项，不计分"
+        }
+      ],
+      "issues": [],
+      "verdict": "ship",
+      "iteration": 1
+    },
+    {
+      "score": 87.9,
+      "metrics": [
+        {
+          "id": "onBeat",
+          "label": "切点踩拍率",
+          "value": 1,
+          "target": "≥ 0.95",
+          "score": 1,
+          "weight": 0.3,
+          "note": "36 个内部切点中 36 个落在节拍 ±50ms 内"
+        },
+        {
+          "id": "pacing",
+          "label": "段落节奏",
+          "value": 0.819,
+          "target": "每段贴近目标镜头长度",
+          "score": 0.8185724405301195,
+          "weight": 0.2,
+          "note": "intro/build/drop/outro 的镜头长度分布"
+        },
+        {
+          "id": "variety",
+          "label": "素材变化度",
+          "value": 0.432,
+          "target": "无连续重复、素材复用有间隔",
+          "score": 0.43243243243243246,
+          "weight": 0.15,
+          "note": "7 个不同镜头 / 37 段，连续重复 0 次"
+        },
+        {
+          "id": "arc",
+          "label": "情绪曲线",
+          "value": 1,
+          "target": "intro→build→drop 镜头持续加速",
+          "score": 1,
+          "weight": 0.12,
+          "note": "intro 1.87s / build 0.75s / drop 0.51s"
+        },
+        {
+          "id": "impact",
+          "label": "重音处理",
+          "value": 1,
+          "target": "每个重音都有闪白/故障/冲击",
+          "score": 1,
+          "weight": 0.1,
+          "note": "3/3 个重音被强化"
+        },
+        {
+          "id": "contrast",
+          "label": "明暗对比",
+          "value": 1,
+          "target": "相邻镜头亮度有起伏",
+          "score": 1,
+          "weight": 0.08,
+          "note": "相邻亮度差均值 59.9%"
+        },
+        {
+          "id": "duration",
+          "label": "时长准确度",
+          "value": 30,
+          "target": "30s",
+          "score": 0.9999999999999998,
+          "weight": 0.05,
+          "note": "成片 30.00s / 目标 30s"
+        },
+        {
+          "id": "spread",
+          "label": "镜头离散度",
+          "value": 0.494,
+          "target": "有长短变化",
+          "score": 0.5,
+          "weight": 0,
+          "note": "信息项，不计分"
+        }
+      ],
+      "issues": [],
+      "verdict": "ship",
+      "iteration": 2
+    },
+    {
+      "score": 87.9,
+      "metrics": [
+        {
+          "id": "onBeat",
+          "label": "切点踩拍率",
+          "value": 1,
+          "target": "≥ 0.95",
+          "score": 1,
+          "weight": 0.3,
+          "note": "36 个内部切点中 36 个落在节拍 ±50ms 内"
+        },
+        {
+          "id": "pacing",
+          "label": "段落节奏",
+          "value": 0.819,
+          "target": "每段贴近目标镜头长度",
+          "score": 0.8185724405301195,
+          "weight": 0.2,
+          "note": "intro/build/drop/outro 的镜头长度分布"
+        },
+        {
+          "id": "variety",
+          "label": "素材变化度",
+          "value": 0.432,
+          "target": "无连续重复、素材复用有间隔",
+          "score": 0.43243243243243246,
+          "weight": 0.15,
+          "note": "7 个不同镜头 / 37 段，连续重复 0 次"
+        },
+        {
+          "id": "arc",
+          "label": "情绪曲线",
+          "value": 1,
+          "target": "intro→build→drop 镜头持续加速",
+          "score": 1,
+          "weight": 0.12,
+          "note": "intro 1.87s / build 0.75s / drop 0.51s"
+        },
+        {
+          "id": "impact",
+          "label": "重音处理",
+          "value": 1,
+          "target": "每个重音都有闪白/故障/冲击",
+          "score": 1,
+          "weight": 0.1,
+          "note": "3/3 个重音被强化"
+        },
+        {
+          "id": "contrast",
+          "label": "明暗对比",
+          "value": 1,
+          "target": "相邻镜头亮度有起伏",
+          "score": 1,
+          "weight": 0.08,
+          "note": "相邻亮度差均值 59.9%"
+        },
+        {
+          "id": "duration",
+          "label": "时长准确度",
+          "value": 30,
+          "target": "30s",
+          "score": 0.9999999999999998,
+          "weight": 0.05,
+          "note": "成片 30.00s / 目标 30s"
+        },
+        {
+          "id": "spread",
+          "label": "镜头离散度",
+          "value": 0.494,
+          "target": "有长短变化",
+          "score": 0.5,
+          "weight": 0,
+          "note": "信息项，不计分"
+        }
+      ],
+      "issues": [],
+      "verdict": "ship",
+      "iteration": 3
+    },
+    {
+      "score": 87.9,
+      "metrics": [
+        {
+          "id": "onBeat",
+          "label": "切点踩拍率",
+          "value": 1,
+          "target": "≥ 0.95",
+          "score": 1,
+          "weight": 0.3,
+          "note": "36 个内部切点中 36 个落在节拍 ±50ms 内"
+        },
+        {
+          "id": "pacing",
+          "label": "段落节奏",
+          "value": 0.819,
+          "target": "每段贴近目标镜头长度",
+          "score": 0.8185724405301195,
+          "weight": 0.2,
+          "note": "intro/build/drop/outro 的镜头长度分布"
+        },
+        {
+          "id": "variety",
+          "label": "素材变化度",
+          "value": 0.432,
+          "target": "无连续重复、素材复用有间隔",
+          "score": 0.43243243243243246,
+          "weight": 0.15,
+          "note": "7 个不同镜头 / 37 段，连续重复 0 次"
+        },
+        {
+          "id": "arc",
+          "label": "情绪曲线",
+          "value": 1,
+          "target": "intro→build→drop 镜头持续加速",
+          "score": 1,
+          "weight": 0.12,
+          "note": "intro 1.87s / build 0.75s / drop 0.51s"
+        },
+        {
+          "id": "impact",
+          "label": "重音处理",
+          "value": 1,
+          "target": "每个重音都有闪白/故障/冲击",
+          "score": 1,
+          "weight": 0.1,
+          "note": "3/3 个重音被强化"
+        },
+        {
+          "id": "contrast",
+          "label": "明暗对比",
+          "value": 1,
+          "target": "相邻镜头亮度有起伏",
+          "score": 1,
+          "weight": 0.08,
+          "note": "相邻亮度差均值 59.9%"
+        },
+        {
+          "id": "duration",
+          "label": "时长准确度",
+          "value": 30,
+          "target": "30s",
+          "score": 0.9999999999999998,
+          "weight": 0.05,
+          "note": "成片 30.00s / 目标 30s"
+        },
+        {
+          "id": "spread",
+          "label": "镜头离散度",
+          "value": 0.494,
+          "target": "有长短变化",
+          "score": 0.5,
+          "weight": 0,
+          "note": "信息项，不计分"
+        }
+      ],
+      "issues": [],
+      "verdict": "ship",
+      "iteration": 4
+    },
+    {
+      "score": 87.9,
+      "metrics": [
+        {
+          "id": "onBeat",
+          "label": "切点踩拍率",
+          "value": 1,
+          "target": "≥ 0.95",
+          "score": 1,
+          "weight": 0.3,
+          "note": "36 个内部切点中 36 个落在节拍 ±50ms 内"
+        },
+        {
+          "id": "pacing",
+          "label": "段落节奏",
+          "value": 0.819,
+          "target": "每段贴近目标镜头长度",
+          "score": 0.8185724405301195,
+          "weight": 0.2,
+          "note": "intro/build/drop/outro 的镜头长度分布"
+        },
+        {
+          "id": "variety",
+          "label": "素材变化度",
+          "value": 0.432,
+          "target": "无连续重复、素材复用有间隔",
+          "score": 0.43243243243243246,
+          "weight": 0.15,
+          "note": "7 个不同镜头 / 37 段，连续重复 0 次"
+        },
+        {
+          "id": "arc",
+          "label": "情绪曲线",
+          "value": 1,
+          "target": "intro→build→drop 镜头持续加速",
+          "score": 1,
+          "weight": 0.12,
+          "note": "intro 1.87s / build 0.75s / drop 0.51s"
+        },
+        {
+          "id": "impact",
+          "label": "重音处理",
+          "value": 1,
+          "target": "每个重音都有闪白/故障/冲击",
+          "score": 1,
+          "weight": 0.1,
+          "note": "3/3 个重音被强化"
+        },
+        {
+          "id": "contrast",
+          "label": "明暗对比",
+          "value": 1,
+          "target": "相邻镜头亮度有起伏",
+          "score": 1,
+          "weight": 0.08,
+          "note": "相邻亮度差均值 59.9%"
+        },
+        {
+          "id": "duration",
+          "label": "时长准确度",
+          "value": 30,
+          "target": "30s",
+          "score": 0.9999999999999998,
+          "weight": 0.05,
+          "note": "成片 30.00s / 目标 30s"
+        },
+        {
+          "id": "spread",
+          "label": "镜头离散度",
+          "value": 0.494,
+          "target": "有长短变化",
+          "score": 0.5,
+          "weight": 0,
+          "note": "信息项，不计分"
+        }
+      ],
+      "issues": [],
+      "verdict": "ship",
+      "iteration": 5
+    }
+  ]
+}
