@@ -1,0 +1,14 @@
+{
+  "pages": [
+    "pages/index/index"
+  ],
+  "window": {
+    "backgroundTextStyle": "light",
+    "navigationBarBackgroundColor": "#3EBD6A",
+    "navigationBarTitleText": "视频提取",
+    "navigationBarTextStyle": "white",
+    "backgroundColor": "#F4F6F5"
+  },
+  "style": "v2",
+  "sitemapLocation": "sitemap.json"
+}

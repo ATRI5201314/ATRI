@@ -1,0 +1,13 @@
+{
+  "name": "video-extractor-mvp-server",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Zero-dependency parse backend for the WeChat mini program MVP",
+  "main": "index.js",
+  "scripts": {
+    "start": "node index.js"
+  },
+  "engines": {
+    "node": ">=18"
+  }
+}

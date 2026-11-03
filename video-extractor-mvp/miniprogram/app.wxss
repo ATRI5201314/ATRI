@@ -1,0 +1,17 @@
+page {
+  background: #F4F6F5;
+  color: #1A1A1A;
+  font-family: -apple-system, "PingFang SC", "Helvetica Neue", sans-serif;
+  font-size: 14px;
+}
+
+view,
+text,
+button,
+textarea {
+  box-sizing: border-box;
+}
+
+button::after {
+  border: none;
+}
