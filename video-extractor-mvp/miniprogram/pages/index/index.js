@@ -83,7 +83,7 @@ Page({
       method: 'POST',
       header: { 'content-type': 'application/json' },
       data: { text },
-      timeout: 20000,
+      timeout: 45000,
       success: (res) => {
         const body = res.data || {};
         if (!body.ok) {

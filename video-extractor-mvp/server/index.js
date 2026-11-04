@@ -49,6 +49,11 @@ function isBlockedHost(hostname) {
   return /^172\.(1[6-9]|2\d|3[01])\./.test(host);
 }
 
+function formatBytes(bytes) {
+  const mb = bytes / 1024 / 1024;
+  return mb >= 1 ? mb.toFixed(2) + 'MB' : Math.round(bytes / 1024) + 'KB';
+}
+
 async function estimateSize(videoUrl) {
   try {
     const res = await fetch(videoUrl, {
@@ -185,7 +190,7 @@ async function handleParse(req, res) {
       result.needProxy && result.videoUrl
         ? origin + '/api/proxy?url=' + encodeURIComponent(result.videoUrl)
         : result.videoUrl;
-    result.size = await estimateSize(result.videoUrl);
+    result.size = result.sizeBytes ? formatBytes(result.sizeBytes) : await estimateSize(result.videoUrl);
 
     sendJson(res, 200, { ok: true, data: result });
   } catch (e) {

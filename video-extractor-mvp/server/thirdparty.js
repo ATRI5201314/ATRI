@@ -11,8 +11,11 @@
  *   PARSE_API_METHOD       POST | GET，默认 POST
  *   PARSE_API_KEY_HEADER   密钥放在请求头时的头名称，默认 Authorization
  *   PARSE_API_KEY_PARAM    密钥放 querystring 时的参数名，如 key（不填则走 header）
- *   PARSE_API_TIMEOUT      超时毫秒，默认 10000
+ *   PARSE_API_TIMEOUT      超时毫秒，默认 25000
  *   PARSE_API_NEED_PROXY   设为 1 时，所有结果走本机 /api/proxy 下载（防盗链用）
+ *   PARSE_API_SEND_TEXT    设为 1 时请求体额外带上原始分享文案（默认只发 url）
+ *   PARSE_API_USERNAME     账号密码登录用（与 PARSE_API_KEY 二选一）
+ *   PARSE_API_PASSWORD
  *   PARSE_API_DEBUG        设为 1 时打印原始响应，便于对字段
  *
  * 返回字段做了多路径兼容（data / result / data.data 等嵌套，video / url / play 等命名），
@@ -21,23 +24,26 @@
 
 const ENDPOINT = process.env.PARSE_API_URL || '';
 const API_KEY = process.env.PARSE_API_KEY || '';
+const API_USER = process.env.PARSE_API_USERNAME || '';
+const API_PASS = process.env.PARSE_API_PASSWORD || '';
 const METHOD = (process.env.PARSE_API_METHOD || 'POST').toUpperCase();
 const KEY_HEADER = process.env.PARSE_API_KEY_HEADER || 'Authorization';
 const KEY_PARAM = process.env.PARSE_API_KEY_PARAM || '';
 const URL_PARAM = process.env.PARSE_API_URL_PARAM || 'url';
-const TIMEOUT = Number(process.env.PARSE_API_TIMEOUT || 10000);
+const TIMEOUT = Number(process.env.PARSE_API_TIMEOUT || 25000);
 const NEED_PROXY = process.env.PARSE_API_NEED_PROXY === '1';
+const SEND_TEXT = process.env.PARSE_API_SEND_TEXT === '1';
 const DEBUG = process.env.PARSE_API_DEBUG === '1';
 
 const VIDEO_KEYS = [
   'video', 'videos', 'video_url', 'videoUrl', 'video_url_hd', 'videoUrlHd',
-  'url', 'play', 'play_url', 'playUrl', 'download_url', 'downloadUrl',
+  'url', 'urls', 'play', 'play_url', 'playUrl', 'download_url', 'downloadUrl',
   'mp4', 'src', 'origin_url', 'originUrl', 'no_watermark_url', 'wmfree_url',
 ];
 
 const IMAGE_KEYS = ['images', 'image', 'pics', 'pic', 'imgs', 'photos', 'image_urls', 'imageUrls'];
 
-const COVER_KEYS = ['cover', 'cover_url', 'coverUrl', 'poster', 'thumb', 'thumbnail', 'pic'];
+const COVER_KEYS = ['covers', 'cover', 'cover_url', 'coverUrl', 'poster', 'thumb', 'thumbnail', 'pic'];
 
 const TITLE_KEYS = ['title', 'desc', 'description', 'text', 'name', 'caption'];
 
@@ -76,7 +82,7 @@ function pickUrl(value) {
     return '';
   }
   if (typeof value === 'object') {
-    return pickUrl(value.url || value.play || value.src || value.download_url || value.url_list);
+    return pickUrl(value.url || value.play || value.src || value.download_url || value.url_list || value.urls);
   }
   return '';
 }
@@ -86,7 +92,7 @@ function pickText(value) {
   if (typeof value === 'string') return value.trim();
   if (typeof value === 'number') return String(value);
   if (Array.isArray(value)) return pickText(value[0]);
-  if (typeof value === 'object') return pickText(value.text || value.title || value.desc);
+  if (typeof value === 'object') return pickText(value.text || value.title || value.desc || value.message || value.msg);
   return '';
 }
 
@@ -124,9 +130,10 @@ function collectRoots(body) {
   };
 
   push(body);
-  ['data', 'result', 'list', 'video', 'data.data', 'data.result', 'data.list', 'result.data'].forEach(
-    (path) => push(getValue(body, path))
-  );
+  [
+    'data', 'result', 'list', 'video', 'media',
+    'data.data', 'data.result', 'data.list', 'data.media', 'result.data',
+  ].forEach((path) => push(getValue(body, path)));
 
   return roots;
 }
@@ -217,20 +224,62 @@ function normalize(body, shareUrl, platform) {
   const videoUrl = absolutize(videoRaw);
   if (!videoUrl && !images.length) return null;
 
+  // 部分接口直接给出体积和分辨率，能省掉一次 HEAD 探测
+  let sizeBytes = 0;
+  let height = 0;
+  for (const root of roots) {
+    const bytes = Number(root.size_bytes || (root.video && root.video.size_bytes) || 0);
+    if (bytes > 0) sizeBytes = bytes;
+    const h = Number((root.video && root.video.height) || root.height || 0);
+    if (h > 0) height = h;
+    if (sizeBytes && height) break;
+  }
+
   return {
     platform,
     title: title || '未命名作品',
     cover: absolutize(cover) || images[0] || '',
     videoUrl,
     images: images.map(absolutize).filter(Boolean),
-    quality: '高清',
+    quality: height ? height + 'P' : '高清',
+    sizeBytes,
     sources: videoUrl ? [videoUrl] : [],
     needProxy: NEED_PROXY,
     via: 'thirdparty',
   };
 }
 
-async function callApi(shareUrl, rawText) {
+let sessionCookie = '';
+let sessionAt = 0;
+
+/** 账号密码登录换取 Cookie 会话（部分自托管/演示实例用这种方式鉴权） */
+async function ensureSession() {
+  if (!API_USER || !API_PASS) return '';
+  if (sessionCookie && Date.now() - sessionAt < 30 * 60 * 1000) return sessionCookie;
+
+  const loginPath = process.env.PARSE_API_LOGIN_PATH || '/api/v1/auth/login';
+  const loginUrl = new URL(loginPath, ENDPOINT).toString();
+  const res = await fetch(loginUrl, {
+    method: 'POST',
+    headers: { 'content-type': 'application/json' },
+    body: JSON.stringify({ username: API_USER, password: API_PASS }),
+    signal: AbortSignal.timeout(TIMEOUT),
+  });
+  if (!res.ok) throw new Error('解析服务登录失败（' + res.status + '）');
+
+  const raw = res.headers.getSetCookie
+    ? res.headers.getSetCookie()
+    : [res.headers.get('set-cookie') || ''];
+  sessionCookie = raw
+    .filter(Boolean)
+    .map((item) => item.split(';')[0])
+    .join('; ');
+  sessionAt = Date.now();
+  if (DEBUG) console.log('[thirdparty] 登录成功, cookie=' + sessionCookie.slice(0, 40));
+  return sessionCookie;
+}
+
+async function callApi(shareUrl, rawText, retried) {
   const headers = { 'content-type': 'application/json' };
 
   let target = ENDPOINT;
@@ -242,6 +291,9 @@ async function callApi(shareUrl, rawText) {
     headers[KEY_HEADER] = API_KEY;
   }
 
+  const cookie = await ensureSession();
+  if (cookie) headers.cookie = cookie;
+
   let response;
   if (METHOD === 'GET') {
     const u = new URL(target);
@@ -251,9 +303,15 @@ async function callApi(shareUrl, rawText) {
     response = await fetch(target, {
       method: 'POST',
       headers,
-      body: JSON.stringify({ url: shareUrl, text: rawText }),
+      body: JSON.stringify(SEND_TEXT ? { url: shareUrl, text: rawText } : { url: shareUrl }),
       signal: AbortSignal.timeout(TIMEOUT),
     });
+  }
+
+  // 会话过期：清掉缓存重登一次
+  if ((response.status === 401 || response.status === 403) && cookie && !retried) {
+    sessionCookie = '';
+    return callApi(shareUrl, rawText, true);
   }
 
   const text = await response.text();
