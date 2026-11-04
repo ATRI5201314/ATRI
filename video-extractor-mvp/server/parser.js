@@ -114,7 +114,8 @@ async function parseDouyin(shareUrl) {
   try {
     return await parseGeneric(finalUrl);
   } catch (e) {
-    throw new Error('抖音解析失败：公开接口已失效或被风控，需要在 parser.js 接入签名服务或第三方解析 API');
+    console.warn('[douyin] 分享页兜底失败:', e.message);
+    throw new Error('这个链接暂时获取不到视频，请稍后重试或换一条链接');
   }
 }
 

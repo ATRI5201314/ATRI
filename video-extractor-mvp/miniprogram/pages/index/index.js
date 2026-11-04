@@ -1,6 +1,9 @@
 const config = require('../../config');
 const { createRewardedAd, showRewardedAd } = require('../../utils/ad');
 
+const UNLOCK_KEY = 'adUnlockUntil';
+const UNLOCK_MS = 24 * 60 * 60 * 1000; // 观看一次广告解锁 24 小时
+
 Page({
   data: {
     inputText: '',
@@ -9,6 +12,8 @@ Page({
     activeTab: 'video',
     bannerAdUnitId: config.bannerAdUnitId,
     rewardedAdUnitId: config.rewardedAdUnitId,
+    adFree: false,
+    adFreeText: '',
   },
 
   onLoad() {
@@ -16,6 +21,33 @@ Page({
     if (this.rewardedAd) {
       this.rewardedAd.load().catch(() => {});
     }
+
+    this.refreshAdFree();
+    // 每分钟刷新剩余时间，页面销毁时清理
+    this.adFreeTimer = setInterval(() => this.refreshAdFree(), 60000);
+  },
+
+  onShow() {
+    this.refreshAdFree();
+  },
+
+  onUnload() {
+    if (this.adFreeTimer) clearInterval(this.adFreeTimer);
+  },
+
+  refreshAdFree() {
+    const until = Number(wx.getStorageSync(UNLOCK_KEY) || 0);
+    const left = until - Date.now();
+
+    if (left <= 0) {
+      if (this.data.adFree) this.setData({ adFree: false, adFreeText: '' });
+      return;
+    }
+
+    const hours = Math.floor(left / 3600000);
+    const minutes = Math.floor((left % 3600000) / 60000);
+    const text = hours > 0 ? hours + ' 小时 ' + minutes + ' 分' : minutes + ' 分钟';
+    this.setData({ adFree: true, adFreeText: text });
   },
 
   onInput(e) {
@@ -55,7 +87,7 @@ Page({
       success: (res) => {
         const body = res.data || {};
         if (!body.ok) {
-          wx.showToast({ title: body.error || '解析失败', icon: 'none' });
+          wx.showToast({ title: body.error || '获取失败，请稍后重试', icon: 'none' });
           return;
         }
         this.setData({
@@ -65,7 +97,7 @@ Page({
       },
       fail: (err) => {
         console.warn(err);
-        wx.showToast({ title: '连不上解析服务，检查 config.baseUrl', icon: 'none' });
+        wx.showToast({ title: '网络异常，请稍后重试', icon: 'none' });
       },
       complete: () => this.setData({ loading: false }),
     });
@@ -95,11 +127,23 @@ Page({
     wx.setClipboardData({ data: result.title || '' });
   },
 
+  /**
+   * 免广告判断：24 小时内直接放行；
+   * 否则播一段激励视频，完整看完才解锁并放行。
+   */
   ensureAdUnlocked() {
+    if (this.data.adFree) return Promise.resolve(true);
+    if (!this.rewardedAd) return Promise.resolve(true);
+
     return showRewardedAd(this.rewardedAd).then((res) => {
-      if (res.isEnded) return true;
-      wx.showToast({ title: '完整观看广告后才能保存', icon: 'none' });
-      return false;
+      if (!res.isEnded) {
+        wx.showToast({ title: '看完整段广告才能解锁', icon: 'none' });
+        return false;
+      }
+      wx.setStorageSync(UNLOCK_KEY, Date.now() + UNLOCK_MS);
+      this.refreshAdFree();
+      wx.showToast({ title: '已解锁 24 小时免广告', icon: 'success' });
+      return true;
     });
   },
 
@@ -116,7 +160,7 @@ Page({
         success: (res) => {
           wx.hideLoading();
           if (res.statusCode !== 200) {
-            wx.showToast({ title: '下载失败 ' + res.statusCode, icon: 'none' });
+            wx.showToast({ title: '下载失败，请重试', icon: 'none' });
             return;
           }
           this.saveToAlbum(res.tempFilePath, 'video');
@@ -124,7 +168,7 @@ Page({
         fail: (err) => {
           wx.hideLoading();
           console.warn(err);
-          wx.showToast({ title: '下载失败，检查域名白名单', icon: 'none' });
+          wx.showToast({ title: '下载失败，请重试', icon: 'none' });
         },
       });
     });
@@ -134,34 +178,38 @@ Page({
     const images = (this.data.result && this.data.result.images) || [];
     if (!images.length) return;
 
-    let saved = 0;
-    wx.showLoading({ title: '0/' + images.length, mask: true });
+    this.ensureAdUnlocked().then((unlocked) => {
+      if (!unlocked) return;
 
-    const step = (index) => {
-      if (index >= images.length) {
-        wx.hideLoading();
-        wx.showToast({ title: '已保存 ' + saved + ' 张', icon: 'none' });
-        return;
-      }
-      wx.downloadFile({
-        url: images[index],
-        success: (res) => {
-          wx.saveImageToPhotosAlbum({
-            filePath: res.tempFilePath,
-            success: () => {
-              saved += 1;
-            },
-            complete: () => {
-              wx.showLoading({ title: index + 1 + '/' + images.length, mask: true });
-              step(index + 1);
-            },
-          });
-        },
-        fail: () => step(index + 1),
-      });
-    };
+      let saved = 0;
+      wx.showLoading({ title: '0/' + images.length, mask: true });
 
-    step(0);
+      const step = (index) => {
+        if (index >= images.length) {
+          wx.hideLoading();
+          wx.showToast({ title: '已保存 ' + saved + ' 张', icon: 'none' });
+          return;
+        }
+        wx.downloadFile({
+          url: images[index],
+          success: (res) => {
+            wx.saveImageToPhotosAlbum({
+              filePath: res.tempFilePath,
+              success: () => {
+                saved += 1;
+              },
+              complete: () => {
+                wx.showLoading({ title: index + 1 + '/' + images.length, mask: true });
+                step(index + 1);
+              },
+            });
+          },
+          fail: () => step(index + 1),
+        });
+      };
+
+      step(0);
+    });
   },
 
   saveToAlbum(filePath, type) {

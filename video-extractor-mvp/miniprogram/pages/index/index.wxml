@@ -9,7 +9,7 @@
       class="input"
       value="{{inputText}}"
       bindinput="onInput"
-      placeholder="长按粘贴视频或图集链接，例如：7.69 p@D... https://v.douyin.com/xxx/"
+      placeholder="长按粘贴视频链接，例如：7.69 p@D... https://v.douyin.com/xxx/"
       maxlength="-1"
       auto-height
     ></textarea>
@@ -19,10 +19,10 @@
       <button class="btn ghost" bindtap="onClear">清空内容</button>
     </view>
 
-    <view class="tip">视频归平台及作者所有，本工具仅做本地保存，不存储任何内容。</view>
+    <view class="tip">视频版权归平台及作者所有，本工具仅用于个人学习与本地保存，不存储任何内容。</view>
 
-    <button class="btn primary block" loading="{{loading}}" bindtap="onStart">开始提取</button>
-    <view class="demo-link" bindtap="onDemo">没有链接？点这里用演示数据体验</view>
+    <button class="btn primary block" loading="{{loading}}" bindtap="onStart">开始获取</button>
+    <view class="demo-link" bindtap="onDemo">没有链接？点这里体验示例</view>
   </view>
 
   <view class="card" wx:if="{{result}}">
@@ -32,6 +32,14 @@
       <view class="tab {{activeTab === 'video' ? 'active' : ''}}" data-tab="video" bindtap="onTab">视频</view>
       <view class="tab {{activeTab === 'images' ? 'active' : ''}}" data-tab="images" bindtap="onTab">图片</view>
       <view class="tab {{activeTab === 'title' ? 'active' : ''}}" data-tab="title" bindtap="onTab">标题</view>
+    </view>
+
+    <view class="unlock-bar" wx:if="{{rewardedAdUnitId}}">
+      <view class="unlock-info">
+        <text class="unlock-title">{{adFree ? '免广告下载已开启' : '看广告 · 解锁 24 小时免广告'}}</text>
+        <text class="unlock-sub">{{adFree ? adFreeText : '完整观看一段视频广告后生效'}}</text>
+      </view>
+      <text class="unlock-tag {{adFree ? 'on' : ''}}">{{adFree ? '已解锁' : '未解锁'}}</text>
     </view>
 
     <block wx:if="{{activeTab === 'video'}}">
@@ -52,10 +60,9 @@
       </view>
 
       <view class="row">
-        <button class="btn ghost" bindtap="onCopy">复制直链</button>
+        <button class="btn ghost" bindtap="onCopy">复制链接</button>
         <button class="btn primary" bindtap="onSaveVideo">保存视频</button>
       </view>
-      <view class="ad-note" wx:if="{{rewardedAdUnitId}}">保存前会播放一段激励视频</view>
     </block>
 
     <block wx:elif="{{activeTab === 'images'}}">

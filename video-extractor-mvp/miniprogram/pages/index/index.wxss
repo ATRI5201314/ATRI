@@ -178,9 +178,46 @@
   color: #1a1a1a;
 }
 
-.ad-note {
-  margin-top: 16rpx;
-  text-align: center;
+.unlock-bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 20rpx;
+  margin-bottom: 20rpx;
+  background: #f7f9f8;
+  border-radius: 16rpx;
+}
+
+.unlock-info {
+  flex: 1;
+  min-width: 0;
+}
+
+.unlock-title {
+  display: block;
+  font-size: 26rpx;
+  font-weight: 500;
+  color: #1a1a1a;
+}
+
+.unlock-sub {
+  display: block;
+  margin-top: 6rpx;
   font-size: 22rpx;
   color: #9aa0a6;
+}
+
+.unlock-tag {
+  flex-shrink: 0;
+  margin-left: 16rpx;
+  padding: 6rpx 16rpx;
+  border-radius: 999rpx;
+  background: #edf1ef;
+  color: #6b7280;
+  font-size: 22rpx;
+}
+
+.unlock-tag.on {
+  background: #3ebd6a;
+  color: #ffffff;
 }
