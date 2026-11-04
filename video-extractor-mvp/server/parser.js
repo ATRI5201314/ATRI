@@ -1,3 +1,5 @@
+const { isEnabled: thirdPartyEnabled, parseViaThirdParty } = require('./thirdparty');
+
 const MOBILE_UA =
   'Mozilla/5.0 (iPhone; CPU iPhone OS 16_6 like Mac OS X) AppleWebKit/605.1.15 ' +
   '(KHTML, like Gecko) Version/16.6 Mobile/15E148 Safari/604.1';
@@ -186,6 +188,18 @@ async function parse(text) {
 
   const platform = detectPlatform(shareUrl);
   let result;
+
+  // 第三方解析优先：配置了 PARSE_API_URL 就走远端，失败再退回本地适配
+  if (thirdPartyEnabled()) {
+    try {
+      const remote = await parseViaThirdParty({ shareUrl, text: raw, platform });
+      if (remote) return remote;
+    } catch (e) {
+      console.warn('[thirdparty] 失败:', e.message);
+      // 抖音本地适配已失效，第三方也失败时不再做两次无谓的网络重试
+      if (platform === 'douyin') throw e;
+    }
+  }
 
   if (platform === 'douyin') {
     result = await parseDouyin(shareUrl);

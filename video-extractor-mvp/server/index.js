@@ -3,6 +3,7 @@ const fs = require('fs');
 const path = require('path');
 const { Readable } = require('stream');
 const { parse, MOBILE_UA } = require('./parser');
+const thirdparty = require('./thirdparty');
 
 const PORT = Number(process.env.PORT || 3000);
 const PUBLIC_DIR = path.join(__dirname, 'public');
@@ -226,4 +227,8 @@ const server = http.createServer(async (req, res) => {
 server.listen(PORT, () => {
   console.log('▶ 解析服务已启动: http://127.0.0.1:' + PORT);
   console.log('  健康检查: http://127.0.0.1:' + PORT + '/health');
+  console.log(
+    '  第三方解析: ' +
+      (thirdparty.isEnabled() ? '已启用 -> ' + process.env.PARSE_API_URL : '未配置（PARSE_API_URL 为空）')
+  );
 });
