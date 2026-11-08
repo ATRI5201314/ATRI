@@ -1,0 +1,40 @@
+{
+ "note": "L36 原始语料不进 git；用 ./fetch_range.sh 按 url+range 重新抓取，sha256 可用于校验。",
+ "files": [
+  {
+   "name": "thu_social.jsonl",
+   "url": "https://hf-mirror.com/datasets/SirlyDreamer/THUCNews/resolve/main/THUCNews.jsonl",
+   "range": "bytes 1099808000-1334759999",
+   "size": 234952000,
+   "sha256": "83a40a911b808a381dc074371b2cb9329edb7657d540532c0018065636b5212e"
+  },
+  {
+   "name": "thu_politics.jsonl",
+   "url": "https://hf-mirror.com/datasets/SirlyDreamer/THUCNews/resolve/main/THUCNews.jsonl",
+   "range": "bytes 966332000-1067807999",
+   "size": 101476000,
+   "sha256": "770dc0464336817c218984a6a527665ceae7cf75a79566ad64aa7f623d3c7f50"
+  },
+  {
+   "name": "thu_finance.jsonl",
+   "url": "https://hf-mirror.com/datasets/SirlyDreamer/THUCNews/resolve/main/THUCNews.jsonl",
+   "range": "bytes 2068878000-2224599999",
+   "size": 155722000,
+   "sha256": "0494b83bba7ed2185bfa1750557bf73c53c0997679ac39cbd615b074bcf7232d"
+  },
+  {
+   "name": "zhihu_qa.jsonl.gz",
+   "url": "https://hf-mirror.com/datasets/zirui3/zhihu_qa/resolve/main/zhihu_qa.jsonl.gz",
+   "range": "whole file",
+   "size": 120343250,
+   "sha256": "15ca7b40e0ad120d97d0fe0c96f8ece149aee2f2c0e3e71b654bbebdf8af25c2"
+  },
+  {
+   "name": "zhihu_kol_0.parquet",
+   "url": "https://hf-mirror.com/datasets/wangrui6/Zhihu-KOL/resolve/main/data/train-00000-of-00005-a1278ede4e8c5cdb.parquet",
+   "range": "whole file",
+   "size": 306309311,
+   "sha256": "9a9579bcb1d0443dbc205242f55c3fc5dbd8d1b09b1c9bed5cddcdfc94f6fcac"
+  }
+ ]
+}
