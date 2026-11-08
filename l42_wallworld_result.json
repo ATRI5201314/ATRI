@@ -1,0 +1,143 @@
+{
+ "train": {
+  "samples": 26701,
+  "pred": 95521,
+  "walls": 10,
+  "n": 14
+ },
+ "worlds": {
+  "A": {
+   "name": "训练布局（竖墙）",
+   "n": 14,
+   "n_starts": 20,
+   "policies": {
+    "M_abs": {
+     "episodes": 20,
+     "death_rate": 0.15,
+     "reach_rate": 0.85,
+     "mean_steps": 19.1,
+     "refusals": 6,
+     "plans": 83,
+     "safe_plans": 77
+    },
+    "M_relb": {
+     "episodes": 20,
+     "death_rate": 0.05,
+     "reach_rate": 0.95,
+     "mean_steps": 25.1,
+     "refusals": 0,
+     "plans": 99,
+     "safe_plans": 99
+    },
+    "reactive": {
+     "episodes": 20,
+     "death_rate": 1.0,
+     "reach_rate": 0.0,
+     "mean_steps": 21.9,
+     "refusals": 0,
+     "plans": 0,
+     "safe_plans": 0
+    }
+   }
+  },
+  "B": {
+   "name": "换布局（横墙）",
+   "n": 14,
+   "n_starts": 20,
+   "policies": {
+    "M_abs": {
+     "episodes": 20,
+     "death_rate": 1.0,
+     "reach_rate": 0.0,
+     "mean_steps": 22.9,
+     "refusals": 8,
+     "plans": 88,
+     "safe_plans": 80
+    },
+    "M_relb": {
+     "episodes": 20,
+     "death_rate": 0.15,
+     "reach_rate": 0.85,
+     "mean_steps": 21.9,
+     "refusals": 3,
+     "plans": 91,
+     "safe_plans": 88
+    },
+    "reactive": {
+     "episodes": 20,
+     "death_rate": 1.0,
+     "reach_rate": 0.0,
+     "mean_steps": 22.0,
+     "refusals": 0,
+     "plans": 0,
+     "safe_plans": 0
+    }
+   }
+  },
+  "C": {
+   "name": "换尺寸+布局（16×16 十字墙）",
+   "n": 16,
+   "n_starts": 20,
+   "policies": {
+    "M_abs": {
+     "episodes": 20,
+     "death_rate": 0.75,
+     "reach_rate": 0.25,
+     "mean_steps": 15.2,
+     "refusals": 15,
+     "plans": 69,
+     "safe_plans": 54
+    },
+    "M_relb": {
+     "episodes": 20,
+     "death_rate": 0.65,
+     "reach_rate": 0.35,
+     "mean_steps": 25.6,
+     "refusals": 36,
+     "plans": 158,
+     "safe_plans": 122
+    },
+    "reactive": {
+     "episodes": 20,
+     "death_rate": 1.0,
+     "reach_rate": 0.0,
+     "mean_steps": 23.6,
+     "refusals": 0,
+     "plans": 0,
+     "safe_plans": 0
+    }
+   }
+  }
+ },
+ "verdict": {
+  "L42-1": [
+   false,
+   "A 上 M_abs 死 0.150",
+   "装置自检：绝对模型在训练世界应 0 死亡"
+  ],
+  "L42-2": [
+   true,
+   "A 上 M_relb 死 0.050",
+   "相对模型在家能活（<=0.20）"
+  ],
+  "L42-3": [
+   true,
+   "B 上 M_relb 死 0.150",
+   "换布局还活（<=0.20）"
+  ],
+  "L42-4": [
+   false,
+   "C 上 M_relb 死 0.650",
+   "换尺寸+布局还活（<=0.20）"
+  ],
+  "L42-5": [
+   true,
+   "B 上 M_abs 死 1.000",
+   "绝对模型换布局确实崩（>=0.80）"
+  ]
+ },
+ "params": {
+  "episodes": 20,
+  "steps": 60
+ }
+}
