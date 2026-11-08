@@ -1,0 +1,31 @@
+========================================================================
+L40 世界迁移 | 只在训练迷宫采经验，之后冻结
+========================================================================
+[1/4] 采集训练经验（只此一次）...
+  105608 个转移样本 / 训练世界 14×14
+  模型冻结：cell=1176 / pred=1458 / pain=3670
+
+[2/4] 逐个世界跑（不重新采经验）
+    T0/offline 24 回合 13.4s
+    T0/reactive 24 回合 0.0s
+    T0/oracle 24 回合 61.1s
+  T0 原世界  覆盖 1.000 | offline 死 0.000 到 1.000 | reactive 死 1.000 | oracle 0.000
+    T1/offline 24 回合 24.5s
+    T1/reactive 24 回合 0.0s
+    T1/oracle 24 回合 90.8s
+  T1 换布局  覆盖 1.000 | offline 死 1.000 到 0.000 | reactive 死 1.000 | oracle 0.000
+    T2/offline 24 回合 12.1s
+    T2/reactive 24 回合 0.1s
+  T2 换节律  覆盖 1.000 | offline 死 0.000 到 1.000 | reactive 死 1.000 | oracle- nan
+    T3/offline 24 回合 10.4s
+    T3/reactive 24 回合 0.0s
+    T3/oracle 24 回合 12.7s
+  T3 小世界  覆盖 1.000 | offline 死 0.000 到 1.000 | reactive 死 1.000 | oracle 0.000
+    T4/offline 24 回合 25.4s
+    T4/reactive 24 回合 0.1s
+  T4 大世界  覆盖 0.605 | offline 死 1.000 到 0.000 | reactive 死 1.000 | oracle- nan
+
+判决：L40-1 PASS | L40-2 FAIL | L40-3 PASS | L40-4 PASS | L40-5 FAIL
+  报告写入 /workspace/L40_世界迁移实证报告.md
+  图写入 /workspace/l40_world_transfer.png
+  完成：270.0s / 峰值内存约 197MB
