@@ -1,0 +1,2041 @@
+{
+ "meta": {
+  "docs": 40512,
+  "chars": 35593769,
+  "src_docs": {
+   "cqa_zhihu": 5211,
+   "cqa_xhs": 943,
+   "cqa_douban": 240,
+   "cqa_segmentfault": 118,
+   "zhihu_kol15": 14000,
+   "zhihu_kol16": 14000,
+   "zhihu": 3000,
+   "thu_social_legacy": 3000
+  },
+  "src_chars": {
+   "cqa_zhihu": 4411033,
+   "cqa_xhs": 567720,
+   "cqa_douban": 519253,
+   "cqa_segmentfault": 79190,
+   "zhihu_kol15": 13330986,
+   "zhihu_kol16": 12646273,
+   "zhihu": 1519640,
+   "thu_social_legacy": 2519674
+  },
+  "modern_chars": 33074095,
+  "legacy_chars": 2519674,
+  "drop": {
+   "cqa_zhihu / no_long_sentence": 89,
+   "cqa_zhihu / low_chinese_ratio": 138,
+   "cqa_zhihu / emotional_exclaim": 18,
+   "cqa_zhihu / repetitive_8gram": 2,
+   "cqa_zhihu / duplicate": 2,
+   "cqa_xhs / emotional_exclaim": 339,
+   "cqa_xhs / no_long_sentence": 162,
+   "cqa_xhs / low_chinese_ratio": 63,
+   "cqa_xhs / repetitive_8gram": 1,
+   "cqa_douban / no_long_sentence": 3,
+   "cqa_douban / emotional_exclaim": 3,
+   "cqa_douban / low_chinese_ratio": 1,
+   "cqa_segmentfault / low_chinese_ratio": 339,
+   "cqa_segmentfault / no_long_sentence": 1,
+   "zhihu_kol15 / emotional_exclaim": 801,
+   "zhihu_kol15 / too_short": 4299,
+   "zhihu_kol15 / low_chinese_ratio": 295,
+   "zhihu_kol15 / no_long_sentence": 135,
+   "zhihu_kol15 / repetitive_8gram": 4,
+   "zhihu_kol15 / few_sentences": 9,
+   "zhihu_kol15 / low_4gram_diversity": 3,
+   "zhihu_kol15 / repeated_sentences": 1,
+   "zhihu_kol16 / low_chinese_ratio": 271,
+   "zhihu_kol16 / emotional_exclaim": 867,
+   "zhihu_kol16 / too_short": 4587,
+   "zhihu_kol16 / few_sentences": 11,
+   "zhihu_kol16 / no_long_sentence": 124,
+   "zhihu_kol16 / duplicate": 1,
+   "zhihu_kol16 / low_4gram_diversity": 2,
+   "zhihu_kol16 / repetitive_8gram": 5,
+   "zhihu / emotional_exclaim": 182,
+   "zhihu / no_long_sentence": 56,
+   "zhihu / duplicate": 7,
+   "zhihu / too_short": 165,
+   "zhihu / low_chinese_ratio": 110,
+   "thu_social_legacy / too_short": 16,
+   "thu_social_legacy / repetitive_8gram": 79,
+   "thu_social_legacy / emotional_exclaim": 18,
+   "thu_social_legacy / low_4gram_diversity": 3
+  }
+ },
+ "vocab_size": 8609,
+ "params": {
+  "VOCAB": 8000,
+  "WINDOW": 3,
+  "MIN_CO": 2,
+  "KNN_K": 10,
+  "NB_K": 100,
+  "CTX_W": 5,
+  "N_NULL": 2000
+ },
+ "anchors": {
+  "energy_words": [
+   "能量",
+   "能源",
+   "电力",
+   "电池",
+   "电量",
+   "燃料",
+   "食物",
+   "营养",
+   "功率",
+   "充电",
+   "发热",
+   "燃烧",
+   "动能",
+   "太阳能",
+   "石油"
+  ],
+  "pain_words": [
+   "疼痛",
+   "痛",
+   "受伤",
+   "伤害",
+   "疾病",
+   "痛苦",
+   "伤口",
+   "流血",
+   "折磨",
+   "难受",
+   "炎症",
+   "骨折",
+   "呕吐",
+   "头痛"
+  ]
+ },
+ "involution": {
+  "present": true,
+  "ppmi": {
+   "neighbors": [
+    {
+     "rank": 1,
+     "word": "模具设计",
+     "score": 5.3646,
+     "df": 2,
+     "srcs": {
+      "cqa_zhihu": 1
+     },
+     "margin": 0.0206
+    },
+    {
+     "rank": 2,
+     "word": "简而言之",
+     "score": 4.8499,
+     "df": 119,
+     "srcs": {
+      "zhihu_kol15": 1
+     },
+     "margin": 0.005
+    },
+    {
+     "rank": 3,
+     "word": "看得出来",
+     "score": 4.8049,
+     "df": 105,
+     "srcs": {
+      "zhihu_kol15": 1
+     },
+     "margin": -0.0154
+    },
+    {
+     "rank": 4,
+     "word": "很难说",
+     "score": 4.7411,
+     "df": 124,
+     "srcs": {
+      "zhihu_kol15": 1
+     },
+     "margin": 0.0428
+    },
+    {
+     "rank": 5,
+     "word": "没准",
+     "score": 4.7308,
+     "df": 106,
+     "srcs": {
+      "zhihu_kol16": 1
+     },
+     "margin": 0.0106
+    },
+    {
+     "rank": 6,
+     "word": "为富不仁",
+     "score": 4.7106,
+     "df": 4,
+     "srcs": {
+      "zhihu_kol16": 1
+     },
+     "margin": -0.1093
+    },
+    {
+     "rank": 7,
+     "word": "截然不同",
+     "score": 4.6714,
+     "df": 122,
+     "srcs": {
+      "zhihu_kol16": 1
+     },
+     "margin": -0.041
+    },
+    {
+     "rank": 8,
+     "word": "至极",
+     "score": 4.643,
+     "df": 109,
+     "srcs": {
+      "zhihu_kol16": 1
+     },
+     "margin": 0.0114
+    },
+    {
+     "rank": 9,
+     "word": "共同点",
+     "score": 4.5709,
+     "df": 105,
+     "srcs": {
+      "cqa_zhihu": 1
+     },
+     "margin": -0.0177
+    },
+    {
+     "rank": 10,
+     "word": "别扭",
+     "score": 4.5709,
+     "df": 124,
+     "srcs": {
+      "zhihu_kol16": 1
+     },
+     "margin": -0.1265
+    },
+    {
+     "rank": 11,
+     "word": "花样",
+     "score": 4.4638,
+     "df": 122,
+     "srcs": {
+      "zhihu_kol16": 1
+     },
+     "margin": 0.006
+    },
+    {
+     "rank": 12,
+     "word": "任教",
+     "score": 4.4593,
+     "df": 118,
+     "srcs": {
+      "cqa_zhihu": 7
+     },
+     "margin": 0.0058
+    },
+    {
+     "rank": 13,
+     "word": "强悍",
+     "score": 4.456,
+     "df": 131,
+     "srcs": {
+      "cqa_douban": 1
+     },
+     "margin": -0.0581
+    },
+    {
+     "rank": 14,
+     "word": "吃惊",
+     "score": 4.456,
+     "df": 109,
+     "srcs": {
+      "zhihu_kol16": 1
+     },
+     "margin": -0.0072
+    },
+    {
+     "rank": 15,
+     "word": "咸鱼",
+     "score": 4.4406,
+     "df": 107,
+     "srcs": {
+      "zhihu_kol16": 1
+     },
+     "margin": 0.0222
+    },
+    {
+     "rank": 16,
+     "word": "影视作品",
+     "score": 4.433,
+     "df": 106,
+     "srcs": {
+      "cqa_douban": 1
+     },
+     "margin": 0.0035
+    },
+    {
+     "rank": 17,
+     "word": "总归",
+     "score": 4.4255,
+     "df": 113,
+     "srcs": {
+      "cqa_zhihu": 3
+     },
+     "margin": 0.0692
+    },
+    {
+     "rank": 18,
+     "word": "利于",
+     "score": 4.418,
+     "df": 116,
+     "srcs": {
+      "zhihu_kol15": 1
+     },
+     "margin": 0.0644
+    },
+    {
+     "rank": 19,
+     "word": "胆子",
+     "score": 4.3813,
+     "df": 106,
+     "srcs": {
+      "zhihu_kol15": 2
+     },
+     "margin": -0.0634
+    },
+    {
+     "rank": 20,
+     "word": "凑合",
+     "score": 4.3742,
+     "df": 115,
+     "srcs": {
+      "cqa_zhihu": 1
+     },
+     "margin": -0.0908
+    }
+   ],
+   "top8": [
+    "模具设计",
+    "简而言之",
+    "看得出来",
+    "很难说",
+    "没准",
+    "为富不仁",
+    "截然不同",
+    "至极"
+   ],
+   "social_hits": [],
+   "botany_top8": []
+  },
+  "ctx": {
+   "neighbors": [
+    {
+     "rank": 1,
+     "word": "行业",
+     "score": 42.0,
+     "df": 6646,
+     "srcs": {
+      "cqa_zhihu": 14,
+      "zhihu_kol15": 20,
+      "zhihu_kol16": 8
+     },
+     "margin": 0.1915
+    },
+    {
+     "rank": 2,
+     "word": "理论",
+     "score": 42.0,
+     "df": 3933,
+     "srcs": {
+      "zhihu_kol15": 42
+     },
+     "margin": 0.1108
+    },
+    {
+     "rank": 3,
+     "word": "严重",
+     "score": 34.0,
+     "df": 3048,
+     "srcs": {
+      "cqa_zhihu": 4,
+      "cqa_douban": 1,
+      "zhihu_kol15": 13,
+      "zhihu_kol16": 16
+     },
+     "margin": -0.3964
+    },
+    {
+     "rank": 4,
+     "word": "发展",
+     "score": 28.0,
+     "df": 8976,
+     "srcs": {
+      "cqa_zhihu": 6,
+      "zhihu_kol15": 13,
+      "zhihu_kol16": 9
+     },
+     "margin": 0.2208
+    },
+    {
+     "rank": 5,
+     "word": "社会",
+     "score": 26.0,
+     "df": 6321,
+     "srcs": {
+      "cqa_zhihu": 14,
+      "zhihu_kol15": 6,
+      "zhihu_kol16": 6
+     },
+     "margin": -0.0454
+    },
+    {
+     "rank": 6,
+     "word": "开始",
+     "score": 25.0,
+     "df": 17651,
+     "srcs": {
+      "cqa_zhihu": 7,
+      "zhihu_kol15": 10,
+      "zhihu_kol16": 8
+     },
+     "margin": -0.2267
+    },
+    {
+     "rank": 7,
+     "word": "竞争",
+     "score": 24.0,
+     "df": 1568,
+     "srcs": {
+      "cqa_zhihu": 1,
+      "zhihu_kol15": 10,
+      "zhihu_kol16": 13
+     },
+     "margin": 0.1092
+    },
+    {
+     "rank": 8,
+     "word": "学生",
+     "score": 23.0,
+     "df": 8365,
+     "srcs": {
+      "zhihu_kol15": 7,
+      "zhihu_kol16": 16
+     },
+     "margin": -0.0609
+    },
+    {
+     "rank": 9,
+     "word": "现象",
+     "score": 22.0,
+     "df": 2229,
+     "srcs": {
+      "cqa_zhihu": 11,
+      "zhihu_kol15": 5,
+      "zhihu_kol16": 6
+     },
+     "margin": -0.0504
+    },
+    {
+     "rank": 10,
+     "word": "出现",
+     "score": 22.0,
+     "df": 9894,
+     "srcs": {
+      "cqa_zhihu": 8,
+      "zhihu_kol15": 6,
+      "zhihu_kol16": 8
+     },
+     "margin": -0.2801
+    },
+    {
+     "rank": 11,
+     "word": "概念",
+     "score": 20.0,
+     "df": 2746,
+     "srcs": {
+      "cqa_zhihu": 1,
+      "zhihu_kol15": 19
+     },
+     "margin": 0.0564
+    },
+    {
+     "rank": 12,
+     "word": "学校",
+     "score": 20.0,
+     "df": 8866,
+     "srcs": {
+      "zhihu_kol15": 10,
+      "zhihu_kol16": 10
+     },
+     "margin": -0.021
+    },
+    {
+     "rank": 13,
+     "word": "专业",
+     "score": 19.0,
+     "df": 9972,
+     "srcs": {
+      "cqa_zhihu": 4,
+      "zhihu_kol15": 10,
+      "zhihu_kol16": 5
+     },
+     "margin": 0.039
+    },
+    {
+     "rank": 14,
+     "word": "工作",
+     "score": 18.0,
+     "df": 16823,
+     "srcs": {
+      "cqa_zhihu": 7,
+      "zhihu_kol15": 4,
+      "zhihu_kol16": 7
+     },
+     "margin": -0.0451
+    },
+    {
+     "rank": 15,
+     "word": "考研",
+     "score": 18.0,
+     "df": 2699,
+     "srcs": {
+      "cqa_zhihu": 4,
+      "zhihu_kol16": 14
+     },
+     "margin": -0.0203
+    },
+    {
+     "rank": 16,
+     "word": "研究",
+     "score": 17.0,
+     "df": 6507,
+     "srcs": {
+      "zhihu_kol15": 16,
+      "zhihu_kol16": 1
+     },
+     "margin": 0.0038
+    },
+    {
+     "rank": 17,
+     "word": "导致",
+     "score": 16.0,
+     "df": 6529,
+     "srcs": {
+      "cqa_zhihu": 4,
+      "zhihu_kol15": 7,
+      "zhihu_kol16": 5
+     },
+     "margin": -0.254
+    },
+    {
+     "rank": 18,
+     "word": "国家",
+     "score": 16.0,
+     "df": 7538,
+     "srcs": {
+      "cqa_zhihu": 4,
+      "zhihu_kol15": 11,
+      "zhihu_kol16": 1
+     },
+     "margin": 0.1081
+    },
+    {
+     "rank": 19,
+     "word": "选择",
+     "score": 16.0,
+     "df": 13553,
+     "srcs": {
+      "cqa_zhihu": 1,
+      "zhihu_kol15": 9,
+      "zhihu_kol16": 6
+     },
+     "margin": 0.0682
+    },
+    {
+     "rank": 20,
+     "word": "完全",
+     "score": 15.0,
+     "df": 8657,
+     "srcs": {
+      "cqa_zhihu": 6,
+      "zhihu_kol15": 4,
+      "zhihu_kol16": 5
+     },
+     "margin": 0.032
+    }
+   ],
+   "top8": [
+    "行业",
+    "理论",
+    "严重",
+    "发展",
+    "社会",
+    "开始",
+    "竞争",
+    "学生"
+   ],
+   "social_hits": [
+    "行业",
+    "竞争"
+   ],
+   "botany_top8": []
+  },
+  "social_diag": [
+   {
+    "word": "行业",
+    "ctx_n": 42,
+    "df": 6646,
+    "ppmi": 1.1942,
+    "rank": 822
+   },
+   {
+    "word": "竞争",
+    "ctx_n": 24,
+    "df": 1568,
+    "ppmi": 1.5483,
+    "rank": 710
+   },
+   {
+    "word": "资源",
+    "ctx_n": 15,
+    "df": 3247,
+    "ppmi": 0.4903,
+    "rank": 1028
+   },
+   {
+    "word": "教育",
+    "ctx_n": 15,
+    "df": 3937,
+    "ppmi": 0.3549,
+    "rank": 1067
+   },
+   {
+    "word": "岗位",
+    "ctx_n": 14,
+    "df": 1921,
+    "ppmi": 1.4618,
+    "rank": 737
+   },
+   {
+    "word": "学历",
+    "ctx_n": 12,
+    "df": 1126,
+    "ppmi": 1.2271,
+    "rank": 815
+   },
+   {
+    "word": "市场",
+    "ctx_n": 11,
+    "df": 8426,
+    "ppmi": 0.0,
+    "rank": -1
+   },
+   {
+    "word": "就业",
+    "ctx_n": 8,
+    "df": 1878,
+    "ppmi": 0.4062,
+    "rank": 1052
+   },
+   {
+    "word": "压力",
+    "ctx_n": 8,
+    "df": 2933,
+    "ppmi": 0.0,
+    "rank": -1
+   },
+   {
+    "word": "加班",
+    "ctx_n": 5,
+    "df": 783,
+    "ppmi": 0.0,
+    "rank": -1
+   },
+   {
+    "word": "职场",
+    "ctx_n": 4,
+    "df": 1122,
+    "ppmi": 0.1228,
+    "rank": 1159
+   },
+   {
+    "word": "工资",
+    "ctx_n": 4,
+    "df": 2193,
+    "ppmi": 0.0,
+    "rank": -1
+   },
+   {
+    "word": "劳动",
+    "ctx_n": 3,
+    "df": 1044,
+    "ppmi": 0.1258,
+    "rank": 1157
+   },
+   {
+    "word": "资本",
+    "ctx_n": 3,
+    "df": 1896,
+    "ppmi": 0.0,
+    "rank": -1
+   },
+   {
+    "word": "考核",
+    "ctx_n": 2,
+    "df": 372,
+    "ppmi": 0.9321,
+    "rank": 880
+   },
+   {
+    "word": "房价",
+    "ctx_n": 2,
+    "df": 566,
+    "ppmi": 0.6597,
+    "rank": 965
+   },
+   {
+    "word": "招聘",
+    "ctx_n": 2,
+    "df": 1420,
+    "ppmi": 0.5349,
+    "rank": 1019
+   },
+   {
+    "word": "淘汰",
+    "ctx_n": 2,
+    "df": 585,
+    "ppmi": 0.4832,
+    "rank": 1032
+   },
+   {
+    "word": "焦虑",
+    "ctx_n": 2,
+    "df": 831,
+    "ppmi": 0.2564,
+    "rank": 1105
+   },
+   {
+    "word": "内耗",
+    "ctx_n": 1,
+    "df": 74,
+    "ppmi": 1.3198,
+    "rank": 779
+   },
+   {
+    "word": "薪资",
+    "ctx_n": 1,
+    "df": 602,
+    "ppmi": 0.6011,
+    "rank": 990
+   },
+   {
+    "word": "稀缺",
+    "ctx_n": 0,
+    "df": 154,
+    "ppmi": 0.0,
+    "rank": -1
+   },
+   {
+    "word": "资源稀缺",
+    "ctx_n": 0,
+    "df": 5,
+    "ppmi": 0.0,
+    "rank": -1
+   },
+   {
+    "word": "打工人",
+    "ctx_n": 0,
+    "df": 99,
+    "ppmi": 0.0,
+    "rank": -1
+   },
+   {
+    "word": "内卷",
+    "ctx_n": 0,
+    "df": 135,
+    "ppmi": 0.0,
+    "rank": -1
+   }
+  ],
+  "margin": -0.0056
+ },
+ "ruler_null": {
+  "ok": true,
+  "band": [
+   50,
+   300
+  ],
+  "n_ctrl": 60,
+  "n_pass": 1,
+  "pass_rate": 0.0167,
+  "median_hits": 0.0,
+  "mean_hits": 0.3,
+  "credible": true,
+  "controls": [
+   {
+    "word": "留意",
+    "df": 183,
+    "pass": false,
+    "social_hits": 1,
+    "botany_top8": 0,
+    "hit_words": [
+     "行业"
+    ]
+   },
+   {
+    "word": "落差",
+    "df": 122,
+    "pass": false,
+    "social_hits": 0,
+    "botany_top8": 0,
+    "hit_words": []
+   },
+   {
+    "word": "成就感",
+    "df": 259,
+    "pass": false,
+    "social_hits": 0,
+    "botany_top8": 0,
+    "hit_words": []
+   },
+   {
+    "word": "持股",
+    "df": 125,
+    "pass": false,
+    "social_hits": 1,
+    "botany_top8": 0,
+    "hit_words": [
+     "市场"
+    ]
+   },
+   {
+    "word": "废除",
+    "df": 187,
+    "pass": false,
+    "social_hits": 0,
+    "botany_top8": 0,
+    "hit_words": []
+   },
+   {
+    "word": "烧钱",
+    "df": 138,
+    "pass": false,
+    "social_hits": 2,
+    "botany_top8": 0,
+    "hit_words": [
+     "资本",
+     "行业"
+    ]
+   },
+   {
+    "word": "包围",
+    "df": 211,
+    "pass": false,
+    "social_hits": 0,
+    "botany_top8": 0,
+    "hit_words": []
+   },
+   {
+    "word": "优惠政策",
+    "df": 105,
+    "pass": false,
+    "social_hits": 0,
+    "botany_top8": 0,
+    "hit_words": []
+   },
+   {
+    "word": "科比",
+    "df": 223,
+    "pass": false,
+    "social_hits": 0,
+    "botany_top8": 0,
+    "hit_words": []
+   },
+   {
+    "word": "主场",
+    "df": 152,
+    "pass": false,
+    "social_hits": 0,
+    "botany_top8": 0,
+    "hit_words": []
+   },
+   {
+    "word": "召唤",
+    "df": 155,
+    "pass": false,
+    "social_hits": 0,
+    "botany_top8": 0,
+    "hit_words": []
+   },
+   {
+    "word": "真空",
+    "df": 266,
+    "pass": false,
+    "social_hits": 0,
+    "botany_top8": 0,
+    "hit_words": []
+   },
+   {
+    "word": "有所不同",
+    "df": 174,
+    "pass": false,
+    "social_hits": 0,
+    "botany_top8": 0,
+    "hit_words": []
+   },
+   {
+    "word": "潜水",
+    "df": 213,
+    "pass": false,
+    "social_hits": 0,
+    "botany_top8": 0,
+    "hit_words": []
+   },
+   {
+    "word": "感应",
+    "df": 134,
+    "pass": false,
+    "social_hits": 0,
+    "botany_top8": 0,
+    "hit_words": []
+   },
+   {
+    "word": "肉眼",
+    "df": 231,
+    "pass": false,
+    "social_hits": 0,
+    "botany_top8": 0,
+    "hit_words": []
+   },
+   {
+    "word": "可信",
+    "df": 142,
+    "pass": false,
+    "social_hits": 0,
+    "botany_top8": 0,
+    "hit_words": []
+   },
+   {
+    "word": "命中",
+    "df": 184,
+    "pass": false,
+    "social_hits": 0,
+    "botany_top8": 0,
+    "hit_words": []
+   },
+   {
+    "word": "背着",
+    "df": 219,
+    "pass": false,
+    "social_hits": 1,
+    "botany_top8": 0,
+    "hit_words": [
+     "市场"
+    ]
+   },
+   {
+    "word": "神明",
+    "df": 110,
+    "pass": false,
+    "social_hits": 0,
+    "botany_top8": 0,
+    "hit_words": []
+   },
+   {
+    "word": "欧盟",
+    "df": 297,
+    "pass": false,
+    "social_hits": 1,
+    "botany_top8": 0,
+    "hit_words": [
+     "市场"
+    ]
+   },
+   {
+    "word": "大队",
+    "df": 292,
+    "pass": false,
+    "social_hits": 0,
+    "botany_top8": 0,
+    "hit_words": []
+   },
+   {
+    "word": "猎人",
+    "df": 280,
+    "pass": false,
+    "social_hits": 0,
+    "botany_top8": 0,
+    "hit_words": []
+   },
+   {
+    "word": "收录",
+    "df": 229,
+    "pass": false,
+    "social_hits": 1,
+    "botany_top8": 0,
+    "hit_words": [
+     "资源"
+    ]
+   },
+   {
+    "word": "法人",
+    "df": 218,
+    "pass": false,
+    "social_hits": 0,
+    "botany_top8": 0,
+    "hit_words": []
+   },
+   {
+    "word": "怪异",
+    "df": 121,
+    "pass": false,
+    "social_hits": 0,
+    "botany_top8": 0,
+    "hit_words": []
+   },
+   {
+    "word": "多样化",
+    "df": 134,
+    "pass": false,
+    "social_hits": 1,
+    "botany_top8": 0,
+    "hit_words": [
+     "教育"
+    ]
+   },
+   {
+    "word": "太阳系",
+    "df": 191,
+    "pass": false,
+    "social_hits": 0,
+    "botany_top8": 0,
+    "hit_words": []
+   },
+   {
+    "word": "舞蹈",
+    "df": 266,
+    "pass": false,
+    "social_hits": 0,
+    "botany_top8": 0,
+    "hit_words": []
+   },
+   {
+    "word": "观感",
+    "df": 150,
+    "pass": false,
+    "social_hits": 0,
+    "botany_top8": 0,
+    "hit_words": []
+   },
+   {
+    "word": "富含",
+    "df": 196,
+    "pass": false,
+    "social_hits": 0,
+    "botany_top8": 0,
+    "hit_words": []
+   },
+   {
+    "word": "投票",
+    "df": 297,
+    "pass": false,
+    "social_hits": 0,
+    "botany_top8": 0,
+    "hit_words": []
+   },
+   {
+    "word": "守住",
+    "df": 111,
+    "pass": false,
+    "social_hits": 0,
+    "botany_top8": 0,
+    "hit_words": []
+   },
+   {
+    "word": "交涉",
+    "df": 113,
+    "pass": false,
+    "social_hits": 0,
+    "botany_top8": 0,
+    "hit_words": []
+   },
+   {
+    "word": "佳能",
+    "df": 174,
+    "pass": false,
+    "social_hits": 0,
+    "botany_top8": 0,
+    "hit_words": []
+   },
+   {
+    "word": "市区",
+    "df": 287,
+    "pass": false,
+    "social_hits": 0,
+    "botany_top8": 0,
+    "hit_words": []
+   },
+   {
+    "word": "判刑",
+    "df": 134,
+    "pass": false,
+    "social_hits": 0,
+    "botany_top8": 0,
+    "hit_words": []
+   },
+   {
+    "word": "纸条",
+    "df": 107,
+    "pass": false,
+    "social_hits": 0,
+    "botany_top8": 0,
+    "hit_words": []
+   },
+   {
+    "word": "交配",
+    "df": 167,
+    "pass": false,
+    "social_hits": 0,
+    "botany_top8": 0,
+    "hit_words": []
+   },
+   {
+    "word": "传言",
+    "df": 123,
+    "pass": false,
+    "social_hits": 1,
+    "botany_top8": 0,
+    "hit_words": [
+     "市场"
+    ]
+   },
+   {
+    "word": "养活",
+    "df": 211,
+    "pass": false,
+    "social_hits": 2,
+    "botany_top8": 0,
+    "hit_words": [
+     "行业",
+     "市场"
+    ]
+   },
+   {
+    "word": "只见",
+    "df": 202,
+    "pass": false,
+    "social_hits": 0,
+    "botany_top8": 0,
+    "hit_words": []
+   },
+   {
+    "word": "欣慰",
+    "df": 122,
+    "pass": false,
+    "social_hits": 0,
+    "botany_top8": 0,
+    "hit_words": []
+   },
+   {
+    "word": "肇事",
+    "df": 201,
+    "pass": false,
+    "social_hits": 0,
+    "botany_top8": 0,
+    "hit_words": []
+   },
+   {
+    "word": "橘子",
+    "df": 169,
+    "pass": false,
+    "social_hits": 0,
+    "botany_top8": 0,
+    "hit_words": []
+   },
+   {
+    "word": "分量",
+    "df": 197,
+    "pass": false,
+    "social_hits": 0,
+    "botany_top8": 0,
+    "hit_words": []
+   },
+   {
+    "word": "地表",
+    "df": 133,
+    "pass": false,
+    "social_hits": 0,
+    "botany_top8": 0,
+    "hit_words": []
+   },
+   {
+    "word": "流利",
+    "df": 127,
+    "pass": false,
+    "social_hits": 0,
+    "botany_top8": 0,
+    "hit_words": []
+   },
+   {
+    "word": "腹泻",
+    "df": 128,
+    "pass": false,
+    "social_hits": 0,
+    "botany_top8": 0,
+    "hit_words": []
+   },
+   {
+    "word": "专科",
+    "df": 224,
+    "pass": false,
+    "social_hits": 1,
+    "botany_top8": 0,
+    "hit_words": [
+     "学历"
+    ]
+   },
+   {
+    "word": "新车",
+    "df": 159,
+    "pass": false,
+    "social_hits": 1,
+    "botany_top8": 0,
+    "hit_words": [
+     "市场"
+    ]
+   },
+   {
+    "word": "助力",
+    "df": 225,
+    "pass": false,
+    "social_hits": 1,
+    "botany_top8": 0,
+    "hit_words": [
+     "行业"
+    ]
+   },
+   {
+    "word": "出处",
+    "df": 200,
+    "pass": false,
+    "social_hits": 0,
+    "botany_top8": 0,
+    "hit_words": []
+   },
+   {
+    "word": "转折",
+    "df": 131,
+    "pass": false,
+    "social_hits": 0,
+    "botany_top8": 0,
+    "hit_words": []
+   },
+   {
+    "word": "混凝土",
+    "df": 124,
+    "pass": false,
+    "social_hits": 0,
+    "botany_top8": 0,
+    "hit_words": []
+   },
+   {
+    "word": "写下",
+    "df": 296,
+    "pass": false,
+    "social_hits": 0,
+    "botany_top8": 0,
+    "hit_words": []
+   },
+   {
+    "word": "纪念",
+    "df": 265,
+    "pass": false,
+    "social_hits": 1,
+    "botany_top8": 0,
+    "hit_words": [
+     "市场"
+    ]
+   },
+   {
+    "word": "业余",
+    "df": 272,
+    "pass": false,
+    "social_hits": 0,
+    "botany_top8": 0,
+    "hit_words": []
+   },
+   {
+    "word": "多元化",
+    "df": 176,
+    "pass": true,
+    "social_hits": 3,
+    "botany_top8": 0,
+    "hit_words": [
+     "市场",
+     "行业",
+     "资本"
+    ]
+   },
+   {
+    "word": "性感",
+    "df": 133,
+    "pass": false,
+    "social_hits": 0,
+    "botany_top8": 0,
+    "hit_words": []
+   }
+  ],
+  "examples": [
+   {
+    "word": "多元化",
+    "df": 176,
+    "pass": true,
+    "social_hits": 3,
+    "botany_top8": 0,
+    "hit_words": [
+     "市场",
+     "行业",
+     "资本"
+    ]
+   }
+  ],
+  "pos": [
+   {
+    "word": "就业",
+    "df": 1878,
+    "pass": false,
+    "social_hits": 2,
+    "botany_top8": 0,
+    "hit_words": [
+     "行业",
+     "岗位"
+    ]
+   },
+   {
+    "word": "加班",
+    "df": 783,
+    "pass": false,
+    "social_hits": 2,
+    "botany_top8": 0,
+    "hit_words": [
+     "工资",
+     "行业"
+    ]
+   },
+   {
+    "word": "职场",
+    "df": 1122,
+    "pass": false,
+    "social_hits": 0,
+    "botany_top8": 0,
+    "hit_words": []
+   },
+   {
+    "word": "学历",
+    "df": 1126,
+    "pass": true,
+    "social_hits": 3,
+    "botany_top8": 0,
+    "hit_words": [
+     "行业",
+     "岗位",
+     "教育"
+    ]
+   }
+  ],
+  "n_pos_pass": 1,
+  "has_power": true
+ },
+ "phrase_cov": {
+  "内卷": {
+   "cqa_douban": 1,
+   "cqa_zhihu": 32,
+   "zhihu": 1,
+   "zhihu_kol15": 53,
+   "zhihu_kol16": 48
+  },
+  "熵增": {
+   "cqa_douban": 1,
+   "zhihu_kol15": 7,
+   "zhihu_kol16": 2
+  },
+  "打工人": {
+   "cqa_zhihu": 15,
+   "zhihu_kol15": 34,
+   "zhihu_kol16": 50
+  },
+  "网暴": {
+   "cqa_zhihu": 5,
+   "zhihu_kol15": 12,
+   "zhihu_kol16": 13
+  },
+  "人情世故": {
+   "cqa_douban": 2,
+   "cqa_zhihu": 6,
+   "zhihu": 3,
+   "zhihu_kol15": 16,
+   "zhihu_kol16": 16
+  },
+  "家国情怀": {
+   "cqa_zhihu": 10,
+   "zhihu_kol15": 7,
+   "zhihu_kol16": 3
+  }
+ },
+ "verdict": {
+  "L37-1": [
+   true,
+   "现代语料 33074095 字；年代基线 2519674 字",
+   "现代语料（2015 后来源）>=3000 万字"
+  ],
+  "L37-2": [
+   false,
+   "「内卷」出现在 135 篇文档里（L36 是 87 篇）",
+   "「内卷」文档数 >=300（L36 是 87）"
+  ],
+  "L37-3": [
+   false,
+   "尺一 PPMI 社会词 0 个 → 不过；尺二 上下文 社会词 2 个 → 不过",
+   "尺二同一判据：top-20 社会词 >=3 且 top-8 植物词 = 0"
+  ],
+  "L37-4": [
+   false,
+   "PPMI 社会词 0 个",
+   "尺一同一判据（主口径）"
+  ],
+  "L37-5": [
+   true,
+   "阴性对照 60 个通过 1 个（1.7%）",
+   "阴性对照通过率 <=10%（尺子不通吃）"
+  ],
+  "L37-6": [
+   false,
+   "阳性对照 1/4 过线（就业:2、加班:2、职场:0、学历:3）",
+   "阳性对照 >=2/4 过线（尺子够灵敏，L36 只有 1/4）"
+  ]
+ },
+ "l36": {
+  "present": true,
+  "ppmi": {
+   "neighbors": [
+    {
+     "rank": 1,
+     "word": "简而言之",
+     "score": 5.1521,
+     "df": 144,
+     "srcs": {
+      "zhihu_modern": 1
+     },
+     "margin": 0.0084
+    },
+    {
+     "rank": 2,
+     "word": "光彩",
+     "score": 5.0822,
+     "df": 147,
+     "srcs": {
+      "zhihu_modern": 1
+     },
+     "margin": 0.0003
+    },
+    {
+     "rank": 3,
+     "word": "社会学",
+     "score": 5.0219,
+     "df": 159,
+     "srcs": {
+      "zhihu_modern": 10
+     },
+     "margin": 0.0193
+    },
+    {
+     "rank": 4,
+     "word": "费劲",
+     "score": 4.8536,
+     "df": 167,
+     "srcs": {
+      "zhihu_modern": 1
+     },
+     "margin": 0.1042
+    },
+    {
+     "rank": 5,
+     "word": "胆子",
+     "score": 4.8167,
+     "df": 163,
+     "srcs": {
+      "zhihu_modern": 2
+     },
+     "margin": 0.0143
+    },
+    {
+     "rank": 6,
+     "word": "都行",
+     "score": 4.8013,
+     "df": 161,
+     "srcs": {
+      "zhihu_modern": 1
+     },
+     "margin": 0.0264
+    },
+    {
+     "rank": 7,
+     "word": "谈及",
+     "score": 4.7078,
+     "df": 192,
+     "srcs": {
+      "zhihu_modern": 5
+     },
+     "margin": 0.027
+    },
+    {
+     "rank": 8,
+     "word": "根本无法",
+     "score": 4.6949,
+     "df": 194,
+     "srcs": {
+      "zhihu_modern": 1
+     },
+     "margin": 0.005
+    },
+    {
+     "rank": 9,
+     "word": "风光",
+     "score": 4.6767,
+     "df": 197,
+     "srcs": {
+      "zhihu_modern": 1
+     },
+     "margin": -0.048
+    },
+    {
+     "rank": 10,
+     "word": "慌张",
+     "score": 4.6544,
+     "df": 154,
+     "srcs": {
+      "zhihu_modern": 2
+     },
+     "margin": -0.026
+    },
+    {
+     "rank": 11,
+     "word": "想不通",
+     "score": 4.65,
+     "df": 157,
+     "srcs": {
+      "zhihu_modern": 2
+     },
+     "margin": -0.0737
+    },
+    {
+     "rank": 12,
+     "word": "脱颖而出",
+     "score": 4.6155,
+     "df": 159,
+     "srcs": {
+      "zhihu_modern": 1
+     },
+     "margin": -0.0573
+    },
+    {
+     "rank": 13,
+     "word": "触及",
+     "score": 4.6113,
+     "df": 169,
+     "srcs": {
+      "zhihu_modern": 1
+     },
+     "margin": -0.0182
+    },
+    {
+     "rank": 14,
+     "word": "只能靠",
+     "score": 4.5904,
+     "df": 195,
+     "srcs": {
+      "zhihu_modern": 1
+     },
+     "margin": -0.0269
+    },
+    {
+     "rank": 15,
+     "word": "甘心",
+     "score": 4.5659,
+     "df": 178,
+     "srcs": {
+      "zhihu_modern": 1
+     },
+     "margin": -0.0696
+    },
+    {
+     "rank": 16,
+     "word": "沦为",
+     "score": 4.5579,
+     "df": 210,
+     "srcs": {
+      "zhihu_modern": 1
+     },
+     "margin": -0.0421
+    },
+    {
+     "rank": 17,
+     "word": "赘述",
+     "score": 4.5499,
+     "df": 205,
+     "srcs": {
+      "zhihu_modern": 6
+     },
+     "margin": -0.0247
+    },
+    {
+     "rank": 18,
+     "word": "翻身",
+     "score": 4.546,
+     "df": 161,
+     "srcs": {
+      "zhihu_modern": 1
+     },
+     "margin": -0.0883
+    },
+    {
+     "rank": 19,
+     "word": "这样一来",
+     "score": 4.5187,
+     "df": 200,
+     "srcs": {
+      "zhihu_modern": 2
+     },
+     "margin": 0.0068
+    },
+    {
+     "rank": 20,
+     "word": "大选",
+     "score": 4.4921,
+     "df": 152,
+     "srcs": {
+      "zhihu_modern": 2
+     },
+     "margin": 0.0036
+    }
+   ],
+   "top8": [
+    "简而言之",
+    "光彩",
+    "社会学",
+    "费劲",
+    "胆子",
+    "都行",
+    "谈及",
+    "根本无法"
+   ],
+   "social_hits": [],
+   "botany_top8": []
+  },
+  "ctx": {
+   "neighbors": [
+    {
+     "rank": 1,
+     "word": "理论",
+     "score": 42.0,
+     "df": 3335,
+     "srcs": {
+      "zhihu_modern": 42
+     },
+     "margin": 0.0777
+    },
+    {
+     "rank": 2,
+     "word": "行业",
+     "score": 31.0,
+     "df": 7749,
+     "srcs": {
+      "zhihu_modern": 31
+     },
+     "margin": 0.2723
+    },
+    {
+     "rank": 3,
+     "word": "学习",
+     "score": 27.0,
+     "df": 12149,
+     "srcs": {
+      "zhihu_modern": 27
+     },
+     "margin": 0.0148
+    },
+    {
+     "rank": 4,
+     "word": "概念",
+     "score": 19.0,
+     "df": 2179,
+     "srcs": {
+      "zhihu_modern": 19
+     },
+     "margin": 0.1045
+    },
+    {
+     "rank": 5,
+     "word": "严重",
+     "score": 17.0,
+     "df": 5635,
+     "srcs": {
+      "zhihu_modern": 17
+     },
+     "margin": -0.3623
+    },
+    {
+     "rank": 6,
+     "word": "研究",
+     "score": 17.0,
+     "df": 7913,
+     "srcs": {
+      "zhihu_modern": 17
+     },
+     "margin": 0.0878
+    },
+    {
+     "rank": 7,
+     "word": "竞争",
+     "score": 16.0,
+     "df": 1918,
+     "srcs": {
+      "zhihu_modern": 16
+     },
+     "margin": 0.1109
+    },
+    {
+     "rank": 8,
+     "word": "专业",
+     "score": 15.0,
+     "df": 9260,
+     "srcs": {
+      "zhihu_modern": 15
+     },
+     "margin": 0.0434
+    },
+    {
+     "rank": 9,
+     "word": "市场",
+     "score": 15.0,
+     "df": 19550,
+     "srcs": {
+      "zhihu_modern": 15
+     },
+     "margin": 0.1917
+    },
+    {
+     "rank": 10,
+     "word": "学校",
+     "score": 15.0,
+     "df": 13539,
+     "srcs": {
+      "zhihu_modern": 15
+     },
+     "margin": -0.0428
+    },
+    {
+     "rank": 11,
+     "word": "发展",
+     "score": 15.0,
+     "df": 20713,
+     "srcs": {
+      "zhihu_modern": 15
+     },
+     "margin": 0.1451
+    },
+    {
+     "rank": 12,
+     "word": "经济",
+     "score": 14.0,
+     "df": 21753,
+     "srcs": {
+      "zhihu_modern": 14
+     },
+     "margin": 0.0535
+    },
+    {
+     "rank": 13,
+     "word": "国家",
+     "score": 14.0,
+     "df": 14733,
+     "srcs": {
+      "zhihu_modern": 14
+     },
+     "margin": 0.0912
+    },
+    {
+     "rank": 14,
+     "word": "工作",
+     "score": 13.0,
+     "df": 29487,
+     "srcs": {
+      "zhihu_modern": 13
+     },
+     "margin": -0.0563
+    },
+    {
+     "rank": 15,
+     "word": "存在",
+     "score": 13.0,
+     "df": 8833,
+     "srcs": {
+      "zhihu_modern": 13
+     },
+     "margin": -0.001
+    },
+    {
+     "rank": 16,
+     "word": "程度",
+     "score": 12.0,
+     "df": 4453,
+     "srcs": {
+      "zhihu_modern": 12
+     },
+     "margin": -0.0224
+    },
+    {
+     "rank": 17,
+     "word": "开始",
+     "score": 12.0,
+     "df": 22724,
+     "srcs": {
+      "zhihu_modern": 12
+     },
+     "margin": -0.1532
+    },
+    {
+     "rank": 18,
+     "word": "大家",
+     "score": 12.0,
+     "df": 16358,
+     "srcs": {
+      "zhihu_modern": 12
+     },
+     "margin": -0.1124
+    },
+    {
+     "rank": 19,
+     "word": "领域",
+     "score": 12.0,
+     "df": 5702,
+     "srcs": {
+      "zhihu_modern": 12
+     },
+     "margin": 0.2406
+    },
+    {
+     "rank": 20,
+     "word": "大学",
+     "score": 11.0,
+     "df": 7675,
+     "srcs": {
+      "zhihu": 1,
+      "zhihu_modern": 10
+     },
+     "margin": -0.0213
+    }
+   ],
+   "top8": [
+    "理论",
+    "行业",
+    "学习",
+    "概念",
+    "严重",
+    "研究",
+    "竞争",
+    "专业"
+   ],
+   "social_hits": [
+    "行业",
+    "竞争",
+    "市场"
+   ],
+   "botany_top8": []
+  },
+  "social_diag": [
+   {
+    "word": "行业",
+    "ctx_n": 31,
+    "df": 7749,
+    "ppmi": 1.4841,
+    "rank": 593
+   },
+   {
+    "word": "竞争",
+    "ctx_n": 16,
+    "df": 1918,
+    "ppmi": 1.7599,
+    "rank": 527
+   },
+   {
+    "word": "市场",
+    "ctx_n": 15,
+    "df": 19550,
+    "ppmi": 0.0,
+    "rank": -1
+   },
+   {
+    "word": "教育",
+    "ctx_n": 8,
+    "df": 7314,
+    "ppmi": 0.0,
+    "rank": -1
+   },
+   {
+    "word": "学历",
+    "ctx_n": 6,
+    "df": 1074,
+    "ppmi": 1.2927,
+    "rank": 636
+   },
+   {
+    "word": "加班",
+    "ctx_n": 6,
+    "df": 767,
+    "ppmi": 0.4415,
+    "rank": 852
+   },
+   {
+    "word": "资源",
+    "ctx_n": 6,
+    "df": 3448,
+    "ppmi": 0.309,
+    "rank": 892
+   },
+   {
+    "word": "就业",
+    "ctx_n": 6,
+    "df": 4324,
+    "ppmi": 0.1776,
+    "rank": 917
+   },
+   {
+    "word": "岗位",
+    "ctx_n": 5,
+    "df": 2326,
+    "ppmi": 0.977,
+    "rank": 712
+   },
+   {
+    "word": "工资",
+    "ctx_n": 5,
+    "df": 3187,
+    "ppmi": 0.1861,
+    "rank": 914
+   },
+   {
+    "word": "房价",
+    "ctx_n": 4,
+    "df": 1488,
+    "ppmi": 0.6848,
+    "rank": 790
+   },
+   {
+    "word": "淘汰",
+    "ctx_n": 3,
+    "df": 630,
+    "ppmi": 1.2229,
+    "rank": 649
+   },
+   {
+    "word": "劳动",
+    "ctx_n": 3,
+    "df": 1439,
+    "ppmi": 0.6246,
+    "rank": 809
+   },
+   {
+    "word": "资本",
+    "ctx_n": 3,
+    "df": 2770,
+    "ppmi": 0.1067,
+    "rank": 937
+   },
+   {
+    "word": "压力",
+    "ctx_n": 3,
+    "df": 4464,
+    "ppmi": 0.0,
+    "rank": -1
+   },
+   {
+    "word": "内耗",
+    "ctx_n": 1,
+    "df": 65,
+    "ppmi": 2.2211,
+    "rank": 442
+   },
+   {
+    "word": "考核",
+    "ctx_n": 1,
+    "df": 649,
+    "ppmi": 1.3119,
+    "rank": 633
+   },
+   {
+    "word": "焦虑",
+    "ctx_n": 1,
+    "df": 691,
+    "ppmi": 1.1486,
+    "rank": 668
+   },
+   {
+    "word": "稀缺",
+    "ctx_n": 0,
+    "df": 163,
+    "ppmi": 0.0,
+    "rank": -1
+   },
+   {
+    "word": "资源稀缺",
+    "ctx_n": 0,
+    "df": 10,
+    "ppmi": 0.0,
+    "rank": -1
+   },
+   {
+    "word": "薪资",
+    "ctx_n": 0,
+    "df": 657,
+    "ppmi": 0.0,
+    "rank": -1
+   },
+   {
+    "word": "职场",
+    "ctx_n": 0,
+    "df": 1210,
+    "ppmi": 0.0,
+    "rank": -1
+   },
+   {
+    "word": "打工人",
+    "ctx_n": 0,
+    "df": 72,
+    "ppmi": 0.0,
+    "rank": -1
+   },
+   {
+    "word": "招聘",
+    "ctx_n": 0,
+    "df": 2381,
+    "ppmi": 0.0,
+    "rank": -1
+   },
+   {
+    "word": "内卷",
+    "ctx_n": 0,
+    "df": 87,
+    "ppmi": 0.0,
+    "rank": -1
+   }
+  ],
+  "margin": -0.0282,
+  "ruler_verdict": {
+   "ppmi": false,
+   "ctx": true
+  }
+ }
+}

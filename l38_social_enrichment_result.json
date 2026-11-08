@@ -1,0 +1,2105 @@
+{
+ "seeds": [
+  "竞争",
+  "加班",
+  "内耗",
+  "资源",
+  "稀缺",
+  "压力",
+  "焦虑",
+  "房价",
+  "就业",
+  "学历",
+  "考核",
+  "淘汰",
+  "工资",
+  "薪资",
+  "劳动",
+  "绩效",
+  "职场",
+  "打工人",
+  "资本",
+  "市场",
+  "行业",
+  "岗位",
+  "招聘",
+  "教育"
+ ],
+ "targets": [
+  "内卷"
+ ],
+ "anchors": [
+  "熵增",
+  "腐蚀",
+  "疲惫"
+ ],
+ "template": [
+  "就业"
+ ],
+ "n_ctrl": 200,
+ "corpora": {
+  "L37": {
+   "name": "现代语料（2023 为主）",
+   "n_docs": 40512,
+   "n_chars": 35593769,
+   "words": {
+    "内卷": {
+     "present": true,
+     "df": 135,
+     "n_ctrl": 200,
+     "seed_rows": [
+      {
+       "word": "竞争",
+       "present": true,
+       "ppmi": 1.5483,
+       "pval": 0.15,
+       "null_med": 0.0,
+       "df": 1568
+      },
+      {
+       "word": "加班",
+       "present": true,
+       "ppmi": 0.0,
+       "pval": 1.0,
+       "null_med": 0.0,
+       "df": 783
+      },
+      {
+       "word": "内耗",
+       "present": true,
+       "ppmi": 1.3198,
+       "pval": 0.03,
+       "null_med": 0.0,
+       "df": 74
+      },
+      {
+       "word": "资源",
+       "present": true,
+       "ppmi": 0.4903,
+       "pval": 0.24,
+       "null_med": 0.0,
+       "df": 3247
+      },
+      {
+       "word": "稀缺",
+       "present": true,
+       "ppmi": 0.0,
+       "pval": 1.0,
+       "null_med": 0.0,
+       "df": 154
+      },
+      {
+       "word": "压力",
+       "present": true,
+       "ppmi": 0.0,
+       "pval": 1.0,
+       "null_med": 0.0,
+       "df": 2933
+      },
+      {
+       "word": "焦虑",
+       "present": true,
+       "ppmi": 0.2564,
+       "pval": 0.05,
+       "null_med": 0.0,
+       "df": 831
+      },
+      {
+       "word": "房价",
+       "present": true,
+       "ppmi": 0.6597,
+       "pval": 0.075,
+       "null_med": 0.0,
+       "df": 566
+      },
+      {
+       "word": "就业",
+       "present": true,
+       "ppmi": 0.4062,
+       "pval": 0.115,
+       "null_med": 0.0,
+       "df": 1878
+      },
+      {
+       "word": "学历",
+       "present": true,
+       "ppmi": 1.2271,
+       "pval": 0.05,
+       "null_med": 0.0,
+       "df": 1126
+      },
+      {
+       "word": "考核",
+       "present": true,
+       "ppmi": 0.9321,
+       "pval": 0.055,
+       "null_med": 0.0,
+       "df": 372
+      },
+      {
+       "word": "淘汰",
+       "present": true,
+       "ppmi": 0.4832,
+       "pval": 0.085,
+       "null_med": 0.0,
+       "df": 585
+      },
+      {
+       "word": "工资",
+       "present": true,
+       "ppmi": 0.0,
+       "pval": 1.0,
+       "null_med": 0.0,
+       "df": 2193
+      },
+      {
+       "word": "薪资",
+       "present": true,
+       "ppmi": 0.6011,
+       "pval": 0.045,
+       "null_med": 0.0,
+       "df": 602
+      },
+      {
+       "word": "劳动",
+       "present": true,
+       "ppmi": 0.1258,
+       "pval": 0.115,
+       "null_med": 0.0,
+       "df": 1044
+      },
+      {
+       "word": "绩效",
+       "present": false
+      },
+      {
+       "word": "职场",
+       "present": true,
+       "ppmi": 0.1228,
+       "pval": 0.07,
+       "null_med": 0.0,
+       "df": 1122
+      },
+      {
+       "word": "打工人",
+       "present": true,
+       "ppmi": 0.0,
+       "pval": 1.0,
+       "null_med": 0.0,
+       "df": 99
+      },
+      {
+       "word": "资本",
+       "present": true,
+       "ppmi": 0.0,
+       "pval": 1.0,
+       "null_med": 0.0,
+       "df": 1896
+      },
+      {
+       "word": "市场",
+       "present": true,
+       "ppmi": 0.0,
+       "pval": 1.0,
+       "null_med": 0.0,
+       "df": 8426
+      },
+      {
+       "word": "行业",
+       "present": true,
+       "ppmi": 1.1942,
+       "pval": 0.025,
+       "null_med": 0.0,
+       "df": 6646
+      },
+      {
+       "word": "岗位",
+       "present": true,
+       "ppmi": 1.4618,
+       "pval": 0.02,
+       "null_med": 0.0,
+       "df": 1921
+      },
+      {
+       "word": "招聘",
+       "present": true,
+       "ppmi": 0.5349,
+       "pval": 0.005,
+       "null_med": 0.0,
+       "df": 1420
+      },
+      {
+       "word": "教育",
+       "present": true,
+       "ppmi": 0.3549,
+       "pval": 0.235,
+       "null_med": 0.0,
+       "df": 3937
+      }
+     ],
+     "mean_pct": 0.3637,
+     "median_pct": 0.115,
+     "n_top10": 11,
+     "n_top25": 16
+    },
+    "就业": {
+     "present": true,
+     "df": 1878,
+     "n_ctrl": 200,
+     "seed_rows": [
+      {
+       "word": "竞争",
+       "present": true,
+       "ppmi": 0.4846,
+       "pval": 0.08,
+       "null_med": 0.0,
+       "df": 1568
+      },
+      {
+       "word": "加班",
+       "present": true,
+       "ppmi": 0.0,
+       "pval": 1.0,
+       "null_med": 0.0,
+       "df": 783
+      },
+      {
+       "word": "内耗",
+       "present": true,
+       "ppmi": 0.5438,
+       "pval": 0.235,
+       "null_med": 0.0,
+       "df": 74
+      },
+      {
+       "word": "资源",
+       "present": true,
+       "ppmi": 0.0,
+       "pval": 1.0,
+       "null_med": 0.0,
+       "df": 3247
+      },
+      {
+       "word": "稀缺",
+       "present": true,
+       "ppmi": 0.9719,
+       "pval": 0.22,
+       "null_med": 0.0,
+       "df": 154
+      },
+      {
+       "word": "压力",
+       "present": true,
+       "ppmi": 0.423,
+       "pval": 0.055,
+       "null_med": 0.0,
+       "df": 2933
+      },
+      {
+       "word": "焦虑",
+       "present": true,
+       "ppmi": 0.0,
+       "pval": 1.0,
+       "null_med": 0.0,
+       "df": 831
+      },
+      {
+       "word": "房价",
+       "present": true,
+       "ppmi": 0.0,
+       "pval": 1.0,
+       "null_med": 0.0,
+       "df": 566
+      },
+      {
+       "word": "就业",
+       "present": true,
+       "ppmi": 3.3679,
+       "pval": 0.0,
+       "null_med": 0.0,
+       "df": 1878
+      },
+      {
+       "word": "学历",
+       "present": true,
+       "ppmi": 1.1443,
+       "pval": 0.025,
+       "null_med": 0.0,
+       "df": 1126
+      },
+      {
+       "word": "考核",
+       "present": true,
+       "ppmi": 0.1562,
+       "pval": 0.365,
+       "null_med": 0.0,
+       "df": 372
+      },
+      {
+       "word": "淘汰",
+       "present": true,
+       "ppmi": 0.0,
+       "pval": 1.0,
+       "null_med": 0.1585,
+       "df": 585
+      },
+      {
+       "word": "工资",
+       "present": true,
+       "ppmi": 0.0618,
+       "pval": 0.175,
+       "null_med": 0.0,
+       "df": 2193
+      },
+      {
+       "word": "薪资",
+       "present": true,
+       "ppmi": 1.4345,
+       "pval": 0.005,
+       "null_med": 0.0,
+       "df": 602
+      },
+      {
+       "word": "劳动",
+       "present": true,
+       "ppmi": 0.0,
+       "pval": 1.0,
+       "null_med": 0.0,
+       "df": 1044
+      },
+      {
+       "word": "绩效",
+       "present": false
+      },
+      {
+       "word": "职场",
+       "present": true,
+       "ppmi": 0.04,
+       "pval": 0.31,
+       "null_med": 0.0,
+       "df": 1122
+      },
+      {
+       "word": "打工人",
+       "present": true,
+       "ppmi": 0.0463,
+       "pval": 0.475,
+       "null_med": 0.0,
+       "df": 99
+      },
+      {
+       "word": "资本",
+       "present": true,
+       "ppmi": 0.0902,
+       "pval": 0.16,
+       "null_med": 0.0,
+       "df": 1896
+      },
+      {
+       "word": "市场",
+       "present": true,
+       "ppmi": 0.2183,
+       "pval": 0.205,
+       "null_med": 0.0,
+       "df": 8426
+      },
+      {
+       "word": "行业",
+       "present": true,
+       "ppmi": 0.855,
+       "pval": 0.09,
+       "null_med": 0.0,
+       "df": 6646
+      },
+      {
+       "word": "岗位",
+       "present": true,
+       "ppmi": 2.2212,
+       "pval": 0.02,
+       "null_med": 0.0,
+       "df": 1921
+      },
+      {
+       "word": "招聘",
+       "present": true,
+       "ppmi": 1.263,
+       "pval": 0.06,
+       "null_med": 0.0,
+       "df": 1420
+      },
+      {
+       "word": "教育",
+       "present": true,
+       "ppmi": 0.1289,
+       "pval": 0.12,
+       "null_med": 0.0,
+       "df": 3937
+      }
+     ],
+     "mean_pct": 0.3739,
+     "median_pct": 0.205,
+     "n_top10": 8,
+     "n_top25": 14
+    },
+    "熵增": {
+     "present": true,
+     "df": 10,
+     "n_ctrl": 200,
+     "seed_rows": [
+      {
+       "word": "竞争",
+       "present": true,
+       "ppmi": 0.0,
+       "pval": 1.0,
+       "null_med": 0.0,
+       "df": 1568
+      },
+      {
+       "word": "加班",
+       "present": true,
+       "ppmi": 0.0,
+       "pval": 1.0,
+       "null_med": 0.0,
+       "df": 783
+      },
+      {
+       "word": "内耗",
+       "present": true,
+       "ppmi": 0.0,
+       "pval": 1.0,
+       "null_med": 0.0,
+       "df": 74
+      },
+      {
+       "word": "资源",
+       "present": true,
+       "ppmi": 0.7927,
+       "pval": 0.03,
+       "null_med": 0.0,
+       "df": 3247
+      },
+      {
+       "word": "稀缺",
+       "present": true,
+       "ppmi": 0.0,
+       "pval": 1.0,
+       "null_med": 0.0,
+       "df": 154
+      },
+      {
+       "word": "压力",
+       "present": true,
+       "ppmi": 0.0,
+       "pval": 1.0,
+       "null_med": 0.0,
+       "df": 2933
+      },
+      {
+       "word": "焦虑",
+       "present": true,
+       "ppmi": 0.0,
+       "pval": 1.0,
+       "null_med": 0.0,
+       "df": 831
+      },
+      {
+       "word": "房价",
+       "present": true,
+       "ppmi": 0.0,
+       "pval": 1.0,
+       "null_med": 0.0,
+       "df": 566
+      },
+      {
+       "word": "就业",
+       "present": true,
+       "ppmi": 0.0,
+       "pval": 1.0,
+       "null_med": 0.0,
+       "df": 1878
+      },
+      {
+       "word": "学历",
+       "present": true,
+       "ppmi": 0.0,
+       "pval": 1.0,
+       "null_med": 0.0,
+       "df": 1126
+      },
+      {
+       "word": "考核",
+       "present": true,
+       "ppmi": 0.0,
+       "pval": 1.0,
+       "null_med": 0.0,
+       "df": 372
+      },
+      {
+       "word": "淘汰",
+       "present": true,
+       "ppmi": 0.0,
+       "pval": 1.0,
+       "null_med": 0.0,
+       "df": 585
+      },
+      {
+       "word": "工资",
+       "present": true,
+       "ppmi": 0.0,
+       "pval": 1.0,
+       "null_med": 0.0,
+       "df": 2193
+      },
+      {
+       "word": "薪资",
+       "present": true,
+       "ppmi": 0.0,
+       "pval": 1.0,
+       "null_med": 0.0,
+       "df": 602
+      },
+      {
+       "word": "劳动",
+       "present": true,
+       "ppmi": 0.0,
+       "pval": 1.0,
+       "null_med": 0.0,
+       "df": 1044
+      },
+      {
+       "word": "绩效",
+       "present": false
+      },
+      {
+       "word": "职场",
+       "present": true,
+       "ppmi": 0.0,
+       "pval": 1.0,
+       "null_med": 0.0,
+       "df": 1122
+      },
+      {
+       "word": "打工人",
+       "present": true,
+       "ppmi": 0.0,
+       "pval": 1.0,
+       "null_med": 0.0,
+       "df": 99
+      },
+      {
+       "word": "资本",
+       "present": true,
+       "ppmi": 0.0,
+       "pval": 1.0,
+       "null_med": 0.0,
+       "df": 1896
+      },
+      {
+       "word": "市场",
+       "present": true,
+       "ppmi": 0.0,
+       "pval": 1.0,
+       "null_med": 0.0,
+       "df": 8426
+      },
+      {
+       "word": "行业",
+       "present": true,
+       "ppmi": 0.0,
+       "pval": 1.0,
+       "null_med": 0.0,
+       "df": 6646
+      },
+      {
+       "word": "岗位",
+       "present": true,
+       "ppmi": 0.0,
+       "pval": 1.0,
+       "null_med": 0.0,
+       "df": 1921
+      },
+      {
+       "word": "招聘",
+       "present": true,
+       "ppmi": 0.0,
+       "pval": 1.0,
+       "null_med": 0.0,
+       "df": 1420
+      },
+      {
+       "word": "教育",
+       "present": true,
+       "ppmi": 0.0,
+       "pval": 1.0,
+       "null_med": 0.0,
+       "df": 3937
+      }
+     ],
+     "mean_pct": 0.9578,
+     "median_pct": 1.0,
+     "n_top10": 1,
+     "n_top25": 1
+    },
+    "腐蚀": {
+     "present": true,
+     "df": 72,
+     "n_ctrl": 200,
+     "seed_rows": [
+      {
+       "word": "竞争",
+       "present": true,
+       "ppmi": 0.0,
+       "pval": 1.0,
+       "null_med": 0.0,
+       "df": 1568
+      },
+      {
+       "word": "加班",
+       "present": true,
+       "ppmi": 0.0,
+       "pval": 1.0,
+       "null_med": 0.0,
+       "df": 783
+      },
+      {
+       "word": "内耗",
+       "present": true,
+       "ppmi": 0.0,
+       "pval": 1.0,
+       "null_med": 0.0,
+       "df": 74
+      },
+      {
+       "word": "资源",
+       "present": true,
+       "ppmi": 0.0,
+       "pval": 1.0,
+       "null_med": 0.0,
+       "df": 3247
+      },
+      {
+       "word": "稀缺",
+       "present": true,
+       "ppmi": 0.0,
+       "pval": 1.0,
+       "null_med": 0.0,
+       "df": 154
+      },
+      {
+       "word": "压力",
+       "present": true,
+       "ppmi": 0.0,
+       "pval": 1.0,
+       "null_med": 0.0,
+       "df": 2933
+      },
+      {
+       "word": "焦虑",
+       "present": true,
+       "ppmi": 0.0,
+       "pval": 1.0,
+       "null_med": 0.0,
+       "df": 831
+      },
+      {
+       "word": "房价",
+       "present": true,
+       "ppmi": 0.0,
+       "pval": 1.0,
+       "null_med": 0.0,
+       "df": 566
+      },
+      {
+       "word": "就业",
+       "present": true,
+       "ppmi": 0.0,
+       "pval": 1.0,
+       "null_med": 0.0,
+       "df": 1878
+      },
+      {
+       "word": "学历",
+       "present": true,
+       "ppmi": 0.0,
+       "pval": 1.0,
+       "null_med": 0.0,
+       "df": 1126
+      },
+      {
+       "word": "考核",
+       "present": true,
+       "ppmi": 0.0,
+       "pval": 1.0,
+       "null_med": 0.0,
+       "df": 372
+      },
+      {
+       "word": "淘汰",
+       "present": true,
+       "ppmi": 0.0,
+       "pval": 1.0,
+       "null_med": 0.0,
+       "df": 585
+      },
+      {
+       "word": "工资",
+       "present": true,
+       "ppmi": 0.0,
+       "pval": 1.0,
+       "null_med": 0.0,
+       "df": 2193
+      },
+      {
+       "word": "薪资",
+       "present": true,
+       "ppmi": 0.0,
+       "pval": 1.0,
+       "null_med": 0.0,
+       "df": 602
+      },
+      {
+       "word": "劳动",
+       "present": true,
+       "ppmi": 0.5323,
+       "pval": 0.04,
+       "null_med": 0.0,
+       "df": 1044
+      },
+      {
+       "word": "绩效",
+       "present": false
+      },
+      {
+       "word": "职场",
+       "present": true,
+       "ppmi": 0.0,
+       "pval": 1.0,
+       "null_med": 0.0,
+       "df": 1122
+      },
+      {
+       "word": "打工人",
+       "present": true,
+       "ppmi": 0.0,
+       "pval": 1.0,
+       "null_med": 0.0,
+       "df": 99
+      },
+      {
+       "word": "资本",
+       "present": true,
+       "ppmi": 0.0,
+       "pval": 1.0,
+       "null_med": 0.0,
+       "df": 1896
+      },
+      {
+       "word": "市场",
+       "present": true,
+       "ppmi": 0.0,
+       "pval": 1.0,
+       "null_med": 0.0,
+       "df": 8426
+      },
+      {
+       "word": "行业",
+       "present": true,
+       "ppmi": 0.0,
+       "pval": 1.0,
+       "null_med": 0.0,
+       "df": 6646
+      },
+      {
+       "word": "岗位",
+       "present": true,
+       "ppmi": 0.0,
+       "pval": 1.0,
+       "null_med": 0.0,
+       "df": 1921
+      },
+      {
+       "word": "招聘",
+       "present": true,
+       "ppmi": 0.0,
+       "pval": 1.0,
+       "null_med": 0.0,
+       "df": 1420
+      },
+      {
+       "word": "教育",
+       "present": true,
+       "ppmi": 0.0,
+       "pval": 1.0,
+       "null_med": 0.0,
+       "df": 3937
+      }
+     ],
+     "mean_pct": 0.9583,
+     "median_pct": 1.0,
+     "n_top10": 1,
+     "n_top25": 1
+    },
+    "疲惫": {
+     "present": true,
+     "df": 238,
+     "n_ctrl": 200,
+     "seed_rows": [
+      {
+       "word": "竞争",
+       "present": true,
+       "ppmi": 0.0,
+       "pval": 1.0,
+       "null_med": 0.0,
+       "df": 1568
+      },
+      {
+       "word": "加班",
+       "present": true,
+       "ppmi": 0.0,
+       "pval": 1.0,
+       "null_med": 0.0,
+       "df": 783
+      },
+      {
+       "word": "内耗",
+       "present": true,
+       "ppmi": 1.0037,
+       "pval": 0.02,
+       "null_med": 0.0,
+       "df": 74
+      },
+      {
+       "word": "资源",
+       "present": true,
+       "ppmi": 0.0,
+       "pval": 1.0,
+       "null_med": 0.0,
+       "df": 3247
+      },
+      {
+       "word": "稀缺",
+       "present": true,
+       "ppmi": 0.0,
+       "pval": 1.0,
+       "null_med": 0.0,
+       "df": 154
+      },
+      {
+       "word": "压力",
+       "present": true,
+       "ppmi": 0.0,
+       "pval": 1.0,
+       "null_med": 0.0,
+       "df": 2933
+      },
+      {
+       "word": "焦虑",
+       "present": true,
+       "ppmi": 0.1635,
+       "pval": 0.09,
+       "null_med": 0.0,
+       "df": 831
+      },
+      {
+       "word": "房价",
+       "present": true,
+       "ppmi": 0.0,
+       "pval": 1.0,
+       "null_med": 0.0,
+       "df": 566
+      },
+      {
+       "word": "就业",
+       "present": true,
+       "ppmi": 0.0,
+       "pval": 1.0,
+       "null_med": 0.0,
+       "df": 1878
+      },
+      {
+       "word": "学历",
+       "present": true,
+       "ppmi": 0.0,
+       "pval": 1.0,
+       "null_med": 0.0,
+       "df": 1126
+      },
+      {
+       "word": "考核",
+       "present": true,
+       "ppmi": 0.0,
+       "pval": 1.0,
+       "null_med": 0.0,
+       "df": 372
+      },
+      {
+       "word": "淘汰",
+       "present": true,
+       "ppmi": 0.1671,
+       "pval": 0.14,
+       "null_med": 0.0,
+       "df": 585
+      },
+      {
+       "word": "工资",
+       "present": true,
+       "ppmi": 0.0,
+       "pval": 1.0,
+       "null_med": 0.0,
+       "df": 2193
+      },
+      {
+       "word": "薪资",
+       "present": true,
+       "ppmi": 0.285,
+       "pval": 0.09,
+       "null_med": 0.0,
+       "df": 602
+      },
+      {
+       "word": "劳动",
+       "present": true,
+       "ppmi": 0.0,
+       "pval": 1.0,
+       "null_med": 0.0,
+       "df": 1044
+      },
+      {
+       "word": "绩效",
+       "present": false
+      },
+      {
+       "word": "职场",
+       "present": true,
+       "ppmi": 0.0,
+       "pval": 1.0,
+       "null_med": 0.0,
+       "df": 1122
+      },
+      {
+       "word": "打工人",
+       "present": true,
+       "ppmi": 0.5062,
+       "pval": 0.035,
+       "null_med": 0.0,
+       "df": 99
+      },
+      {
+       "word": "资本",
+       "present": true,
+       "ppmi": 0.0,
+       "pval": 1.0,
+       "null_med": 0.0,
+       "df": 1896
+      },
+      {
+       "word": "市场",
+       "present": true,
+       "ppmi": 0.0,
+       "pval": 1.0,
+       "null_med": 0.7679,
+       "df": 8426
+      },
+      {
+       "word": "行业",
+       "present": true,
+       "ppmi": 0.0,
+       "pval": 1.0,
+       "null_med": 0.0,
+       "df": 6646
+      },
+      {
+       "word": "岗位",
+       "present": true,
+       "ppmi": 0.0,
+       "pval": 1.0,
+       "null_med": 0.0,
+       "df": 1921
+      },
+      {
+       "word": "招聘",
+       "present": true,
+       "ppmi": 0.0,
+       "pval": 1.0,
+       "null_med": 0.0,
+       "df": 1420
+      },
+      {
+       "word": "教育",
+       "present": true,
+       "ppmi": 0.0,
+       "pval": 1.0,
+       "null_med": 0.0,
+       "df": 3937
+      }
+     ],
+     "mean_pct": 0.7989,
+     "median_pct": 1.0,
+     "n_top10": 4,
+     "n_top25": 5
+    }
+   },
+   "phrase_cov": {
+    "内卷": {
+     "cqa_douban": 1,
+     "cqa_zhihu": 32,
+     "zhihu": 1,
+     "zhihu_kol15": 53,
+     "zhihu_kol16": 48
+    },
+    "就业": {
+     "cqa_douban": 2,
+     "cqa_xhs": 4,
+     "cqa_zhihu": 121,
+     "thu_social_legacy": 25,
+     "zhihu": 16,
+     "zhihu_kol15": 375,
+     "zhihu_kol16": 359
+    }
+   }
+  },
+  "L36": {
+   "name": "混合年代（05–11 新闻 + 知乎）",
+   "n_docs": 50107,
+   "n_chars": 46616790,
+   "words": {
+    "内卷": {
+     "present": true,
+     "df": 87,
+     "n_ctrl": 200,
+     "seed_rows": [
+      {
+       "word": "竞争",
+       "present": true,
+       "ppmi": 1.7599,
+       "pval": 0.135,
+       "null_med": 0.0,
+       "df": 1918
+      },
+      {
+       "word": "加班",
+       "present": true,
+       "ppmi": 0.4415,
+       "pval": 0.15,
+       "null_med": 0.0,
+       "df": 767
+      },
+      {
+       "word": "内耗",
+       "present": true,
+       "ppmi": 2.2211,
+       "pval": 0.02,
+       "null_med": 0.0,
+       "df": 65
+      },
+      {
+       "word": "资源",
+       "present": true,
+       "ppmi": 0.309,
+       "pval": 0.2,
+       "null_med": 0.0,
+       "df": 3448
+      },
+      {
+       "word": "稀缺",
+       "present": true,
+       "ppmi": 0.0,
+       "pval": 1.0,
+       "null_med": 0.0,
+       "df": 163
+      },
+      {
+       "word": "压力",
+       "present": true,
+       "ppmi": 0.0,
+       "pval": 1.0,
+       "null_med": 0.0,
+       "df": 4464
+      },
+      {
+       "word": "焦虑",
+       "present": true,
+       "ppmi": 1.1486,
+       "pval": 0.06,
+       "null_med": 0.0,
+       "df": 691
+      },
+      {
+       "word": "房价",
+       "present": true,
+       "ppmi": 0.6848,
+       "pval": 0.05,
+       "null_med": 0.0,
+       "df": 1488
+      },
+      {
+       "word": "就业",
+       "present": true,
+       "ppmi": 0.1776,
+       "pval": 0.135,
+       "null_med": 0.0,
+       "df": 4324
+      },
+      {
+       "word": "学历",
+       "present": true,
+       "ppmi": 1.2927,
+       "pval": 0.05,
+       "null_med": 0.0,
+       "df": 1074
+      },
+      {
+       "word": "考核",
+       "present": true,
+       "ppmi": 1.3119,
+       "pval": 0.03,
+       "null_med": 0.0,
+       "df": 649
+      },
+      {
+       "word": "淘汰",
+       "present": true,
+       "ppmi": 1.2229,
+       "pval": 0.04,
+       "null_med": 0.0,
+       "df": 630
+      },
+      {
+       "word": "工资",
+       "present": true,
+       "ppmi": 0.1861,
+       "pval": 0.225,
+       "null_med": 0.0,
+       "df": 3187
+      },
+      {
+       "word": "薪资",
+       "present": true,
+       "ppmi": 0.0,
+       "pval": 1.0,
+       "null_med": 0.0,
+       "df": 657
+      },
+      {
+       "word": "劳动",
+       "present": true,
+       "ppmi": 0.6246,
+       "pval": 0.085,
+       "null_med": 0.0,
+       "df": 1439
+      },
+      {
+       "word": "绩效",
+       "present": false
+      },
+      {
+       "word": "职场",
+       "present": true,
+       "ppmi": 0.0,
+       "pval": 1.0,
+       "null_med": 0.0,
+       "df": 1210
+      },
+      {
+       "word": "打工人",
+       "present": true,
+       "ppmi": 0.0,
+       "pval": 1.0,
+       "null_med": 0.0,
+       "df": 72
+      },
+      {
+       "word": "资本",
+       "present": true,
+       "ppmi": 0.1067,
+       "pval": 0.135,
+       "null_med": 0.0,
+       "df": 2770
+      },
+      {
+       "word": "市场",
+       "present": true,
+       "ppmi": 0.0,
+       "pval": 1.0,
+       "null_med": 0.0,
+       "df": 19550
+      },
+      {
+       "word": "行业",
+       "present": true,
+       "ppmi": 1.4841,
+       "pval": 0.055,
+       "null_med": 0.0,
+       "df": 7749
+      },
+      {
+       "word": "岗位",
+       "present": true,
+       "ppmi": 0.977,
+       "pval": 0.01,
+       "null_med": 0.0,
+       "df": 2326
+      },
+      {
+       "word": "招聘",
+       "present": true,
+       "ppmi": 0.0,
+       "pval": 1.0,
+       "null_med": 0.0,
+       "df": 2381
+      },
+      {
+       "word": "教育",
+       "present": true,
+       "ppmi": 0.0,
+       "pval": 1.0,
+       "null_med": 0.0,
+       "df": 7314
+      }
+     ],
+     "mean_pct": 0.4078,
+     "median_pct": 0.135,
+     "n_top10": 9,
+     "n_top25": 15
+    },
+    "就业": {
+     "present": true,
+     "df": 4324,
+     "n_ctrl": 200,
+     "seed_rows": [
+      {
+       "word": "竞争",
+       "present": true,
+       "ppmi": 0.3171,
+       "pval": 0.11,
+       "null_med": 0.0,
+       "df": 1918
+      },
+      {
+       "word": "加班",
+       "present": true,
+       "ppmi": 0.0,
+       "pval": 1.0,
+       "null_med": 0.0,
+       "df": 767
+      },
+      {
+       "word": "内耗",
+       "present": true,
+       "ppmi": 0.4154,
+       "pval": 0.32,
+       "null_med": 0.0,
+       "df": 65
+      },
+      {
+       "word": "资源",
+       "present": true,
+       "ppmi": 0.0,
+       "pval": 1.0,
+       "null_med": 0.0,
+       "df": 3448
+      },
+      {
+       "word": "稀缺",
+       "present": true,
+       "ppmi": 0.4988,
+       "pval": 0.325,
+       "null_med": 0.0,
+       "df": 163
+      },
+      {
+       "word": "压力",
+       "present": true,
+       "ppmi": 0.7934,
+       "pval": 0.05,
+       "null_med": 0.0,
+       "df": 4464
+      },
+      {
+       "word": "焦虑",
+       "present": true,
+       "ppmi": 0.0,
+       "pval": 1.0,
+       "null_med": 0.0,
+       "df": 691
+      },
+      {
+       "word": "房价",
+       "present": true,
+       "ppmi": 0.0,
+       "pval": 1.0,
+       "null_med": 0.0,
+       "df": 1488
+      },
+      {
+       "word": "就业",
+       "present": true,
+       "ppmi": 2.8827,
+       "pval": 0.0,
+       "null_med": 0.0,
+       "df": 4324
+      },
+      {
+       "word": "学历",
+       "present": true,
+       "ppmi": 0.2601,
+       "pval": 0.105,
+       "null_med": 0.0,
+       "df": 1074
+      },
+      {
+       "word": "考核",
+       "present": true,
+       "ppmi": 0.0,
+       "pval": 1.0,
+       "null_med": 0.0,
+       "df": 649
+      },
+      {
+       "word": "淘汰",
+       "present": true,
+       "ppmi": 0.0,
+       "pval": 1.0,
+       "null_med": 0.0,
+       "df": 630
+      },
+      {
+       "word": "工资",
+       "present": true,
+       "ppmi": 0.0,
+       "pval": 1.0,
+       "null_med": 0.0,
+       "df": 3187
+      },
+      {
+       "word": "薪资",
+       "present": true,
+       "ppmi": 0.6681,
+       "pval": 0.065,
+       "null_med": 0.0,
+       "df": 657
+      },
+      {
+       "word": "劳动",
+       "present": true,
+       "ppmi": 0.4283,
+       "pval": 0.06,
+       "null_med": 0.0,
+       "df": 1439
+      },
+      {
+       "word": "绩效",
+       "present": false
+      },
+      {
+       "word": "职场",
+       "present": true,
+       "ppmi": 0.0288,
+       "pval": 0.085,
+       "null_med": 0.0,
+       "df": 1210
+      },
+      {
+       "word": "打工人",
+       "present": true,
+       "ppmi": 0.0742,
+       "pval": 0.48,
+       "null_med": 0.0,
+       "df": 72
+      },
+      {
+       "word": "资本",
+       "present": true,
+       "ppmi": 0.0,
+       "pval": 1.0,
+       "null_med": 0.0,
+       "df": 2770
+      },
+      {
+       "word": "市场",
+       "present": true,
+       "ppmi": 0.8907,
+       "pval": 0.045,
+       "null_med": 0.0,
+       "df": 19550
+      },
+      {
+       "word": "行业",
+       "present": true,
+       "ppmi": 0.6388,
+       "pval": 0.105,
+       "null_med": 0.0,
+       "df": 7749
+      },
+      {
+       "word": "岗位",
+       "present": true,
+       "ppmi": 2.9278,
+       "pval": 0.005,
+       "null_med": 0.0,
+       "df": 2326
+      },
+      {
+       "word": "招聘",
+       "present": true,
+       "ppmi": 1.9711,
+       "pval": 0.015,
+       "null_med": 0.0,
+       "df": 2381
+      },
+      {
+       "word": "教育",
+       "present": true,
+       "ppmi": 0.2643,
+       "pval": 0.175,
+       "null_med": 0.0,
+       "df": 7314
+      }
+     ],
+     "mean_pct": 0.4324,
+     "median_pct": 0.175,
+     "n_top10": 8,
+     "n_top25": 12
+    },
+    "熵增": {
+     "present": true,
+     "df": 11,
+     "n_ctrl": 200,
+     "seed_rows": [
+      {
+       "word": "竞争",
+       "present": true,
+       "ppmi": 0.0,
+       "pval": 1.0,
+       "null_med": 0.0,
+       "df": 1918
+      },
+      {
+       "word": "加班",
+       "present": true,
+       "ppmi": 0.0,
+       "pval": 1.0,
+       "null_med": 0.0,
+       "df": 767
+      },
+      {
+       "word": "内耗",
+       "present": true,
+       "ppmi": 0.0,
+       "pval": 1.0,
+       "null_med": 0.0,
+       "df": 65
+      },
+      {
+       "word": "资源",
+       "present": true,
+       "ppmi": 1.0148,
+       "pval": 0.01,
+       "null_med": 0.0,
+       "df": 3448
+      },
+      {
+       "word": "稀缺",
+       "present": true,
+       "ppmi": 0.0,
+       "pval": 1.0,
+       "null_med": 0.0,
+       "df": 163
+      },
+      {
+       "word": "压力",
+       "present": true,
+       "ppmi": 0.0,
+       "pval": 1.0,
+       "null_med": 0.0,
+       "df": 4464
+      },
+      {
+       "word": "焦虑",
+       "present": true,
+       "ppmi": 0.0,
+       "pval": 1.0,
+       "null_med": 0.0,
+       "df": 691
+      },
+      {
+       "word": "房价",
+       "present": true,
+       "ppmi": 0.0,
+       "pval": 1.0,
+       "null_med": 0.0,
+       "df": 1488
+      },
+      {
+       "word": "就业",
+       "present": true,
+       "ppmi": 0.0,
+       "pval": 1.0,
+       "null_med": 0.0,
+       "df": 4324
+      },
+      {
+       "word": "学历",
+       "present": true,
+       "ppmi": 0.0,
+       "pval": 1.0,
+       "null_med": 0.0,
+       "df": 1074
+      },
+      {
+       "word": "考核",
+       "present": true,
+       "ppmi": 0.0,
+       "pval": 1.0,
+       "null_med": 0.0,
+       "df": 649
+      },
+      {
+       "word": "淘汰",
+       "present": true,
+       "ppmi": 0.0,
+       "pval": 1.0,
+       "null_med": 0.0,
+       "df": 630
+      },
+      {
+       "word": "工资",
+       "present": true,
+       "ppmi": 0.0,
+       "pval": 1.0,
+       "null_med": 0.0,
+       "df": 3187
+      },
+      {
+       "word": "薪资",
+       "present": true,
+       "ppmi": 0.0,
+       "pval": 1.0,
+       "null_med": 0.0,
+       "df": 657
+      },
+      {
+       "word": "劳动",
+       "present": true,
+       "ppmi": 0.0,
+       "pval": 1.0,
+       "null_med": 0.0,
+       "df": 1439
+      },
+      {
+       "word": "绩效",
+       "present": false
+      },
+      {
+       "word": "职场",
+       "present": true,
+       "ppmi": 0.0,
+       "pval": 1.0,
+       "null_med": 0.0,
+       "df": 1210
+      },
+      {
+       "word": "打工人",
+       "present": true,
+       "ppmi": 0.0,
+       "pval": 1.0,
+       "null_med": 0.0,
+       "df": 72
+      },
+      {
+       "word": "资本",
+       "present": true,
+       "ppmi": 0.0,
+       "pval": 1.0,
+       "null_med": 0.0,
+       "df": 2770
+      },
+      {
+       "word": "市场",
+       "present": true,
+       "ppmi": 0.0,
+       "pval": 1.0,
+       "null_med": 0.0,
+       "df": 19550
+      },
+      {
+       "word": "行业",
+       "present": true,
+       "ppmi": 0.0,
+       "pval": 1.0,
+       "null_med": 0.0,
+       "df": 7749
+      },
+      {
+       "word": "岗位",
+       "present": true,
+       "ppmi": 0.0,
+       "pval": 1.0,
+       "null_med": 0.0,
+       "df": 2326
+      },
+      {
+       "word": "招聘",
+       "present": true,
+       "ppmi": 0.0,
+       "pval": 1.0,
+       "null_med": 0.0,
+       "df": 2381
+      },
+      {
+       "word": "教育",
+       "present": true,
+       "ppmi": 0.0,
+       "pval": 1.0,
+       "null_med": 0.0,
+       "df": 7314
+      }
+     ],
+     "mean_pct": 0.957,
+     "median_pct": 1.0,
+     "n_top10": 1,
+     "n_top25": 1
+    },
+    "腐蚀": {
+     "present": true,
+     "df": 79,
+     "n_ctrl": 200,
+     "seed_rows": [
+      {
+       "word": "竞争",
+       "present": true,
+       "ppmi": 0.0,
+       "pval": 1.0,
+       "null_med": 0.0,
+       "df": 1918
+      },
+      {
+       "word": "加班",
+       "present": true,
+       "ppmi": 0.0,
+       "pval": 1.0,
+       "null_med": 0.0,
+       "df": 767
+      },
+      {
+       "word": "内耗",
+       "present": true,
+       "ppmi": 0.0,
+       "pval": 1.0,
+       "null_med": 0.0,
+       "df": 65
+      },
+      {
+       "word": "资源",
+       "present": true,
+       "ppmi": 0.0,
+       "pval": 1.0,
+       "null_med": 0.0,
+       "df": 3448
+      },
+      {
+       "word": "稀缺",
+       "present": true,
+       "ppmi": 0.0,
+       "pval": 1.0,
+       "null_med": 0.0,
+       "df": 163
+      },
+      {
+       "word": "压力",
+       "present": true,
+       "ppmi": 0.0,
+       "pval": 1.0,
+       "null_med": 0.0,
+       "df": 4464
+      },
+      {
+       "word": "焦虑",
+       "present": true,
+       "ppmi": 0.0,
+       "pval": 1.0,
+       "null_med": 0.0,
+       "df": 691
+      },
+      {
+       "word": "房价",
+       "present": true,
+       "ppmi": 0.0,
+       "pval": 1.0,
+       "null_med": 0.0,
+       "df": 1488
+      },
+      {
+       "word": "就业",
+       "present": true,
+       "ppmi": 0.0,
+       "pval": 1.0,
+       "null_med": 0.0,
+       "df": 4324
+      },
+      {
+       "word": "学历",
+       "present": true,
+       "ppmi": 0.0,
+       "pval": 1.0,
+       "null_med": 0.0,
+       "df": 1074
+      },
+      {
+       "word": "考核",
+       "present": true,
+       "ppmi": 0.0,
+       "pval": 1.0,
+       "null_med": 0.0,
+       "df": 649
+      },
+      {
+       "word": "淘汰",
+       "present": true,
+       "ppmi": 0.0,
+       "pval": 1.0,
+       "null_med": 0.0,
+       "df": 630
+      },
+      {
+       "word": "工资",
+       "present": true,
+       "ppmi": 0.0,
+       "pval": 1.0,
+       "null_med": 0.0,
+       "df": 3187
+      },
+      {
+       "word": "薪资",
+       "present": true,
+       "ppmi": 0.0,
+       "pval": 1.0,
+       "null_med": 0.0,
+       "df": 657
+      },
+      {
+       "word": "劳动",
+       "present": true,
+       "ppmi": 0.7679,
+       "pval": 0.08,
+       "null_med": 0.0,
+       "df": 1439
+      },
+      {
+       "word": "绩效",
+       "present": false
+      },
+      {
+       "word": "职场",
+       "present": true,
+       "ppmi": 0.0,
+       "pval": 1.0,
+       "null_med": 0.0,
+       "df": 1210
+      },
+      {
+       "word": "打工人",
+       "present": true,
+       "ppmi": 0.0,
+       "pval": 1.0,
+       "null_med": 0.0,
+       "df": 72
+      },
+      {
+       "word": "资本",
+       "present": true,
+       "ppmi": 0.25,
+       "pval": 0.13,
+       "null_med": 0.0,
+       "df": 2770
+      },
+      {
+       "word": "市场",
+       "present": true,
+       "ppmi": 0.0,
+       "pval": 1.0,
+       "null_med": 0.0,
+       "df": 19550
+      },
+      {
+       "word": "行业",
+       "present": true,
+       "ppmi": 0.0,
+       "pval": 1.0,
+       "null_med": 0.0,
+       "df": 7749
+      },
+      {
+       "word": "岗位",
+       "present": true,
+       "ppmi": 0.0,
+       "pval": 1.0,
+       "null_med": 0.0,
+       "df": 2326
+      },
+      {
+       "word": "招聘",
+       "present": true,
+       "ppmi": 0.0,
+       "pval": 1.0,
+       "null_med": 0.0,
+       "df": 2381
+      },
+      {
+       "word": "教育",
+       "present": true,
+       "ppmi": 0.0,
+       "pval": 1.0,
+       "null_med": 0.0,
+       "df": 7314
+      }
+     ],
+     "mean_pct": 0.9222,
+     "median_pct": 1.0,
+     "n_top10": 1,
+     "n_top25": 2
+    },
+    "疲惫": {
+     "present": true,
+     "df": 269,
+     "n_ctrl": 200,
+     "seed_rows": [
+      {
+       "word": "竞争",
+       "present": true,
+       "ppmi": 0.0,
+       "pval": 1.0,
+       "null_med": 0.0,
+       "df": 1918
+      },
+      {
+       "word": "加班",
+       "present": true,
+       "ppmi": 0.6798,
+       "pval": 0.215,
+       "null_med": 0.0,
+       "df": 767
+      },
+      {
+       "word": "内耗",
+       "present": true,
+       "ppmi": 1.4786,
+       "pval": 0.02,
+       "null_med": 0.0,
+       "df": 65
+      },
+      {
+       "word": "资源",
+       "present": true,
+       "ppmi": 0.0,
+       "pval": 1.0,
+       "null_med": 0.0,
+       "df": 3448
+      },
+      {
+       "word": "稀缺",
+       "present": true,
+       "ppmi": 0.0,
+       "pval": 1.0,
+       "null_med": 0.0,
+       "df": 163
+      },
+      {
+       "word": "压力",
+       "present": true,
+       "ppmi": 0.0,
+       "pval": 1.0,
+       "null_med": 0.0,
+       "df": 4464
+      },
+      {
+       "word": "焦虑",
+       "present": true,
+       "ppmi": 0.4061,
+       "pval": 0.08,
+       "null_med": 0.0,
+       "df": 691
+      },
+      {
+       "word": "房价",
+       "present": true,
+       "ppmi": 0.0,
+       "pval": 1.0,
+       "null_med": 0.0,
+       "df": 1488
+      },
+      {
+       "word": "就业",
+       "present": true,
+       "ppmi": 0.0,
+       "pval": 1.0,
+       "null_med": 0.0,
+       "df": 4324
+      },
+      {
+       "word": "学历",
+       "present": true,
+       "ppmi": 0.0,
+       "pval": 1.0,
+       "null_med": 0.0,
+       "df": 1074
+      },
+      {
+       "word": "考核",
+       "present": true,
+       "ppmi": 0.0,
+       "pval": 1.0,
+       "null_med": 0.0,
+       "df": 649
+      },
+      {
+       "word": "淘汰",
+       "present": true,
+       "ppmi": 0.4804,
+       "pval": 0.095,
+       "null_med": 0.0,
+       "df": 630
+      },
+      {
+       "word": "工资",
+       "present": true,
+       "ppmi": 0.0,
+       "pval": 1.0,
+       "null_med": 0.0,
+       "df": 3187
+      },
+      {
+       "word": "薪资",
+       "present": true,
+       "ppmi": 0.5527,
+       "pval": 0.07,
+       "null_med": 0.0,
+       "df": 657
+      },
+      {
+       "word": "劳动",
+       "present": true,
+       "ppmi": 0.0,
+       "pval": 1.0,
+       "null_med": 0.0,
+       "df": 1439
+      },
+      {
+       "word": "绩效",
+       "present": false
+      },
+      {
+       "word": "职场",
+       "present": true,
+       "ppmi": 0.0,
+       "pval": 1.0,
+       "null_med": 0.0,
+       "df": 1210
+      },
+      {
+       "word": "打工人",
+       "present": true,
+       "ppmi": 1.1374,
+       "pval": 0.035,
+       "null_med": 0.0,
+       "df": 72
+      },
+      {
+       "word": "资本",
+       "present": true,
+       "ppmi": 0.0,
+       "pval": 1.0,
+       "null_med": 0.0,
+       "df": 2770
+      },
+      {
+       "word": "市场",
+       "present": true,
+       "ppmi": 0.0,
+       "pval": 1.0,
+       "null_med": 0.4262,
+       "df": 19550
+      },
+      {
+       "word": "行业",
+       "present": true,
+       "ppmi": 0.0,
+       "pval": 1.0,
+       "null_med": 0.0,
+       "df": 7749
+      },
+      {
+       "word": "岗位",
+       "present": true,
+       "ppmi": 0.0113,
+       "pval": 0.035,
+       "null_med": 0.0,
+       "df": 2326
+      },
+      {
+       "word": "招聘",
+       "present": true,
+       "ppmi": 0.0,
+       "pval": 1.0,
+       "null_med": 0.0,
+       "df": 2381
+      },
+      {
+       "word": "教育",
+       "present": true,
+       "ppmi": 0.0,
+       "pval": 1.0,
+       "null_med": 0.0,
+       "df": 7314
+      }
+     ],
+     "mean_pct": 0.7196,
+     "median_pct": 1.0,
+     "n_top10": 6,
+     "n_top25": 7
+    }
+   },
+   "phrase_cov": {
+    "内卷": {
+     "thu_social": 1,
+     "zhihu": 1,
+     "zhihu_modern": 85
+    },
+    "就业": {
+     "thu_finance": 665,
+     "thu_politics": 329,
+     "thu_social": 210,
+     "zhihu": 213,
+     "zhihu_modern": 518
+    }
+   }
+  }
+ },
+ "verdict": {
+  "L38-1": [
+   false,
+   "现代语料平均 p 0.364",
+   "24 个社会词的平均 p <= 0.25"
+  ],
+  "L38-2": [
+   true,
+   "p <=10% 的社会词 11 个",
+   "p<=10% 的种子 >= 6 个"
+  ],
+  "L38-3": [
+   true,
+   "现代 0.364 vs 混合 0.408",
+   "现代语料的平均 p 低于混合年代"
+  ],
+  "L38-4": [
+   true,
+   "非社会锚点平均 p 0.905（熵增 0.958、腐蚀 0.958、疲惫 0.799）",
+   "特异性：熵增/腐蚀的平均 p >= 0.35（不该富集）"
+  ],
+  "L38-5": [
+   true,
+   "内卷 p=0.364 vs 熵增 p=0.958",
+   "内卷的社会词 p 必须低于熵增（否则检验被稀有度支配）"
+  ]
+ }
+}

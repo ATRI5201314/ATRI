@@ -1,24 +1,24 @@
 {
- "note": "L36 原始语料不进 git；用 ./fetch_range.sh 按 url+range 重新抓取，sha256 可用于校验。",
+ "note": "原始语料不进 git；用 ./fetch_range.sh 按 url+range 重新抓取，sha256 可校验。",
  "files": [
   {
    "name": "thu_social.jsonl",
    "url": "https://hf-mirror.com/datasets/SirlyDreamer/THUCNews/resolve/main/THUCNews.jsonl",
-   "range": "bytes 1099808000-1334759999",
+   "range": "bytes 1099808000-1334759999 (label=社会)",
    "size": 234952000,
    "sha256": "83a40a911b808a381dc074371b2cb9329edb7657d540532c0018065636b5212e"
   },
   {
    "name": "thu_politics.jsonl",
    "url": "https://hf-mirror.com/datasets/SirlyDreamer/THUCNews/resolve/main/THUCNews.jsonl",
-   "range": "bytes 966332000-1067807999",
+   "range": "bytes 966332000-1067807999 (label=时政)",
    "size": 101476000,
    "sha256": "770dc0464336817c218984a6a527665ceae7cf75a79566ad64aa7f623d3c7f50"
   },
   {
    "name": "thu_finance.jsonl",
    "url": "https://hf-mirror.com/datasets/SirlyDreamer/THUCNews/resolve/main/THUCNews.jsonl",
-   "range": "bytes 2068878000-2224599999",
+   "range": "bytes 2068878000-2224599999 (label=财经/股票)",
    "size": 155722000,
    "sha256": "0494b83bba7ed2185bfa1750557bf73c53c0997679ac39cbd615b074bcf7232d"
   },
@@ -35,6 +35,62 @@
    "range": "whole file",
    "size": 306309311,
    "sha256": "9a9579bcb1d0443dbc205242f55c3fc5dbd8d1b09b1c9bed5cddcdfc94f6fcac"
+  },
+  {
+   "name": "zhihu_kol_1.parquet",
+   "url": "https://hf-mirror.com/datasets/wangrui6/Zhihu-KOL/resolve/main/data/train-00001-of-00005-1fc2da944397e9c2.parquet",
+   "range": "whole file (L37)",
+   "size": 303353725,
+   "sha256": "b5b18149bb0a8a4eab8c617d86d6d59aeed8102896e715364e2c4367406b2456"
+  },
+  {
+   "name": "cqa_zhihu_zhihu_score9.0-10_clean_v10.jsonl",
+   "url": "https://hf-mirror.com/datasets/m-a-p/COIG-CQIA/resolve/main/zhihu/zhihu_score9.0-10_clean_v10.jsonl",
+   "range": "whole file (L37)",
+   "size": 7364243,
+   "sha256": "3263b3c24c94bdb6ad3b9b547594aa1b5c4d3786fa456780c893af28ca86ab20"
+  },
+  {
+   "name": "cqa_zhihu_zhihu_score8.5-9.0_clean_v4.jsonl",
+   "url": "https://hf-mirror.com/datasets/m-a-p/COIG-CQIA/resolve/main/zhihu/zhihu_score8.5-9.0_clean_v4.jsonl",
+   "range": "whole file (L37)",
+   "size": 3346303,
+   "sha256": "86e277a63251c019a11360274e76c0d0b0e76b5b2559d7d7fb1a5273e6b4ffa4"
+  },
+  {
+   "name": "cqa_zhihu_zhihu_score8.0-8.5_clean_v3.jsonl",
+   "url": "https://hf-mirror.com/datasets/m-a-p/COIG-CQIA/resolve/main/zhihu/zhihu_score8.0-8.5_clean_v3.jsonl",
+   "range": "whole file (L37)",
+   "size": 3236988,
+   "sha256": "2dd9954e8ad41eee9b0c0823938f299472779b0757234a237c56f83d1fac6a86"
+  },
+  {
+   "name": "cqa_xhs_xhs.jsonl",
+   "url": "https://hf-mirror.com/datasets/m-a-p/COIG-CQIA/resolve/main/xhs/xhs.jsonl",
+   "range": "whole file (L37)",
+   "size": 2792512,
+   "sha256": "2dec66a37209974ae61cc14294d49fb5aef0fd6886a360f9a8563aa7f347f62b"
+  },
+  {
+   "name": "cqa_douban_movie_reviews.jsonl",
+   "url": "https://hf-mirror.com/datasets/m-a-p/COIG-CQIA/resolve/main/douban/movie_reviews.jsonl",
+   "range": "whole file (L37)",
+   "size": 918882,
+   "sha256": "60ba054a3973e9301316efaa1525b27202e5dc8ef5c6878acc9813c067c13336"
+  },
+  {
+   "name": "cqa_douban_tv_reviews.jsonl",
+   "url": "https://hf-mirror.com/datasets/m-a-p/COIG-CQIA/resolve/main/douban/tv_reviews.jsonl",
+   "range": "whole file (L37)",
+   "size": 686151,
+   "sha256": "db5cb354a8db1447d54ce2878b5b114e52b3fd02707e4b1c622d4dad6f52bc57"
+  },
+  {
+   "name": "cqa_segmentfault_segmentfault_upvote5_clean.jsonl",
+   "url": "https://hf-mirror.com/datasets/m-a-p/COIG-CQIA/resolve/main/segmentfault/segmentfault_upvote5_clean.jsonl",
+   "range": "whole file (L37)",
+   "size": 891367,
+   "sha256": "c0d7a67e341902602bd09cdc7e46d76c0b4c455f7332838d99fb4e0f0952de8f"
   }
  ]
 }

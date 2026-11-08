@@ -1210,16 +1210,19 @@ def measure_metaphor(vocab, P, S, E, e, p, margin, FP, FPmu, wid_of, senses, dfv
 
 # ============================ 内卷：两把尺子 ============================
 
-def analyze_involution(vocab, P, wid_of, pair_src, dfv, margin, phrase_ctx, phrase_ctx_src):
+def analyze_involution(vocab, P, wid_of, pair_src, dfv, margin, phrase_ctx, phrase_ctx_src,
+                       src_list=None):
     i = wid_of.get('内卷', -1)
     if i < 0:
         return {'present': False, 'why': '「内卷」不在词表（df 低于准入线）'}
+    srcs_iter = src_list or ['thu_social', 'thu_politics', 'thu_finance',
+                             'zhihu', 'zhihu_modern']
     rows_ppmi = []
     idx, val = row_top(P, i, 20)
     for r, j in enumerate(idx):
         w = vocab[int(j)]
         sc = Counter()
-        for src in ['thu_social', 'thu_politics', 'thu_finance', 'zhihu', 'zhihu_modern']:
+        for src in srcs_iter:
             c = pair_src.get(('内卷', w, src), 0)
             if not c:
                 c = phrase_ctx_src.get(('内卷', w, src), 0)
@@ -1238,7 +1241,7 @@ def analyze_involution(vocab, P, wid_of, pair_src, dfv, margin, phrase_ctx, phra
             continue
         rank += 1
         sc = Counter()
-        for src in ['thu_social', 'thu_politics', 'thu_finance', 'zhihu', 'zhihu_modern']:
+        for src in srcs_iter:
             c = phrase_ctx_src.get(('内卷', w, src), 0)
             if c:
                 sc[src] = int(c)
