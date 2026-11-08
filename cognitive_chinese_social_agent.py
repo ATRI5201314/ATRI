@@ -546,7 +546,8 @@ def load_or_build_pass_a(con):
                 meta, old_items, dfv_old, flag_of, stats = pickle.load(f)
             n_doc = con.execute('SELECT COUNT(*) FROM l36_doc').fetchone()[0]
             n_seq = con.execute('SELECT COUNT(*) FROM l36_seq').fetchone()[0]
-            if n_doc == n_seq and n_doc > 0 and stats.get('n_doc') == n_doc:
+            # pass_a 的 n_doc 计所有文档，seq 只记分词后 >=8 词的文档，两者本来就不等
+            if n_doc > 0 and n_seq > 0 and stats.get('n_doc') == n_doc:
                 print('  [reuse] 载入分词缓存：%d 篇 / %d 词种'
                       % (n_doc, len(old_items)), flush=True)
                 return meta, old_items, dfv_old, flag_of, stats
@@ -1286,7 +1287,7 @@ def analyze_involution(vocab, P, wid_of, pair_src, dfv, margin, phrase_ctx, phra
 
 # ============================ 判决 ============================
 
-def make_verdict(meta, vocab, idiom_rows, admitted, top_e, top_p, inv, metas):
+def make_verdict(meta, vocab, idiom_rows, admitted, top_e, top_p, inv, metas, rnull=None):
     social_docs = int(meta['src_docs'].get('thu_social', 0))
     ok1 = bool(meta['chars'] >= TARGET_CHARS
                and social_docs >= (300 if FAST else 5000)
@@ -1338,6 +1339,14 @@ def make_verdict(meta, vocab, idiom_rows, admitted, top_e, top_p, inv, metas):
         'L36-3b': [bool(inv.get('ruler_verdict', {}).get('ctx')) if inv.get('present') else False,
                    '（第二把尺，敏感性检验）' + d3.split('；')[-1] if inv.get('present') else '内卷不在词表',
                    '同一判据换成「真实上下文共现次数」排序（预注册第二把尺）'],
+        'L36-3c': [bool(rnull and rnull.get('credible') and rnull.get('has_power')),
+                   ('阴性对照 %d 个通过 %d 个（%.1f%%）；阳性对照 %d 个通过 %d 个（%s）'
+                    % (rnull['n_ctrl'], rnull['n_pass'], rnull['pass_rate'] * 100,
+                       len(rnull.get('pos', [])), rnull.get('n_pos_pass', 0),
+                       '、'.join('%s:%d' % (r['word'], r['social_hits'])
+                                for r in rnull.get('pos', [])))) if rnull and rnull.get('ok')
+                   else '控制词池为空',
+                   '证伪：阴性通过率 <=10% 且阳性至少一个通过，尺二才算既不通吃也不失效'],
         'L36-4': [ok4, d4, '两组中文隐喻至少一组跳数与指纹同时 <=10% 分位'],
     }
 
@@ -1359,7 +1368,7 @@ def jsonable(o):
 
 
 def save_outputs(con, meta, vocab, dfv, flagv, idiom_rows, admitted, top_e, top_p,
-                 inv, metas, verdict, sense_report, stats, anchors):
+                 inv, metas, verdict, sense_report, stats, anchors, rnull=None):
     cur = con.cursor()
     for t in ['l36_vocab', 'l36_idiom', 'l36_neighbor', 'l36_metaphor',
               'l36_meta', 'l36_verdict']:
@@ -1427,6 +1436,7 @@ def save_outputs(con, meta, vocab, dfv, flagv, idiom_rows, admitted, top_e, top_
         'metaphor': metas,
         'senses': sense_report,
         'phrase_cov': cov,
+        'ruler_null': rnull,
         'verdict': verdict,
     }
     with open(OUT_JSON, 'w', encoding='utf-8') as f:
@@ -1434,13 +1444,27 @@ def save_outputs(con, meta, vocab, dfv, flagv, idiom_rows, admitted, top_e, top_
     return payload
 
 
-def _one_line(v, inv):
-    if sum(1 for x in v.values() if x[0]) == len(v):
-        return '全部通过：语料、成语、内卷邻居、中文隐喻都站住了。'
+def _one_line(v, inv, rnull=None):
+    if all(x[0] for x in v.values()):
+        return '全部通过：语料、成语、内卷邻居（两把尺 + 证伪）、中文隐喻都站住了。'
     if inv.get('present') and inv.get('ruler_verdict', {}).get('ctx'):
-        return ('同一批语料、同一张图，换一把尺子结论就不同：PPMI 把「内卷」的邻居判给稀有泛化词，'
-                '按真实上下文共现次数排，「竞争/资源/压力」才浮出来。判 FAIL 的是主尺，'
-                '第二把尺只证明「社会语义确实在语料里」，不证明主尺没问题。')
+        rn = rnull or {}
+        if rn.get('ok') and not rn.get('credible'):
+            return ('第二把尺虽然让「竞争/行业/市场」浮了出来，但它在 df 同量级的控制词上'
+                    '通过率 %.0f%%——这把尺量不出「内卷」的特殊性，只能量出「这批语料的窗口里'
+                    '到处都是社会词」。所以 L36-3 的结论仍然是：主尺 FAIL 成立，替补尺也不可信。'
+                    % (rn['pass_rate'] * 100))
+        if rn.get('ok'):
+            ph = [r['social_hits'] for r in rn.get('pos', [])]
+            return ('同一张图，换一把尺子结论就不同：PPMI 把「内卷」的邻居判给稀有泛化词，'
+                    '按真实上下文共现排，「竞争/行业/市场」才浮出来。但这把尺经不起吹——'
+                    '60 个同 df 阴性对照通过 %.0f%%（不通吃），%d 个已知社会词只有 %d 个过线（不灵敏）。'
+                    '「内卷」拿到 %d 个，是刚过线。所以 L36-3b 只在字面上成立，效应量很小；'
+                    '主尺 FAIL 不变。'
+                    % (rn['pass_rate'] * 100, len(ph), sum(1 for x in ph if x >= 3),
+                       len(inv.get('ctx', {}).get('social_hits', []))))
+        return ('同一张图，换一把尺子结论就不同：PPMI 把「内卷」的邻居判给稀有泛化词，'
+                '按真实上下文共现排，「竞争/行业/市场」才浮出来。')
     return ('本轮最硬的事实是：判决没有为了让报告好看而放宽。哪一条没通过，就写哪一条没通过。')
 
 
@@ -1464,6 +1488,58 @@ def write_report(payload):
         for w in ['内卷', '熵增', '人情世故', '家国情怀', '网暴', '打工人', '键盘侠'])
     cov_head = '| 短语 | ' + ' | '.join(srcs) + ' | 合计 |'
     cov_sep = '|---' * (len(srcs) + 2) + '|'
+
+    rn = payload.get('ruler_null') or {}
+    if rn.get('ok'):
+        ex_rows = '\n'.join('| %s | %d | %d | %s |'
+                            % (r['word'], r['df'], r['social_hits'],
+                               '、'.join(r['hit_words'][:5]) or '-')
+                            for r in rn.get('examples', [])) or '| （无） | - | - | - |'
+        if rn['credible'] and rn.get('has_power'):
+            null_verdict = ('阴性通过率 **%.1f%% ≤ 10%%**，阳性通过 %d/%d。'
+                            '尺二**既不通吃、也不失效**：它是能被社会含义触发的。'
+                            % (rn['pass_rate'] * 100, rn.get('n_pos_pass', 0),
+                               len(rn.get('pos', []))))
+        elif rn['credible']:
+            null_verdict = ('阴性通过率 **%.1f%%**，但阳性通过 **0/%d** —— '
+                            '尺二严到连已知社会词都测不出，**没有分辨力**，'
+                            'L36-3b 的 PASS 只能说明「内卷恰好撞上了」，不能说明它「被拽回来了」。'
+                            % (rn['pass_rate'] * 100, len(rn.get('pos', []))))
+        else:
+            null_verdict = ('阴性通过率 **%.1f%% > 10%%**，尺二**被推翻**：'
+                            'L36-3b 的 PASS 不能当作「社会语义被拽回来了」的证据，'
+                            '它更可能只是「df 同量级的词，其 ±60 字窗口里本来就会混进社会词」。'
+                            % (rn['pass_rate'] * 100))
+        pos_rows = '\n'.join('| %s | %d | %s | %s |'
+                             % (r['word'], r['df'], r['social_hits'],
+                                '、'.join(r['hit_words'][:5]) or '-')
+                             for r in rn.get('pos', [])) or '| （无） | - | - | - |'
+        ph = [r['social_hits'] for r in rn.get('pos', [])]
+        if ph:
+            caveat = ('\n\n**必须跟着说的一句**：阳性对照的社会词命中是 %s（中位数 %g）。'
+                      '%d 个已知社会词里只有 %d 个过线，说明「>=3 个社会词」这条判据本身就偏严。'
+                      '「内卷」拿到 %d，是刚过线，不是压倒性优势。'
+                      '换句话说：L36-3b 的 PASS 成立于字面，但效应量很小——'
+                      '它证明「内卷周围确实有社会词」，不证明「内卷的社会语义已经从其他词里脱颖而出」。'
+                      % (' / '.join('%s %d' % (r['word'], r['social_hits'])
+                                    for r in rn.get('pos', [])),
+                         float(np.median(np.array(ph))), len(ph),
+                         sum(1 for x in ph if x >= 3),
+                         len(inv.get('ctx', {}).get('social_hits', []))))
+        else:
+            caveat = ''
+        null_block = ('- 阴性对照 **%d** 个（df %d–%d），通过 **%d** 个（**%.1f%%**）\n'
+                      '- 阴性对照的社会词命中：中位数 **%.0f** / 均值 **%.1f**（「内卷」是 %d）\n'
+                      '- %s\n\n'
+                      '| 阴性对照里通过的词 | df | 社会词命中 | 命中了哪些 |\n|---|---|---|---|\n%s\n\n'
+                      '**阳性对照**（已知社会词，用完全相同的构造与判据）：\n\n'
+                      '| 社会词 | df | 社会词命中 | 命中了哪些 |\n|---|---|---|---|\n%s%s'
+                      % (rn['n_ctrl'], rn['band'][0], rn['band'][1], rn['n_pass'],
+                         rn['pass_rate'] * 100, rn['median_hits'], rn['mean_hits'],
+                         len(inv.get('ctx', {}).get('social_hits', [])), null_verdict,
+                         ex_rows, pos_rows, caveat))
+    else:
+        null_block = '（控制词池为空，本项未能测量）'
 
     def nb_rows(ruler):
         rows = inv.get(ruler, {}).get('neighbors', []) if inv.get('present') else []
@@ -1662,6 +1738,12 @@ L35 的中文维基语料里，「内卷」的邻居是植物学词（花瓣、�
 
 PPMI 的分母里高频词的列和很大，稀有词对天然占便宜。这条表只用来说明失败发生在哪一层，不改变判决。
 
+### 3.4 证伪：第二把尺在控制词上会不会也「通过」
+
+尺二通过之后，第一件事是问它是不是随便什么词都能通过。**预注册**：控制词 = 与「内卷」df 同量级（`[50, 300]`）、不在社会词表 / 植物词表 / 点名短语 / 隐喻头词里的词，用 `SEED` 随机抽 60 个；对每个控制词使用**与「内卷」完全相同的构造**（原文 ±60 字窗口 → 分词 → 词频 → top-20）和**完全相同的判据**。若控制词通过率 > 10%，则 L36-3b 的 PASS 只是「df 同量级的词窗口里本来就会混进社会词」，应一并推翻。
+
+{null_block}
+
 ## 4. 中文隐喻测验（全中文，不给英文）
 
 双通道：kNN 骨架上的测地线跳数 + 张力指纹距离。分位数由「频率/度匹配零模型」给出（{n_null} 对随机词），阈值预注册为 **两个通道都 <=10% 分位**。
@@ -1720,8 +1802,9 @@ PPMI 的分母里高频词的列和很大，稀有词对天然占便宜。这条
         vsp='过' if inv.get('ruler_verdict', {}).get('ppmi') else '不过',
         vsc='过' if inv.get('ruler_verdict', {}).get('ctx') else '不过',
         diag_rows=diag_rows, n_null=payload['params']['N_NULL'],
+        null_block=null_block,
         m_rows=m_rows, sense_rows=sense_rows,
-        vd=vd, one_line=_one_line(v, inv))
+        vd=vd, one_line=_one_line(v, inv, payload.get('ruler_null')))
 
     with open(OUT_MD, 'w', encoding='utf-8') as f:
         f.write(md)
@@ -1797,6 +1880,102 @@ def draw(payload):
         print('  图写入 %s' % PNG, flush=True)
     except Exception as e:
         print('  [draw] 跳过：%s' % e, flush=True)
+
+
+# ============================ 第二把尺的证伪 ============================
+
+def ruler_null_test(con, vocab, wid_of, dfv, n_ctrl=60, lo=50, hi=300,
+                    pos_words=('就业', '加班', '职场', '学历')):
+    """证明「尺二」不是只要是个词就能凑出社会词，也不是严到一个词都测不出。
+
+    预注册：
+      阴性对照（控制词）= 与「内卷」df 同量级（[lo, hi]）、不在社会词表/植物词表/
+        点名短语/隐喻头词里的词，用 SEED 随机抽 n_ctrl 个；
+      阳性对照 = 语料里明确的社会词（就业/加班/职场/学历）。
+    对每个词用与「内卷」完全相同的构造（原文 ±60 字窗口 → 分词 → 词频 → top-20）
+    和完全相同的判据。
+    判读：阴性通过率 > 10% → 尺二被推翻（万能通过）；
+          阳性一个都过不了 → 尺二无分辨力（严到测不出东西）。
+    """
+    print('[6b] 证伪：第二把尺在控制词 / 阳性对照上会不会也「通过」', flush=True)
+    excl = set(SOCIAL_SEEDS) | set(BOTANY_WORDS) | set(TRACKED) | set(HEADS)
+    cand = [w for w in vocab
+            if lo <= int(dfv[wid_of[w]]) <= hi and w not in excl]
+    if not cand:
+        return {'ok': False, 'why': '控制词池为空'}
+    rng2 = np.random.default_rng(SEED)
+    ctrl = list(rng2.choice(np.array(cand, dtype=object),
+                            size=min(n_ctrl, len(cand)), replace=False))
+    ctrl = [str(w) for w in ctrl]
+    pos = [w for w in pos_words if w in wid_of]
+
+    ctxs = {w: Counter() for w in ctrl + pos}
+    cur = con.cursor()
+    cur.execute('SELECT text FROM l36_doc')
+    while True:
+        rows = cur.fetchmany(400)
+        if not rows:
+            break
+        for (text,) in rows:
+            for w in ctxs:
+                if w not in text:
+                    continue
+                for m in re.finditer(re.escape(w), text):
+                    snip = text[max(0, m.start() - 60):m.end() + 60]
+                    cw = ctxs[w]
+                    for w2, _ in tokenize_text(snip):
+                        if w2 != w:
+                            cw[w2] += 1
+
+    def rule_for(counts):
+        rank = 0
+        rows = []
+        for w2, n in sorted(counts.items(), key=lambda x: -x[1]):
+            j = wid_of.get(w2)
+            if j is None:
+                continue
+            rank += 1
+            rows.append((w2, int(n)))
+            if rank >= 20:
+                break
+        top8 = [w for w, _ in rows[:8]]
+        hits = [w for w, _ in rows if w in SOCIAL_SEEDS]
+        bot = [w for w in top8 if w in BOTANY_WORDS]
+        return (len(hits) >= 3 and len(bot) == 0), len(hits), len(bot), hits[:6]
+
+    res = []
+    for w in ctrl:
+        ok, nh, nb, ex = rule_for(ctxs[w])
+        res.append({'word': w, 'df': int(dfv[wid_of[w]]), 'pass': bool(ok),
+                    'social_hits': nh, 'botany_top8': nb, 'hit_words': ex})
+    n_pass = sum(1 for r in res if r['pass'])
+    rate = n_pass / max(1, len(res))
+    hits_arr = np.array([r['social_hits'] for r in res], dtype=np.float32)
+    print('  阴性对照 %d 个（df %d–%d）：通过 %d 个（%.1f%%），社会词命中 中位数 %.0f / 均值 %.1f'
+          % (len(res), lo, hi, n_pass, rate * 100, float(np.median(hits_arr)),
+             float(hits_arr.mean())), flush=True)
+    ex = [r for r in res if r['pass']][:3]
+    for r in ex:
+        print('    通过示例：%s（df=%d，命中 %s）'
+              % (r['word'], r['df'], '、'.join(r['hit_words'])), flush=True)
+
+    pres = []
+    for w in pos:
+        ok, nh, nb, ex2 = rule_for(ctxs[w])
+        pres.append({'word': w, 'df': int(dfv[wid_of[w]]), 'pass': bool(ok),
+                     'social_hits': nh, 'botany_top8': nb, 'hit_words': ex2})
+    n_pos = sum(1 for r in pres if r['pass'])
+    print('  阳性对照 %d 个：通过 %d 个（%s）'
+          % (len(pres), n_pos,
+             '、'.join('%s(%d)' % (r['word'], r['social_hits']) for r in pres)), flush=True)
+
+    power = bool(len(pres) > 0 and n_pos > 0)
+    return {'ok': True, 'band': [lo, hi], 'n_ctrl': len(res), 'n_pass': n_pass,
+            'pass_rate': round(float(rate), 4), 'median_hits': float(np.median(hits_arr)),
+            'mean_hits': round(float(hits_arr.mean()), 2),
+            'credible': bool(rate <= 0.10), 'controls': res,
+            'examples': ex,
+            'pos': pres, 'n_pos_pass': n_pos, 'has_power': power}
 
 
 # ============================ 主流程 ============================
@@ -1878,12 +2057,16 @@ def main():
     inv = analyze_involution(vocab, P, wid_of, pair_src, dfv, margin,
                              stats.get('phrase_ctx', {}), stats.get('phrase_ctx_src', {}))
 
-    verdict = make_verdict(meta, vocab, idiom_rows, admitted, top_e, top_p, inv, metas)
+    rnull = ruler_null_test(con, vocab, wid_of, dfv)
+    mem_guard('ruler_null')
+
+    verdict = make_verdict(meta, vocab, idiom_rows, admitted, top_e, top_p, inv, metas, rnull)
     print('\n判决：' + ' | '.join('%s %s' % (k, 'PASS' if x[0] else 'FAIL')
                                 for k, x in verdict.items()), flush=True)
 
     payload = save_outputs(con, meta, vocab, dfv, flagv, idiom_rows, admitted,
-                           top_e, top_p, inv, metas, verdict, sense_report, stats, anchors)
+                           top_e, top_p, inv, metas, verdict, sense_report, stats, anchors,
+                           rnull)
     write_report(payload)
     draw(payload)
     con.close()

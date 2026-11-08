@@ -2982,6 +2982,596 @@
    "zhihu_modern": 59
   }
  },
+ "ruler_null": {
+  "ok": true,
+  "band": [
+   50,
+   300
+  ],
+  "n_ctrl": 60,
+  "n_pass": 0,
+  "pass_rate": 0.0,
+  "median_hits": 0.0,
+  "mean_hits": 0.42,
+  "credible": true,
+  "controls": [
+   {
+    "word": "内向",
+    "df": 299,
+    "pass": false,
+    "social_hits": 0,
+    "botany_top8": 0,
+    "hit_words": []
+   },
+   {
+    "word": "赔付",
+    "df": 208,
+    "pass": false,
+    "social_hits": 0,
+    "botany_top8": 0,
+    "hit_words": []
+   },
+   {
+    "word": "体彩",
+    "df": 172,
+    "pass": false,
+    "social_hits": 0,
+    "botany_top8": 0,
+    "hit_words": []
+   },
+   {
+    "word": "公告牌",
+    "df": 182,
+    "pass": false,
+    "social_hits": 0,
+    "botany_top8": 0,
+    "hit_words": []
+   },
+   {
+    "word": "砍断",
+    "df": 146,
+    "pass": false,
+    "social_hits": 0,
+    "botany_top8": 0,
+    "hit_words": []
+   },
+   {
+    "word": "农户",
+    "df": 153,
+    "pass": false,
+    "social_hits": 0,
+    "botany_top8": 0,
+    "hit_words": []
+   },
+   {
+    "word": "提成",
+    "df": 202,
+    "pass": false,
+    "social_hits": 1,
+    "botany_top8": 0,
+    "hit_words": [
+     "工资"
+    ]
+   },
+   {
+    "word": "光学",
+    "df": 217,
+    "pass": false,
+    "social_hits": 0,
+    "botany_top8": 0,
+    "hit_words": []
+   },
+   {
+    "word": "狂奔",
+    "df": 172,
+    "pass": false,
+    "social_hits": 0,
+    "botany_top8": 0,
+    "hit_words": []
+   },
+   {
+    "word": "免疫力",
+    "df": 146,
+    "pass": false,
+    "social_hits": 0,
+    "botany_top8": 0,
+    "hit_words": []
+   },
+   {
+    "word": "跳出",
+    "df": 214,
+    "pass": false,
+    "social_hits": 2,
+    "botany_top8": 0,
+    "hit_words": [
+     "市场",
+     "行业"
+    ]
+   },
+   {
+    "word": "千万别",
+    "df": 265,
+    "pass": false,
+    "social_hits": 0,
+    "botany_top8": 0,
+    "hit_words": []
+   },
+   {
+    "word": "逆势",
+    "df": 269,
+    "pass": false,
+    "social_hits": 1,
+    "botany_top8": 0,
+    "hit_words": [
+     "市场"
+    ]
+   },
+   {
+    "word": "顾虑",
+    "df": 147,
+    "pass": false,
+    "social_hits": 1,
+    "botany_top8": 0,
+    "hit_words": [
+     "教育"
+    ]
+   },
+   {
+    "word": "高血压",
+    "df": 213,
+    "pass": false,
+    "social_hits": 0,
+    "botany_top8": 0,
+    "hit_words": []
+   },
+   {
+    "word": "掏钱",
+    "df": 172,
+    "pass": false,
+    "social_hits": 0,
+    "botany_top8": 0,
+    "hit_words": []
+   },
+   {
+    "word": "心目",
+    "df": 199,
+    "pass": false,
+    "social_hits": 0,
+    "botany_top8": 0,
+    "hit_words": []
+   },
+   {
+    "word": "为难",
+    "df": 179,
+    "pass": false,
+    "social_hits": 0,
+    "botany_top8": 0,
+    "hit_words": []
+   },
+   {
+    "word": "向来",
+    "df": 149,
+    "pass": false,
+    "social_hits": 1,
+    "botany_top8": 0,
+    "hit_words": [
+     "市场"
+    ]
+   },
+   {
+    "word": "客气",
+    "df": 177,
+    "pass": false,
+    "social_hits": 0,
+    "botany_top8": 0,
+    "hit_words": []
+   },
+   {
+    "word": "绘制",
+    "df": 168,
+    "pass": false,
+    "social_hits": 0,
+    "botany_top8": 0,
+    "hit_words": []
+   },
+   {
+    "word": "学分",
+    "df": 224,
+    "pass": false,
+    "social_hits": 0,
+    "botany_top8": 0,
+    "hit_words": []
+   },
+   {
+    "word": "收受",
+    "df": 267,
+    "pass": false,
+    "social_hits": 0,
+    "botany_top8": 0,
+    "hit_words": []
+   },
+   {
+    "word": "周期性",
+    "df": 144,
+    "pass": false,
+    "social_hits": 2,
+    "botany_top8": 0,
+    "hit_words": [
+     "市场",
+     "行业"
+    ]
+   },
+   {
+    "word": "忠实",
+    "df": 150,
+    "pass": false,
+    "social_hits": 1,
+    "botany_top8": 0,
+    "hit_words": [
+     "市场"
+    ]
+   },
+   {
+    "word": "近两年",
+    "df": 196,
+    "pass": false,
+    "social_hits": 1,
+    "botany_top8": 0,
+    "hit_words": [
+     "市场"
+    ]
+   },
+   {
+    "word": "搬家",
+    "df": 202,
+    "pass": false,
+    "social_hits": 0,
+    "botany_top8": 0,
+    "hit_words": []
+   },
+   {
+    "word": "B超",
+    "df": 177,
+    "pass": false,
+    "social_hits": 0,
+    "botany_top8": 0,
+    "hit_words": []
+   },
+   {
+    "word": "牛排",
+    "df": 162,
+    "pass": false,
+    "social_hits": 0,
+    "botany_top8": 0,
+    "hit_words": []
+   },
+   {
+    "word": "锤子",
+    "df": 274,
+    "pass": false,
+    "social_hits": 0,
+    "botany_top8": 0,
+    "hit_words": []
+   },
+   {
+    "word": "交叉口",
+    "df": 154,
+    "pass": false,
+    "social_hits": 0,
+    "botany_top8": 0,
+    "hit_words": []
+   },
+   {
+    "word": "绝不会",
+    "df": 155,
+    "pass": false,
+    "social_hits": 1,
+    "botany_top8": 0,
+    "hit_words": [
+     "行业"
+    ]
+   },
+   {
+    "word": "告破",
+    "df": 167,
+    "pass": false,
+    "social_hits": 0,
+    "botany_top8": 0,
+    "hit_words": []
+   },
+   {
+    "word": "幽默",
+    "df": 234,
+    "pass": false,
+    "social_hits": 0,
+    "botany_top8": 0,
+    "hit_words": []
+   },
+   {
+    "word": "瑞银",
+    "df": 267,
+    "pass": false,
+    "social_hits": 1,
+    "botany_top8": 0,
+    "hit_words": [
+     "市场"
+    ]
+   },
+   {
+    "word": "施救",
+    "df": 200,
+    "pass": false,
+    "social_hits": 0,
+    "botany_top8": 0,
+    "hit_words": []
+   },
+   {
+    "word": "金融公司",
+    "df": 200,
+    "pass": false,
+    "social_hits": 1,
+    "botany_top8": 0,
+    "hit_words": [
+     "市场"
+    ]
+   },
+   {
+    "word": "范例",
+    "df": 295,
+    "pass": false,
+    "social_hits": 0,
+    "botany_top8": 0,
+    "hit_words": []
+   },
+   {
+    "word": "核准",
+    "df": 165,
+    "pass": false,
+    "social_hits": 0,
+    "botany_top8": 0,
+    "hit_words": []
+   },
+   {
+    "word": "不法分子",
+    "df": 186,
+    "pass": false,
+    "social_hits": 0,
+    "botany_top8": 0,
+    "hit_words": []
+   },
+   {
+    "word": "不惜",
+    "df": 190,
+    "pass": false,
+    "social_hits": 1,
+    "botany_top8": 0,
+    "hit_words": [
+     "市场"
+    ]
+   },
+   {
+    "word": "栏杆",
+    "df": 192,
+    "pass": false,
+    "social_hits": 0,
+    "botany_top8": 0,
+    "hit_words": []
+   },
+   {
+    "word": "赌债",
+    "df": 152,
+    "pass": false,
+    "social_hits": 0,
+    "botany_top8": 0,
+    "hit_words": []
+   },
+   {
+    "word": "高质量",
+    "df": 296,
+    "pass": false,
+    "social_hits": 1,
+    "botany_top8": 0,
+    "hit_words": [
+     "教育"
+    ]
+   },
+   {
+    "word": "参保",
+    "df": 153,
+    "pass": false,
+    "social_hits": 0,
+    "botany_top8": 0,
+    "hit_words": []
+   },
+   {
+    "word": "实名",
+    "df": 149,
+    "pass": false,
+    "social_hits": 0,
+    "botany_top8": 0,
+    "hit_words": []
+   },
+   {
+    "word": "基建",
+    "df": 145,
+    "pass": false,
+    "social_hits": 2,
+    "botany_top8": 0,
+    "hit_words": [
+     "行业",
+     "市场"
+    ]
+   },
+   {
+    "word": "见识",
+    "df": 242,
+    "pass": false,
+    "social_hits": 0,
+    "botany_top8": 0,
+    "hit_words": []
+   },
+   {
+    "word": "红军",
+    "df": 195,
+    "pass": false,
+    "social_hits": 0,
+    "botany_top8": 0,
+    "hit_words": []
+   },
+   {
+    "word": "短缺",
+    "df": 155,
+    "pass": false,
+    "social_hits": 2,
+    "botany_top8": 0,
+    "hit_words": [
+     "市场",
+     "资源"
+    ]
+   },
+   {
+    "word": "打折",
+    "df": 213,
+    "pass": false,
+    "social_hits": 1,
+    "botany_top8": 0,
+    "hit_words": [
+     "市场"
+    ]
+   },
+   {
+    "word": "广阔",
+    "df": 265,
+    "pass": false,
+    "social_hits": 1,
+    "botany_top8": 0,
+    "hit_words": [
+     "市场"
+    ]
+   },
+   {
+    "word": "精神病院",
+    "df": 196,
+    "pass": false,
+    "social_hits": 0,
+    "botany_top8": 0,
+    "hit_words": []
+   },
+   {
+    "word": "弯曲",
+    "df": 205,
+    "pass": false,
+    "social_hits": 0,
+    "botany_top8": 0,
+    "hit_words": []
+   },
+   {
+    "word": "关税",
+    "df": 146,
+    "pass": false,
+    "social_hits": 1,
+    "botany_top8": 0,
+    "hit_words": [
+     "市场"
+    ]
+   },
+   {
+    "word": "俯卧撑",
+    "df": 187,
+    "pass": false,
+    "social_hits": 0,
+    "botany_top8": 0,
+    "hit_words": []
+   },
+   {
+    "word": "软组织",
+    "df": 170,
+    "pass": false,
+    "social_hits": 0,
+    "botany_top8": 0,
+    "hit_words": []
+   },
+   {
+    "word": "耕地",
+    "df": 248,
+    "pass": false,
+    "social_hits": 0,
+    "botany_top8": 0,
+    "hit_words": []
+   },
+   {
+    "word": "最差",
+    "df": 251,
+    "pass": false,
+    "social_hits": 1,
+    "botany_top8": 0,
+    "hit_words": [
+     "市场"
+    ]
+   },
+   {
+    "word": "峰值",
+    "df": 222,
+    "pass": false,
+    "social_hits": 2,
+    "botany_top8": 0,
+    "hit_words": [
+     "市场",
+     "房价"
+    ]
+   }
+  ],
+  "examples": [],
+  "pos": [
+   {
+    "word": "就业",
+    "df": 4324,
+    "pass": false,
+    "social_hits": 2,
+    "botany_top8": 0,
+    "hit_words": [
+     "市场",
+     "岗位"
+    ]
+   },
+   {
+    "word": "加班",
+    "df": 767,
+    "pass": false,
+    "social_hits": 2,
+    "botany_top8": 0,
+    "hit_words": [
+     "工资",
+     "行业"
+    ]
+   },
+   {
+    "word": "职场",
+    "df": 1210,
+    "pass": false,
+    "social_hits": 1,
+    "botany_top8": 0,
+    "hit_words": [
+     "招聘"
+    ]
+   },
+   {
+    "word": "学历",
+    "df": 1074,
+    "pass": true,
+    "social_hits": 4,
+    "botany_top8": 0,
+    "hit_words": [
+     "教育",
+     "行业",
+     "岗位",
+     "招聘"
+    ]
+   }
+  ],
+  "n_pos_pass": 1,
+  "has_power": true
+ },
  "verdict": {
   "L36-1": [
    true,
@@ -3002,6 +3592,11 @@
    true,
    "（第二把尺，敏感性检验）尺二 上下文：社会词 3 个 / top-8 植物词 0 个 → 过",
    "同一判据换成「真实上下文共现次数」排序（预注册第二把尺）"
+  ],
+  "L36-3c": [
+   true,
+   "阴性对照 60 个通过 0 个（0.0%）；阳性对照 4 个通过 1 个（就业:2、加班:2、职场:1、学历:4）",
+   "证伪：阴性通过率 <=10% 且阳性至少一个通过，尺二才算既不通吃也不失效"
   ],
   "L36-4": [
    true,
