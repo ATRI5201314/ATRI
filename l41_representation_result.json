@@ -1,0 +1,255 @@
+{
+ "train": {
+  "samples": 29061,
+  "pred": 105501
+ },
+ "worlds": {
+  "T0": {
+   "name": "原世界",
+   "params": {
+    "n": 14,
+    "food": [
+     0.88,
+     0.12
+    ],
+    "nest": [
+     0.52,
+     0.52
+    ],
+    "pred_every": 2
+   },
+   "n_starts": 20,
+   "policies": {
+    "M_abs": {
+     "episodes": 20,
+     "death_rate": 0.0,
+     "reach_rate": 1.0,
+     "mean_steps": 16.0,
+     "refusals": 0,
+     "plans": 61,
+     "safe_plans": 61
+    },
+    "M_rel": {
+     "episodes": 20,
+     "death_rate": 1.0,
+     "reach_rate": 0.0,
+     "mean_steps": 46.0,
+     "refusals": 148,
+     "plans": 291,
+     "safe_plans": 143
+    },
+    "M_relb": {
+     "episodes": 20,
+     "death_rate": 0.0,
+     "reach_rate": 1.0,
+     "mean_steps": 16.4,
+     "refusals": 0,
+     "plans": 61,
+     "safe_plans": 61
+    },
+    "reactive": {
+     "episodes": 20,
+     "death_rate": 1.0,
+     "reach_rate": 0.0,
+     "mean_steps": 15.5,
+     "refusals": 0,
+     "plans": 0,
+     "safe_plans": 0
+    }
+   }
+  },
+  "T1": {
+   "name": "换布局",
+   "params": {
+    "n": 14,
+    "food": [
+     0.12,
+     0.88
+    ],
+    "nest": [
+     0.52,
+     0.52
+    ],
+    "pred_every": 2
+   },
+   "n_starts": 20,
+   "policies": {
+    "M_abs": {
+     "episodes": 20,
+     "death_rate": 1.0,
+     "reach_rate": 0.0,
+     "mean_steps": 46.0,
+     "refusals": 60,
+     "plans": 240,
+     "safe_plans": 180
+    },
+    "M_rel": {
+     "episodes": 20,
+     "death_rate": 1.0,
+     "reach_rate": 0.0,
+     "mean_steps": 46.8,
+     "refusals": 136,
+     "plans": 296,
+     "safe_plans": 160
+    },
+    "M_relb": {
+     "episodes": 20,
+     "death_rate": 0.0,
+     "reach_rate": 1.0,
+     "mean_steps": 16.4,
+     "refusals": 0,
+     "plans": 61,
+     "safe_plans": 61
+    },
+    "reactive": {
+     "episodes": 20,
+     "death_rate": 1.0,
+     "reach_rate": 0.0,
+     "mean_steps": 15.9,
+     "refusals": 0,
+     "plans": 0,
+     "safe_plans": 0
+    }
+   }
+  },
+  "T3": {
+   "name": "小世界",
+   "params": {
+    "n": 10,
+    "food": [
+     0.88,
+     0.12
+    ],
+    "nest": [
+     0.52,
+     0.52
+    ],
+    "pred_every": 2
+   },
+   "n_starts": 20,
+   "policies": {
+    "M_abs": {
+     "episodes": 20,
+     "death_rate": 0.0,
+     "reach_rate": 1.0,
+     "mean_steps": 16.8,
+     "refusals": 13,
+     "plans": 77,
+     "safe_plans": 64
+    },
+    "M_rel": {
+     "episodes": 20,
+     "death_rate": 0.65,
+     "reach_rate": 0.35,
+     "mean_steps": 32.2,
+     "refusals": 7,
+     "plans": 120,
+     "safe_plans": 113
+    },
+    "M_relb": {
+     "episodes": 20,
+     "death_rate": 0.0,
+     "reach_rate": 1.0,
+     "mean_steps": 13.2,
+     "refusals": 6,
+     "plans": 52,
+     "safe_plans": 46
+    },
+    "reactive": {
+     "episodes": 20,
+     "death_rate": 1.0,
+     "reach_rate": 0.0,
+     "mean_steps": 11.3,
+     "refusals": 0,
+     "plans": 0,
+     "safe_plans": 0
+    }
+   }
+  },
+  "T4": {
+   "name": "大世界",
+   "params": {
+    "n": 18,
+    "food": [
+     0.12,
+     0.88
+    ],
+    "nest": [
+     0.5,
+     0.5
+    ],
+    "pred_every": 2
+   },
+   "n_starts": 20,
+   "policies": {
+    "M_abs": {
+     "episodes": 20,
+     "death_rate": 1.0,
+     "reach_rate": 0.0,
+     "mean_steps": 46.1,
+     "refusals": 121,
+     "plans": 280,
+     "safe_plans": 159
+    },
+    "M_rel": {
+     "episodes": 20,
+     "death_rate": 1.0,
+     "reach_rate": 0.9,
+     "mean_steps": 45.1,
+     "refusals": 86,
+     "plans": 226,
+     "safe_plans": 140
+    },
+    "M_relb": {
+     "episodes": 20,
+     "death_rate": 0.0,
+     "reach_rate": 1.0,
+     "mean_steps": 20.3,
+     "refusals": 0,
+     "plans": 78,
+     "safe_plans": 78
+    },
+    "reactive": {
+     "episodes": 20,
+     "death_rate": 1.0,
+     "reach_rate": 0.0,
+     "mean_steps": 21.1,
+     "refusals": 0,
+     "plans": 0,
+     "safe_plans": 0
+    }
+   }
+  }
+ },
+ "verdict": {
+  "L41-1": [
+   true,
+   "M_abs T0 死亡 0.000",
+   "装置自检：绝对索引在原世界应 0 死亡"
+  ],
+  "L41-2": [
+   false,
+   "M_rel T1 死亡 1.000",
+   "只换索引（不加感官）换布局存活 >= 0.80"
+  ],
+  "L41-3": [
+   true,
+   "M_relb T1 死亡 0.000",
+   "索引 + 食物方位，换布局存活 >= 0.80"
+  ],
+  "L41-4": [
+   true,
+   "M_relb T0 0.000 / T3 0.000",
+   "不退化：原世界 <=0.05 且小世界 <=0.20"
+  ],
+  "L41-5": [
+   true,
+   "瓶颈 = 表征 + 感官（索引与方位都要给）",
+   "判定迁移成败的根因层级"
+  ]
+ },
+ "params": {
+  "episodes": 20,
+  "steps": 60
+ }
+}
