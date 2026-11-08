@@ -1,0 +1,292 @@
+{
+ "train": {
+  "n": 14,
+  "samples": 105608,
+  "cells": 1176,
+  "pred_keys": 1458
+ },
+ "worlds": {
+  "T0": {
+   "name": "原世界",
+   "params": {
+    "n": 14,
+    "food": [
+     0.88,
+     0.12
+    ],
+    "nest": [
+     0.52,
+     0.52
+    ],
+    "pred_every": 2
+   },
+   "coverage": 1.0,
+   "n_starts": 24,
+   "policies": {
+    "offline": {
+     "episodes": 24,
+     "death_rate": 0.0,
+     "reach_rate": 1.0,
+     "mean_steps": 15.7,
+     "mean_reserve": 0.362,
+     "refusals": 0,
+     "plans": 73,
+     "safe_plans": 73,
+     "fidelity": 73,
+     "safe_rate": 1.0
+    },
+    "reactive": {
+     "episodes": 24,
+     "death_rate": 1.0,
+     "reach_rate": 0.0,
+     "mean_steps": 15.7,
+     "mean_reserve": 0.393,
+     "refusals": 0,
+     "plans": 0,
+     "safe_plans": 0,
+     "fidelity": 0,
+     "safe_rate": 0.0
+    },
+    "oracle": {
+     "episodes": 24,
+     "death_rate": 0.0,
+     "reach_rate": 1.0,
+     "mean_steps": 14.3,
+     "mean_reserve": 0.378,
+     "refusals": 0,
+     "plans": 0,
+     "safe_plans": 0,
+     "fidelity": 0,
+     "safe_rate": 0.0
+    }
+   }
+  },
+  "T1": {
+   "name": "换布局",
+   "params": {
+    "n": 14,
+    "food": [
+     0.12,
+     0.88
+    ],
+    "nest": [
+     0.52,
+     0.52
+    ],
+    "pred_every": 2
+   },
+   "coverage": 1.0,
+   "n_starts": 24,
+   "policies": {
+    "offline": {
+     "episodes": 24,
+     "death_rate": 1.0,
+     "reach_rate": 0.0,
+     "mean_steps": 47.5,
+     "mean_reserve": 0.0,
+     "refusals": 65,
+     "plans": 268,
+     "safe_plans": 203,
+     "fidelity": 194,
+     "safe_rate": 0.757
+    },
+    "reactive": {
+     "episodes": 24,
+     "death_rate": 1.0,
+     "reach_rate": 0.0,
+     "mean_steps": 16.0,
+     "mean_reserve": 0.39,
+     "refusals": 0,
+     "plans": 0,
+     "safe_plans": 0,
+     "fidelity": 0,
+     "safe_rate": 0.0
+    },
+    "oracle": {
+     "episodes": 24,
+     "death_rate": 0.0,
+     "reach_rate": 1.0,
+     "mean_steps": 14.5,
+     "mean_reserve": 0.376,
+     "refusals": 0,
+     "plans": 0,
+     "safe_plans": 0,
+     "fidelity": 0,
+     "safe_rate": 0.0
+    }
+   }
+  },
+  "T2": {
+   "name": "换节律",
+   "params": {
+    "n": 14,
+    "food": [
+     0.88,
+     0.12
+    ],
+    "nest": [
+     0.52,
+     0.52
+    ],
+    "pred_every": 3
+   },
+   "coverage": 1.0,
+   "n_starts": 24,
+   "policies": {
+    "offline": {
+     "episodes": 24,
+     "death_rate": 0.0,
+     "reach_rate": 1.0,
+     "mean_steps": 16.0,
+     "mean_reserve": 0.358,
+     "refusals": 0,
+     "plans": 73,
+     "safe_plans": 73,
+     "fidelity": 73,
+     "safe_rate": 1.0
+    },
+    "reactive": {
+     "episodes": 24,
+     "death_rate": 1.0,
+     "reach_rate": 0.0,
+     "mean_steps": 23.0,
+     "mean_reserve": 0.32,
+     "refusals": 0,
+     "plans": 0,
+     "safe_plans": 0,
+     "fidelity": 0,
+     "safe_rate": 0.0
+    }
+   }
+  },
+  "T3": {
+   "name": "小世界",
+   "params": {
+    "n": 10,
+    "food": [
+     0.88,
+     0.12
+    ],
+    "nest": [
+     0.52,
+     0.52
+    ],
+    "pred_every": 2
+   },
+   "coverage": 1.0,
+   "n_starts": 24,
+   "policies": {
+    "offline": {
+     "episodes": 24,
+     "death_rate": 0.0,
+     "reach_rate": 1.0,
+     "mean_steps": 14.5,
+     "mean_reserve": 0.376,
+     "refusals": 10,
+     "plans": 68,
+     "safe_plans": 58,
+     "fidelity": 38,
+     "safe_rate": 0.853
+    },
+    "reactive": {
+     "episodes": 24,
+     "death_rate": 1.0,
+     "reach_rate": 0.0,
+     "mean_steps": 11.3,
+     "mean_reserve": 0.436,
+     "refusals": 0,
+     "plans": 0,
+     "safe_plans": 0,
+     "fidelity": 0,
+     "safe_rate": 0.0
+    },
+    "oracle": {
+     "episodes": 24,
+     "death_rate": 0.0,
+     "reach_rate": 1.0,
+     "mean_steps": 10.8,
+     "mean_reserve": 0.42,
+     "refusals": 0,
+     "plans": 0,
+     "safe_plans": 0,
+     "fidelity": 0,
+     "safe_rate": 0.0
+    }
+   }
+  },
+  "T4": {
+   "name": "大世界",
+   "params": {
+    "n": 18,
+    "food": [
+     0.12,
+     0.88
+    ],
+    "nest": [
+     0.5,
+     0.5
+    ],
+    "pred_every": 2
+   },
+   "coverage": 0.605,
+   "n_starts": 24,
+   "policies": {
+    "offline": {
+     "episodes": 24,
+     "death_rate": 1.0,
+     "reach_rate": 0.0,
+     "mean_steps": 47.3,
+     "mean_reserve": 0.0,
+     "refusals": 97,
+     "plans": 293,
+     "safe_plans": 196,
+     "fidelity": 190,
+     "safe_rate": 0.669
+    },
+    "reactive": {
+     "episodes": 24,
+     "death_rate": 1.0,
+     "reach_rate": 0.0,
+     "mean_steps": 20.8,
+     "mean_reserve": 0.343,
+     "refusals": 0,
+     "plans": 0,
+     "safe_plans": 0,
+     "fidelity": 0,
+     "safe_rate": 0.0
+    }
+   }
+  }
+ },
+ "verdict": {
+  "L40-1": [
+   true,
+   "T0 死亡 0.000 / 到达 1.000",
+   "同世界复现：存活率 >= 0.95"
+  ],
+  "L40-2": [
+   false,
+   "换布局 死亡 1.000 / 到达 0.000（覆盖 1.000）",
+   "存活率 >= 0.80"
+  ],
+  "L40-3": [
+   true,
+   "换节律 死亡 0.000 / 到达 1.000（覆盖 1.000）",
+   "存活率 >= 0.80"
+  ],
+  "L40-4": [
+   true,
+   "小世界 死亡 0.000 / 到达 1.000（覆盖 1.000）",
+   "存活率 >= 0.80"
+  ],
+  "L40-5": [
+   false,
+   "换布局/换节律/换尺度三条：未全过 → 地图（换布局）",
+   "三条全过判定为「世界」，否则为「地图」"
+  ]
+ },
+ "params": {
+  "episodes": 24,
+  "steps": 60
+ }
+}
